@@ -42,4 +42,52 @@ So, how will we choose our function *f*?
 &nbsp;&nbsp;&nbsp;-what does "...with one variable" mean? It simply means the model we are working with has only one feature *x*  
 &nbsp;&nbsp;&nbsp;-another name is *univariate linear regression*  
 
-TO DO : `Optional Lab : Model representation`
+## Cost function formula  
+-a cost function tells us how well the model is doing  
+
+- - -  
+<span style="color:yellow">A minor digression : </span>  
+&nbsp;&nbsp;&nbsp;-remember that a linear equation is defined as **f(x) = f<sub>w,b</sub>(x) = wx + b**  
+&nbsp;&nbsp;&nbsp;-**w**, and **b** are called *parameters* of the ML model  
+&nbsp;&nbsp;&nbsp;-*parameters* of the model are the variables you can adjust during training to improve the model  
+&nbsp;&nbsp;&nbsp;-*parameters* can often be called *coefficients*, or *weights*  
+- - -  
+  
+-the problem we are facing when training a model is (in case of linear regression) **how do we choose parameters *w*,*b*, so that the predicted value y-hat (y^) is as close as possible to y<sup>^</sup> for all (x<sup>i</sup>, y<sup>^</sup>)?**  
+  
+-we will measure how well a line fits the training data - this is a **cost function!**  
+  
+-first we will comapare y-hat to y - this is called the **error** :  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y<sup>hat</sup> - y  
+  
+-we want to compute the square error, and we will natuarally do it for all available training example :  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(y<sup>hat<sup>i</sup></sup> - y<sup>i</sup>)<sup>2</sup>  
+  
+-considering this is done for all training set examples, the cost function would behave unreliably in the sense that with more training set examples, cost function would inevitably always increase, thus negating the useful information it is carrying  
+-therefore, we will always compute the average  
+-finally, we have the final expression :  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; J(w,b) = $\frac{{1}}{2m}$ $\sum_{i=1}^{m} $(y<sup>hat<sup>i</sup></sup> - y<sup>i</sup>)<sup>2</sup>  
+  
+-why is the averaging done using `2m` for division?  
+&nbsp;&nbsp;&nbsp;-it makes some of our calculations a bit cleaner, but it can also be done using only `m` for division  
+  
+-this function is actually something you are well acquainted to : **square errror cost function!**  
+  
+-squared error cost function is by far the most used one for regression problems  
+  
+## Cost function intuition  
+-our goal is to minimize our cost function : `min(J(w,b))`  
+  
+-we have some trained model which gave us some kind of curve or a straigth line based on the data it trained on  
+-the point of cost function is to play dumb a bit, and say "I wonder what y-hat value I'd get if I inputed x<sup>i</sup> value in my model"  
+-naturally the model will spit out some value y-hat - a *prediction*  
+-however, we were playing dumb a bit - the parameter feature x<sup>i</sup> we inputed already has some known, true, value y<sup>i</sup>  
+-then we can determine the difference between the true value and the predicted value, using cost function, to determine how our model is behaving compared to what the real data is  
+  
+TO DO : build a python cost function visualizer for linear equation  
+&nbsp;&nbsp;&nbsp;&nbsp;-generate a random 2D data set comprised of x,y vals  
+&nbsp;&nbsp;&nbsp;&nbsp;-then play dumb a bit, and generate a couple of linear equations, pretending they are ML outputs, each with different parameters *w* and *b*  
+&nbsp;&nbsp;&nbsp;&nbsp;-then evaluate each linear equation for its cost  
+&nbsp;&nbsp;&nbsp;&nbsp;-considering we are working with linear equation (**f(x) = wx + b**), the cost function will be a 3D curve. Why? Because we are effectively dealing with three variables  
+
+TO DO : Visualization examples
