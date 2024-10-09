@@ -90,4 +90,49 @@ TO DO : build a python cost function visualizer for linear equation
 &nbsp;&nbsp;&nbsp;&nbsp;-then evaluate each linear equation for its cost  
 &nbsp;&nbsp;&nbsp;&nbsp;-considering we are working with linear equation (**f(x) = wx + b**), the cost function will be a 3D curve. Why? Because we are effectively dealing with three variables  
 
-TO DO : Visualization examples
+## Visualization examples  
+-not notes taken  
+-when implementing your cost function visualizer, remember that there is `Optional Lab : Cost function` if you need to take a look or need inspiration  
+  
+- - -
+## Gradient descent  
+-**gradient descent** is an algorithm which enables us to systematically find optimal model parameters  
+-it is one of the most popular optimization algorithms in ML overall, not just for linear regression  
+  
+-algorithm outline :  
+&nbsp;&nbsp;&nbsp;-start with some *w*,*b* (most often you start with 0)  
+&nbsp;&nbsp;&nbsp;-keep changin *w*, *b* to reduce J(w,b)  
+&nbsp;&nbsp;&nbsp;-by changing values of paramters settle at, or near, minimum  
+&nbsp;&nbsp;&nbsp;-remember : depending on how the cost function is defined, you might have more than one minimum  
+  
+### Implementing gradient descent  
+-now we will outline, step by step, what each iteration of gradient descent does  
+  
+w = w - $\alpha$ $\frac{\partial }{\partial w}$ J(w,b)  
+What does the equation above mean?  
+&nbsp;&nbsp;&nbsp;It can literally be intepreted like this :  
+&nbsp;&nbsp;&nbsp;&nbsp;-update the the value w, by taking the current value w, and adjusting it by a small amount (the section right of the subtraction sign)  
+  
+-what is $\alpha$?  
+&nbsp;&nbsp;&nbsp;-$\alpha$ is called **learning rate**  
+&nbsp;&nbsp;&nbsp;-it is usually a small positive number  
+&nbsp;&nbsp;&nbsp;-it basically shows how big our step is in each loop of gradient descent  
+  
+-the derivative part basically tells in which direction we want to move when moving from current position  
+  
+-the expression for b is relatively similar  
+  
+b = b - $\alpha$ $\frac{\partial}{\partial b}$ J(w,b)  
+  
+-these two equations are repated until our algorithm converges  
+-what does convergence indicate here? Basically that we've reached a point where parameters *w* and *b* do not change that much anymore with each additional step  
+  
+-**IMPORTANT** : parameters *w* and *b* must be updated/computed **simultaneously**  
+&nbsp;&nbsp;&nbsp;-why? Because, once we've computed the new, updated, parameter *w*, we still need to compute our new parameter *b*, but this must be done using the *w* value which was used when calculating the new parameter *w*  
+&nbsp;&nbsp;&nbsp;-if you immediately updated *w* with the newly computed value, you would be computing the new value *b* using the modified value *w*  
+&nbsp;&nbsp;&nbsp;-think of it like this : cost function freezes during each iteration; only once you've computed all new parameter values can you plug them back into the cost function  
+  
+-gradient descent should be implemented using the *simultaneous update* described above  
+&nbsp;&nbsp;&nbsp;-however, even if you accidentally mess up, and don't update the paramters simultaneously, the gradient descent algorithm will probably work more or less ok (it probably adds a small error, or prolongs the seeking time)  
+
+`TO DO : Gradient descent intuition`
