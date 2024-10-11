@@ -135,4 +135,55 @@ b = b - $\alpha$ $\frac{\partial}{\partial b}$ J(w,b)
 -gradient descent should be implemented using the *simultaneous update* described above  
 &nbsp;&nbsp;&nbsp;-however, even if you accidentally mess up, and don't update the paramters simultaneously, the gradient descent algorithm will probably work more or less ok (it probably adds a small error, or prolongs the seeking time)  
 
-`TO DO : Gradient descent intuition`
+## Gradient descent intuition  
+-a derivative, generally speaking, indicates the rate of change  
+-in our case, we are basically looking, at a given point of some model parameter (e.g. *w*, or *b*) what the derivative of J(w,b) will be W.R.T. say parameter *w*  
+-if the derivative is positive (meaning the tangent in that points points upwards towards the first quadrant), further steps of the observed parameter to the right will lead to an increase of J(w,b) (and vice versa also applies)  
+-**note** : what you described in the remark above is the exact reason why you have subtraction in the term used to compute updated *w* and *b* values for each gradient descent iteration :  
+w = w **-** $\alpha$ $\frac{\partial }{\partial w}$ J(w,b)  
+w = _w - $\alpha \cdot (positiveValueFromPartialDerivative)$  --> this moves *w* leftwards!  
+&nbsp;&nbsp;&nbsp;-this means that if the partial derivative indicates a positive change, we actually do not want that positive change - if this positive step was present in the equation used to compute updated parameters our parameters would diverge,
+not converge to the smallest possible cost function!  
+  
+## Learning rate  
+-learning rate has a big impact on the learning process  
+  
+-if $\alpha$ is too small, each partial derivative result will be multiplied by this immensly small $\alpha$ value  
+&nbsp;&nbsp;&nbsp;-eventually gradient descent will reach the necessary results, but in doing so it will waste more time than necessary because each
+step will be extremely slow  
+&nbsp;&nbsp;&nbsp;-gradient descent will be too slow  
+
+if $\alpha$ is too large, the coarsness of each step may cause your parameter to oscillate  
+&nbsp;&nbsp;&nbsp;-due to oscillating, it might end up reaching the end of gradient descent, however, it might simply continue continue oscillating, never converging to a desired value  
+  
+-what if, the cost function we are evaluating our parameters on, is not a squared error cost function, but instead
+some funky curve, containing one global minimum and multiple local minimums  
+&nbsp;&nbsp;&nbsp;-let us assume your gradient descent algorithm has reached a local minimum - however this is not the global minimum, which we'd like to reach  
+&nbsp;&nbsp;&nbsp;-further gradient descent iterations do nothing  
+  
+-note that, even though learning rate is fixed, the partial derivative (ie. rate of change) decreases as we approach local minimum  
+  
+## Gradient descent for linear regression  
+**NOTE** : in this lecture/video everything gets assembled - squared error cost function will be used for our linear regression model with gradient descent  
+This allows us to train the linear regression model to fit a straight line to some data.  
+  
+**Linear regression model** : f<sub>w,b</sub>(x) = wx + b  
+  
+**Cost function** : J(w,b) = $\frac{1}{2m}$ $\sum_{i=1}^{m} $(f<sub>w,b</sub>(x<sup>i</sup>) - y<sup>i</sup>)<sup>2</sup>  
+  
+**Gradient descent algorithm** : already explained, won't inflate notes rewriting it again  
+&nbsp;&nbsp;&nbsp;-however, I will note the partial derivatives here  
+&nbsp;&nbsp;&nbsp;-until convergence is reached we repeat :   
+  
+&nbsp;&nbsp;&nbsp; $\frac{\partial}{\partial w}$ J(w,b) = $\frac{1}{m}$ $\sum_{i=1}^{m} $(f<sub>w,b</sub>(x<sup>i</sup>) - y<sup>i</sup>) x<sup>i</sup>  
+&nbsp;&nbsp;&nbsp; $\frac{\partial}{\partial b}$ J(w,b) = $\frac{1}{m}$ $\sum_{i=1}^{m} $(f<sub>w,b</sub>(x<sup>i</sup>) - y<sup>i</sup>)  
+  
+-squared error cost will always result in a "bowl" shaped cost function (mathematically correct term would be **convex function**, therefore a *convex* shape)  
+-however, cost functions won't always be squared error costs - often times you might get wild, funky 3D plots having multiple local minimums  
+  
+## Running graadient descent  
+-batch gradient descent - each step of gradient descent uses **all* available training examples  
+-*Lab : Gradient descent* has their implementation of gradient descent
+
+**TO DO** : try making a gradient descent example with visual representation of each gradient descent run - color "older", worse fits with blue, and then have a gradient transition over all its iteration to the most appropriate line (best fit),
+which will be colored red  
