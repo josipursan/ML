@@ -181,7 +181,7 @@ This allows us to train the linear regression model to fit a straight line to so
 -squared error cost will always result in a "bowl" shaped cost function (mathematically correct term would be **convex function**, therefore a *convex* shape)  
 -however, cost functions won't always be squared error costs - often times you might get wild, funky 3D plots having multiple local minimums  
   
-## Running graadient descent  
+## Running gradient descent  
 -batch gradient descent - each step of gradient descent uses **all* available training examples  
 -*Lab : Gradient descent* has their implementation of gradient descent
 
