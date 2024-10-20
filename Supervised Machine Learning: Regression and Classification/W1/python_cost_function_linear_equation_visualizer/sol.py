@@ -19,7 +19,7 @@ def main():
     plt.plot(x_vals, y_vals, 'r')   # line of original, real function is drawn as a red, solid line
     #plt.show()
 
-    # We assume we are searcing for a model of linear eq format : y = f(x) = wx + b
+    # We assume we are searching for a model of linear eq format : y = f(x) = wx + b
     # We will randomly generate a random number of w,b pairs, and then compute cost function for each such function, as well a plot these linear equations to plot
     number_of_lines_to_generate = random.randrange(20) #this means we will generate max of 20 random linear lines
     w_b_pairs = []  # array of arrays; each subarray represents [w,b] values in that order
