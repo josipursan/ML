@@ -1,5 +1,5 @@
 """
-This sol.py implements multivariate linear regression with grad desc.
+This sol.py implements multiple variable linear regression with grad desc.
 Primary source of information for ML, during this time period, was Andrew Ng's Supervised ML course on Coursera : https://www.coursera.org/learn/machine-learning
 
 My notes about what is implemented here : https://github.com/josipursan/ML/blob/main/Supervised%20Machine%20Learning%3A%20Regression%20and%20Classification/W2/Notes.md 
@@ -59,7 +59,7 @@ def f(x):
         return_values[i] = np.dot(x[i], w) + 8.9
     return return_values
 
-def multivariate_linear_regression_gradient_descent():
+def multiple_variable_linear_regression_gradient_descent():
     # Let's generate a random "real" model that we will want to model
     number_of_training_examples = 4
     #x_vals = np.empty(shape=(number_of_training_examples, 4)) # 4,4 shape means 4 rows and 4 columns (4 rows represent distinct training examples; 4 columns represent features of each training example)
@@ -112,4 +112,4 @@ def multivariate_linear_regression_gradient_descent():
     print("Last cost : {}\nLast used parameters --> w : {} b : {}\n".format(all_costs[-1], all_w_attempts[-1], all_b_attempts[-1]))
 
 
-multivariate_linear_regression_gradient_descent()
+multiple_variable_linear_regression_gradient_descent()
