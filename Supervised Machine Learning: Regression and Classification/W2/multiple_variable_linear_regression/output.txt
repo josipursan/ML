@@ -1,0 +1,7 @@
+Last cost after 1000 iteratons : 686.7133402763521
+
+Last w prediction : [ 0.20396569  0.00374919 -0.0112487  -0.0658614 ]
+Last b prediction : -0.002235407530932535
+
+Real y_vals : [460 232 178]
+Predicted y : [426.18530497 286.16747201 171.46763087]
