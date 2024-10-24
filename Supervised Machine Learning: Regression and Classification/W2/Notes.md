@@ -17,7 +17,7 @@
   
 -x<sub>j</sub> = represents the j<sup>th</sup> feature  
 -`n` - number of features  
--$\vec{x}$<sup>i</sup> = features of the i<sup>th</sup> training example (vector containing all features of the i<sup>th</sup> training example)  
+$\vec{x}$ <sup>i</sup> = features of the i<sup>th</sup> training example (vector containing all features of the i<sup>th</sup> training example)  
 &nbsp;&nbsp;&nbsp;-example : $\vec{x}$<sup>2</sup> - vector of features for the second training example (ie. the second row in table)  
 -x<sub>j</sub><sup>(i)</sup> - value of feature *j* in the i<sup>th</sup> training example  
 &nbsp;&nbsp;&nbsp;-example : x<sub>3</sub><sup>(2)</sup> refers to the value of third feature in the second training example; third feature is *number of floors*, and the second training example refers to the second table row, meaning we are referring to value **2**  
@@ -31,9 +31,9 @@
   
 -now we will simplify the expression above  
 -all `w` parameters can be written as a row vector :  
-&nbsp;&nbsp;&nbsp;$\vec{w}$ = [w<sub>1</sub>, w<sub>2</sub>, ..., w<sub>n</sub>]  
+&nbsp;&nbsp;&nbsp; $\vec{w}$ = [w<sub>1</sub>, w<sub>2</sub>, ..., w<sub>n</sub>]  
 -all `x` inputs can be written as a row vector :  
-&nbsp;&nbsp;&nbsp;$\vec{x}$ = [x<sub>1</sub>, x<sub>2</sub>, ..., x<sub>n</sub>]  
+&nbsp;&nbsp;&nbsp; $\vec{x}$ = [x<sub>1</sub>, x<sub>2</sub>, ..., x<sub>n</sub>]  
 -`b` is just a scalar  
   
 -now the model can be written more succintly :  
@@ -48,8 +48,8 @@ NOTE : in the expression above, `w` in subscript of `f` should also have a vecto
 ## Vectorization part 1  
 -makes the code shorter, simpler and executes quicker  
   
--$\vec{w}$ = [w<sub>1</sub>, w<sub>2</sub>, w<sub>3</sub>]  
--$\vec{x}$ = [x<sub>1</sub>, x<sub>2</sub>, x<sub>3</sub>]  
+- $\vec{w}$ = [w<sub>1</sub>, w<sub>2</sub>, w<sub>3</sub>]  
+- $\vec{x}$ = [x<sub>1</sub>, x<sub>2</sub>, x<sub>3</sub>]  
 -`b` is a scalar  
   
 -in python, using numpy :  
@@ -72,8 +72,8 @@ NOTE : in the expression above, `w` in subscript of `f` should also have a vecto
 -we have 16 `w` params because we have 16 input variables  
 -because we have 16 input variables, we will also have 16 derivative terms to compute  
 -imagine we have already computed all of these derivative terms, and that they are stored in a row vector called `d` (`w`is in a row vector as well) :  
-&nbsp;&nbsp;&nbsp;$\vec{w}$ = [w<sub>1</sub>, w<sub>2</sub>, w<sub>3</sub>, ..., w<sub>16</sub>]  
-&nbsp;&nbsp;&nbsp;$\vec{d}$ = [d<sub>1</sub>, d<sub>2</sub>, d<sub>3</sub>, ..., d<sub>16</sub>]  
+&nbsp;&nbsp;&nbsp; $\vec{w}$ = [w<sub>1</sub>, w<sub>2</sub>, w<sub>3</sub>, ..., w<sub>16</sub>]  
+&nbsp;&nbsp;&nbsp; $\vec{d}$ = [d<sub>1</sub>, d<sub>2</sub>, d<sub>3</sub>, ..., d<sub>16</sub>]  
   
 -remember that the update term for `w` when running grad desc is w<sub>j</sub> = w<sub>j</sub> - $\alpha$*d<sub>j</sub> for j = 1,...,16  
   
@@ -88,7 +88,7 @@ NOTE : in the expression above, `w` in subscript of `f` should also have a vecto
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`w[j] = w[j] - alpha*d[j]`  
   
 -using vectorization, we can use can clean, pretty line of code, which also makes the code maintenance easier :  
-&nbsp;&nbsp;&nbsp;$\vec{w}$ = $\vec{w}$ - 0.1*$\vec{d}$  
+&nbsp;&nbsp;&nbsp; $\vec{w}$ = $\vec{w}$ - 0.1* $\vec{d}$  
 -in python : `w = w - 0.1*d`  
   
 -using vectorized implementation will result in a huge difference in run time and efficiency  
