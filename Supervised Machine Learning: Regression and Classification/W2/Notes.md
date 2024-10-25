@@ -194,3 +194,38 @@ NOTE : in the expression above, `w` in subscript of `f` should also have a vecto
 &nbsp;&nbsp;&nbsp;-too small ranges get rescaled  
   
 -there is almost never any harm to carring feature rescaling - when in doubt, do it  
+  
+## Checking gradient descent for convergence  
+-objective of gradient descent is to find values w,b that minimize the cost function J (ie. we want the smallest possible error between what our model predicts, and what the real values should be)  
+  
+-a plot showing the relationship between the number of run iterations and the cost function is called **the learning curve**  
+  
+-if grad desc is working properly, generally speaking, cost (J($\vec w$, b)) should decrease after every iteration  
+  
+-if the cost tends to increase it usually indicates your **alpha** value is **too large**, or you have a **bug** in code  
+  
+-plotting this plot also allows us to figure out after how many iterations we can claim cost has coverged - often times the learning curve will level off, ie. reaching a point after which every iteration of w,b parameters does not improve the model drastically as before  
+  
+-number of iterations is dependent on the model - some will require a lot of iterations, some a small number  
+  
+-**automatic convergence test** - another method of deciding when our model is sufficiently trained  
+&nbsp;&nbsp;&nbsp;-let $\epsilon$ be $10^{-3}$ (0.001)  
+&nbsp;&nbsp;&nbsp;-what is the point of $\epsilon$?  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-if J($\vec w$, b) decreases by less than $\epsilon$ in one iteration, we can declare it has converged (ie. the last used w,b parameters are considered the best)  
+&nbsp;&nbsp;&nbsp;-however, another issue can be pointed out here - how should we choose $\epsilon$?  
+  
+-I like the graph a lot more; I am plotting always anyways, so it is a no brainer  
+  
+## Feature engineering  
+-engineering/making/creating new features based on the given features  
+   
+-example :  
+&nbsp;&nbsp;&nbsp;-you are given two features : height (x<sub>1</sub>) and weight (x<sub>2</sub>)  
+&nbsp;&nbsp;&nbsp;-using height and weight you can enginner a third feature based on the first two features : BMI (x<sub>3</sub>)  
+  
+## Polynomial regression  
+-and now the fun begins :smiley:  
+  
+-there wasn't really a lot to note in this video - the general idea of poly regression was laid out  
+  
+-there is an optional lab about feature scaling and poly regression; also there is a lab showing how you can use scikit-learn to do linear regression - these are not that important now, but do track back to them in the future if you run into some issues  
