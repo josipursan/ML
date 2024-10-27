@@ -186,7 +186,7 @@ NOTE : in the expression above, `w` in subscript of `f` should also have a vecto
 &nbsp;&nbsp;&nbsp;-to compute $\sigma$ we again need the average ($\mu$)  
 &nbsp;&nbsp;&nbsp;-let's assume that x<sub>1</sub> has standard deviation $\sigma$ = 450, and mean $\mu$ = 600  
 &nbsp;&nbsp;&nbsp;-to do the Z-score normalization, we use this expression :  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$x_1 = \frac{x_1 - \mu_1}{\sigma_1}$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $x_1 = \frac{x_1 - \mu_1}{\sigma_1}$  
 &nbsp;&nbsp;&nbsp;-this gives us a new value range for x<sub>1</sub> : -0.67 <= x<sub>1</sub> <= 3.1  
   
 -some rules of thumb for rescaling :  
