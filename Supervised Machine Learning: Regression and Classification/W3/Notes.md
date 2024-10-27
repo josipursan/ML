@@ -22,4 +22,13 @@ This week covers category prediction using logistic regression, as well as what 
 - f<sub>w,b</sub>($\vec{x}$) = P(y = 1 | $\vec{x};\vec{w}, b$)  
 &nbsp;&nbsp;&nbsp;&nbsp;-translated in english : Probability that y is 1, given input $\vec{x}$ and parameters $\vec{w}$,b  
   
-TO DO : `Optional lab : Sigmoid function and logistic regression`  
+`Optional lab : Sigmoid function and logistic regression` is more of an exploratory lab for what sigmid is and how it behaves - check it out later if you get stuck on some code implementations  
+  
+## Decision boundary  
+-the `z` term we are using in our model can be used to determine where the `decision boundary` is  
+&nbsp;&nbsp;&nbsp;-to be more precise, we check out when our term `z` will be equal to zero to figure out where the decision boundary is  
+&nbsp;&nbsp;&nbsp;-if the models we are working for are modeled by some well known and described mathematical equations (such as a line, circle, etc.), by rearranging the equation we can figure out where exactly the boundary between y = 1 and y = 0 lies  
+  
+`Optional lab : Decision boundary` has a nice example of how logistic regression, specifically decision boundary works - check it out if later in the course you get stuck on some implementations  
+  
+TO DO : `Cost function for logistic regression`
