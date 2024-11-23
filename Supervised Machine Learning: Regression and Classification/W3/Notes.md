@@ -165,7 +165,7 @@ $ \frac{\partial}{\partial{b}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\v
 -if you have an overfit model...  
 &nbsp;&nbsp;&nbsp;-**1. more data** - you need to collect more training data in order to avoid the algorithm fitting weird models to your data (if more data is available)  
 &nbsp;&nbsp;&nbsp;-**2. feature selection** - you can select which features you want to include/exclude in your model - if you use a lot of features, but don't have enough data, it is highly likely you will end up with an overfit model; selecting what you believe are most appropriate features (process called **feature selection**) can mitigate this  
-&nbsp;&nbsp;&nbsp;-**3. regulaziration** - overfit models can often high very high polynomial in them  
+&nbsp;&nbsp;&nbsp;-**3. regularization** - overfit models can often high very high polynomial in them  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-a method which gently reduces impact chosen features of the model have  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-regularization encourages the learning algorithm to shrink the values of parameters without necessarily outright eliminating the parmaters, and therefore features  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-after regularization is done, even the high order polynomial model will behave significantly better than before  
@@ -174,4 +174,71 @@ $ \frac{\partial}{\partial{b}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\v
 
 
 
-TO DO : `Cost function with regularization`  
+# Cost function with regularization  
+  
+-the idea of regularization is to have small parameter values so that we can end up with a simpler model, which is less likely to overfit  
+&nbsp;&nbsp;&nbsp;-of course, this approach can not be pushed too far  
+  
+-generally, regularization is implemented in such way that it penalizes all of the features (by *penalize* we actually mean it penalizes the parameter, the coefficient, of each feature) - this is done because in a scenario where you have a lot of features for a model you might not be able to determine which features are the important ones  
+  
+-so, here is our cost function modified with the regularization term :  
+$J(\vec{w}, b) = \frac{1}{2m} \sum_{i=1}^{m} (f_{\vec{w}, b}(\vec{x}^{(i)})-y^{(i)})^{2} + \frac{\lambda}{2m} \sum_{j=1}^{n}w_{j}^2$  
+  
+$\lambda$ is the **regularization parameter**  
+  
+-by convention, parameter b is not penalized during regularization because it makes little, to no, difference; if added, another term appears after the already added term shown above :  
+&nbsp;&nbsp;&nbsp;&nbsp; $\frac{\lambda}{2m}b^2$  
+  
+-in this modified cost function, we want to minimize the original cost term (*the mean squared error term*), and also the additional term (*the regularization term*)  
+&nbsp;&nbsp;&nbsp;-minimizing the *mean squared error term* contributes to fitting the best possible model to the data  
+&nbsp;&nbsp;&nbsp;-minimizing the *regularization term* contributes to keeping the $w_{j}$ parameters small, thus avoiding overfitting the model  
+  
+# Regularized linear regression  
+  
+-here is the regularized cost function for linear regression :  
+$J(\vec{w}, b) = \frac{1}{2m} \sum_{i=1}^{m} (f_{\vec{w}, b}(\vec{x}^{(i)})-y^{(i)})^{2} + \frac{\lambda}{2m} \sum_{j=1}^{n}w_{j}^2$  
+  
+-previously, because we didn't have the *regularization term* after the squared error cost term, our gradient descent updated parameters $w_{j}$ and b on each iteration :  
+&nbsp;&nbsp; repeat {  
+&nbsp;&nbsp;&nbsp; $w_{j} = w_{j} - \alpha \frac{\partial}{\partial{w_{j}}} J(\vec{w}, b)$  
+&nbsp;&nbsp;&nbsp; $b = b - \alpha \frac{\partial}{\partial{b}} J(\vec{w}, b)$  
+&nbsp;&nbsp;&nbsp; }  
+  
+-updates as such are the same, but cost function *J* has changed, meaning the derivative term changes when we use the regularized cost function  
+  
+-new derivative terms for the regularized cost function :  
+$\frac{\partial}{\partial{w_{j}}} J(\vec{w}, b) = \frac{1}{m}\sum_{i = 1}^{m}(f_{\vec{w}, b}(\vec{x^{(i)}}) - y^{(i)})x_{j}^{(i)} + \frac{\lambda}{m}w_{j}$  
+  
+$\frac{\partial}{\partial{b}} J(\vec{w}, b) = \frac{1}{m}\sum_{i = 1}^{m}(f_{\vec{w}, b}(\vec{x^{(i)}}) - y^{(i)})$  
+  
+-putting it all together :  
+&nbsp;&nbsp; repeat {  
+&nbsp;&nbsp;&nbsp; $w_{j} = w_{j} - \alpha [\frac{1}{m}\sum_{i = 1}^{m}[(f_{\vec{w}, b}(\vec{x^{(i)}}) - y^{(i)})x_{j}^{(i)}] + \frac{\lambda}{m}w_{j}]$  
+&nbsp;&nbsp;&nbsp; $b = b - \alpha \frac{1}{m}\sum_{i = 1}^{m}(f_{\vec{w}, b}(\vec{x^{(i)}}) - y^{(i)})$  
+&nbsp;&nbsp;&nbsp; } simultaneous update  
+  
+# Regularized logistic regression  
+-let's remember the cost function used for logistic regression :  
+$J(\vec{w}, b) = -\frac{1}{m} \sum_{i = 1}^{m}[y^{(i)} log(f_{\vec{w},b}(\vec{x^{i}})) + (1-y^{(i)})log(1 - f_{\vec{w},b}(\vec{x^{i}})]$  
+  
+-and here is the regularized cost function for logistic regression :  
+$J(\vec{w}, b) = -\frac{1}{m} \sum_{i = 1}^{m}[y^{(i)} log(f_{\vec{w},b}(\vec{x^{i}})) + (1-y^{(i)})log(1 - f_{\vec{w},b}(\vec{x^{i}})] + \frac{\lambda}{2m}\sum_{j=1}^{n}w_{j}^{2}$  
+  
+-don't forget - *n* is the number of features, *m* is the number of training examples (each training examples is made up of *n* features)  
+  
+-gradient descent :  
+&nbsp;&nbsp; repeat {  
+&nbsp;&nbsp;&nbsp; $w_{j} = w_{j} - \alpha \frac{\partial}{\partial{w_{j}}} J(\vec{w}, b)$  
+&nbsp;&nbsp;&nbsp; $b = b - \alpha \frac{\partial}{\partial{b}} J(\vec{w}, b)$  
+&nbsp;&nbsp;&nbsp; }  
+
+-let us now figure out what the derivative terms will be for the regularized cost function :   
+$ \frac{\partial}{\partial{w_{j}}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\vec{w},b}(\vec{x^{i}}) - y^{(i)}) x_{j}^{(i)} + \frac{\lambda}{2m}w_{j}$  
+
+$ \frac{\partial}{\partial{b}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\vec{w},b}(\vec{x^{i}}) - y^{(i)})$  
+  
+-note that the above stated derivative expressions for regularized cost function for logistic regression are identical to the derivative expressions of regularized cost function for linear regression - this is true, but the actual difference is hidden in $f_{\vec{w},b}(\vec{x^{i}})$  
+  
+TO DO :  
+&nbsp;&nbsp;&nbsp; implement regularized linear regression  
+&nbsp;&nbsp;&nbsp; implement regularized logistic regression
