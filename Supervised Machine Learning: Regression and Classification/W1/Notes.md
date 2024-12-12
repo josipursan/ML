@@ -12,7 +12,7 @@
   
 -**classification** - differs from regression in the sense that we are usually trying to predict a very limit set of output values  
 &nbsp;&nbsp;&nbsp;-terms *class* and *category* are often used interchangeably when talking about classification problems  
-&nbsp;&nbsp;&nbsp;-classification algorithms predict *categories*, usually a relatively number of categories
+&nbsp;&nbsp;&nbsp;-classification algorithms predict *categories*, usually a relatively small number of categories  
 &nbsp;&nbsp;&nbsp;-classification algorithms use boundary lines to demarcate borders between different categories  
   
 -**unsupervised learning** - the most widely used form of ML  
@@ -22,7 +22,7 @@
 &nbsp;&nbsp;&nbsp;-it is called unsupervised because we are not supervising the algorithm to give some right or wrong answer  
 &nbsp;&nbsp;&nbsp;-some important unsupervise ML algos : clustering, anomaly detection, dimensionality reduction  
   
-## Linaer regression part 1  
+## Linear regression part 1  
 -what is linear regression? Basically fitting a straight line to some dataset  
   
 **Useful terminology**  
@@ -34,7 +34,7 @@
 -**(x<sup>i</sup>, y<sup>i</sup>)** - i<sup>th</sup> training example (ie. some i<sup>th</sup> row in the data table containing a specific example)  
   
 -when we run the training set (which contains both the features and the targets), our learning algorithm will produce some function *f* (this function often times gets called hypothesis)  
--the job of *f* is to take some new input *x* and output and estimate, prediction, called y<sup>^</sup> (*y hat*)  
+-the job of *f* is to take some new input *x* and output and estimate, prediction, y<sup>^</sup> (*y hat*)  
 -the function *f* also gets called the *model* - input to the model is called *feature*, and the output is the *estimate* (or *prediction*)  
   
 So, how will we choose our function *f*?  
@@ -53,9 +53,9 @@ So, how will we choose our function *f*?
 &nbsp;&nbsp;&nbsp;-*parameters* can often be called *coefficients*, or *weights*  
 - - -  
   
--the problem we are facing when training a model is (in case of linear regression) **how do we choose parameters *w*,*b*, so that the predicted value y-hat (y^) is as close as possible to y<sup>^</sup> for all (x<sup>i</sup>, y<sup>^</sup>)?**  
+-the problem we are facing when training a model is (in case of linear regression) **how do we choose parameters *w*,*b*, so that the predicted value y-hat (y^) is as close as possible to y<sup>real</sup> for all (x<sup>i</sup>, y<sup>real</sup>)? pairs**  
   
--we will measure how well a line fits the training data - this is a **cost function!**  
+-to do this we will measure how well a line fits the training data - this is a **cost function!**  
   
 -first we will comapare y-hat to y - this is called the **error** :  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y<sup>hat</sup> - y  
@@ -64,7 +64,7 @@ So, how will we choose our function *f*?
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(y<sup>hat<sup>i</sup></sup> - y<sup>i</sup>)<sup>2</sup>  
   
 -considering this is done for all training set examples, the cost function would behave unreliably in the sense that with more training set examples, cost function would inevitably always increase, thus negating the useful information it is carrying  
--therefore, we will always compute the average  
+&nbsp;&nbsp;&nbsp;-therefore, we will always compute the average  
 -finally, we have the final expression :  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; J(w,b) = $\frac{{1}}{2m}$ $\sum_{i=1}^{m} $(y<sup>hat<sup>i</sup></sup> - y<sup>i</sup>)<sup>2</sup>  
   
@@ -84,14 +84,9 @@ So, how will we choose our function *f*?
 -however, we were playing dumb a bit - the parameter feature x<sup>i</sup> we inputed already has some known, true, value y<sup>i</sup>  
 -then we can determine the difference between the true value and the predicted value, using cost function, to determine how our model is behaving compared to what the real data is  
   
-TO DO : build a python cost function visualizer for linear equation  
-&nbsp;&nbsp;&nbsp;&nbsp;-generate a random 2D data set comprised of x,y vals  
-&nbsp;&nbsp;&nbsp;&nbsp;-then play dumb a bit, and generate a couple of linear equations, pretending they are ML outputs, each with different parameters *w* and *b*  
-&nbsp;&nbsp;&nbsp;&nbsp;-then evaluate each linear equation for its cost  
-&nbsp;&nbsp;&nbsp;&nbsp;-considering we are working with linear equation (**f(x) = wx + b**), the cost function will be a 3D curve. Why? Because we are effectively dealing with three variables  
 
 ## Visualization examples  
--not notes taken  
+-no notes taken  
 -when implementing your cost function visualizer, remember that there is `Optional Lab : Cost function` if you need to take a look or need inspiration  
   
 - - -
@@ -102,8 +97,8 @@ TO DO : build a python cost function visualizer for linear equation
 -algorithm outline :  
 &nbsp;&nbsp;&nbsp;-start with some *w*,*b* (most often you start with 0)  
 &nbsp;&nbsp;&nbsp;-keep changin *w*, *b* to reduce J(w,b)  
-&nbsp;&nbsp;&nbsp;-by changing values of paramters settle at, or near, minimum  
-&nbsp;&nbsp;&nbsp;-remember : depending on how the cost function is defined, you might have more than one minimum  
+&nbsp;&nbsp;&nbsp;-by changing values of parameters, settle at, or near, minimum J(w,b) value  
+&nbsp;&nbsp;&nbsp;-remember : depending on how the cost function is defined, and what the nature is of your model, you might have more than one minimum  
   
 ### Implementing gradient descent  
 -now we will outline, step by step, what each iteration of gradient descent does  
@@ -114,15 +109,15 @@ What does the equation above mean?
 &nbsp;&nbsp;&nbsp;&nbsp;-update the the value w, by taking the current value w, and adjusting it by a small amount (the section right of the subtraction sign)  
   
 -what is $\alpha$?  
-&nbsp;&nbsp;&nbsp;-$\alpha$ is called **learning rate**  
-&nbsp;&nbsp;&nbsp;-it is usually a small positive number  
-&nbsp;&nbsp;&nbsp;-it basically shows how big our step is in each loop of gradient descent  
+&nbsp;&nbsp;&nbsp;- $\alpha$ is the **learning rate**  
+&nbsp;&nbsp;&nbsp;- it is usually a small positive number  
+&nbsp;&nbsp;&nbsp;- it basically shows how big our step is in each loop of gradient descent  
   
 -the derivative part basically tells in which direction we want to move when moving from current position  
   
 -the expression for b is relatively similar  
   
-b = b - $\alpha$ $\frac{\partial}{\partial b}$ J(w,b)  
+b = b - $\alpha$ $\frac{\partial}{\partial b} J(w,b)$  
   
 -these two equations are repated until our algorithm converges  
 -what does convergence indicate here? Basically that we've reached a point where parameters *w* and *b* do not change that much anymore with each additional step  
@@ -133,28 +128,28 @@ b = b - $\alpha$ $\frac{\partial}{\partial b}$ J(w,b)
 &nbsp;&nbsp;&nbsp;-think of it like this : cost function freezes during each iteration; only once you've computed all new parameter values can you plug them back into the cost function  
   
 -gradient descent should be implemented using the *simultaneous update* described above  
-&nbsp;&nbsp;&nbsp;-however, even if you accidentally mess up, and don't update the paramters simultaneously, the gradient descent algorithm will probably work more or less ok (it probably adds a small error, or prolongs the seeking time)  
+&nbsp;&nbsp;&nbsp;-however, even if you accidentally mess up, and don't update the parameters simultaneously, the gradient descent algorithm will probably work more or less ok (it probably adds a small error, or prolongs the seeking time)  
 
 ## Gradient descent intuition  
 -a derivative, generally speaking, indicates the rate of change  
 -in our case, we are basically looking, at a given point of some model parameter (e.g. *w*, or *b*) what the derivative of J(w,b) will be W.R.T. say parameter *w*  
--if the derivative is positive (meaning the tangent in that points points upwards towards the first quadrant), further steps of the observed parameter to the right will lead to an increase of J(w,b) (and vice versa also applies)  
+-if the derivative is positive (meaning the tangent in that points points upwards towards area of the first quadrant), further steps of the observed parameter to the right will lead to an increase of J(w,b) (and vice versa also applies)  
 -**note** : what you described in the remark above is the exact reason why you have subtraction in the term used to compute updated *w* and *b* values for each gradient descent iteration :  
 w = w **-** $\alpha$ $\frac{\partial }{\partial w}$ J(w,b)  
-w = _w - $\alpha \cdot (positiveValueFromPartialDerivative)$  --> this moves *w* leftwards!  
+w = w - $\alpha \cdot (positiveValueFromPartialDerivative)$  --> this moves *w* leftwards!  
 &nbsp;&nbsp;&nbsp;-this means that if the partial derivative indicates a positive change, we actually do not want that positive change - if this positive step was present in the equation used to compute updated parameters our parameters would diverge,
-not converge to the smallest possible cost function!  
+not converge to the smallest possible cost function value!  
   
 ## Learning rate  
 -learning rate has a big impact on the learning process  
   
--if $\alpha$ is too small, each partial derivative result will be multiplied by this immensly small $\alpha$ value  
+-if $\alpha$ is too small, each partial derivative result will be multiplied by this immensely small $\alpha$ value  
 &nbsp;&nbsp;&nbsp;-eventually gradient descent will reach the necessary results, but in doing so it will waste more time than necessary because each
 step will be extremely slow  
 &nbsp;&nbsp;&nbsp;-gradient descent will be too slow  
 
-if $\alpha$ is too large, the coarsness of each step may cause your parameter to oscillate  
-&nbsp;&nbsp;&nbsp;-due to oscillating, it might end up reaching the end of gradient descent, however, it might simply continue continue oscillating, never converging to a desired value  
+if $\alpha$ is too large, the coarseness of each step may cause your parameter to oscillate  
+&nbsp;&nbsp;&nbsp;-even if oscillating, it might end up reaching the end of gradient descent, however, it might simply continue continue oscillating, never converging to a desired value  
   
 -what if, the cost function we are evaluating our parameters on, is not a squared error cost function, but instead
 some funky curve, containing one global minimum and multiple local minimums  
@@ -184,6 +179,3 @@ This allows us to train the linear regression model to fit a straight line to so
 ## Running gradient descent  
 -batch gradient descent - each step of gradient descent uses **all* available training examples  
 -*Lab : Gradient descent* has their implementation of gradient descent
-
-**TO DO** : try making a gradient descent example with visual representation of each gradient descent run - color "older", worse fits with blue, and then have a gradient transition over all its iteration to the most appropriate line (best fit),
-which will be colored red  
