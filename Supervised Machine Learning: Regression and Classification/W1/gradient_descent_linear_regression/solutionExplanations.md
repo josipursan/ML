@@ -26,6 +26,9 @@ $$
 b = b - \alpha\frac{\partial}{\partial{b}}J(w,b) = w - \alpha \frac{1}{m}\sum_{i=1}^{i}(f_{w,b}(x^{i}) - y^{i})
 \end{align}
 $$  
+  
+`sol.py` represents the first solution - it has not been cleaned up, and is here simply for posterity and future reference.  
+Cleaner, tidier and more succint solutions will be pushed in the future.
 
 ## Explanation
 ```python
@@ -82,7 +85,7 @@ Line 2 (`for(...)`) represents the summation operator $\sum$ in equation `(1)`.
 Line 3 (`sum_cost_func += ...`) is used to sum up all of the elements that need to be summed up under summation operator $\sum$.  
 &nbsp;&nbsp;&nbsp;This is the $(f_{w,b}(x^{i}) - y^{i})^{2}$ part in equation `(1)`.  
 Line 4 (`cost_func = ...`) is the $\frac{1}{2m}  \sum_{i=1}^{i}(f_{w,b}(x^{i}) - y^{i})^{2}$ in equation `(1)`.  
-&nbsp;&nbsp;&nbsp;$\frac{1}{2m}$ is `(1/(2*len(y_vals_prediction)))` in line 4; *m* represents here the number of elements, ie. number of elements in `y_vals_prediction`  
+&nbsp;&nbsp;&nbsp; $\frac{1}{2m}$ is `(1/(2*len(y_vals_prediction)))` in line 4; *m* represents here the number of elements, ie. number of elements in `y_vals_prediction`  
 Line 5 is irrelevant in terms of grad desc algorithm; it is just a field used for additional debugging  
 <br></br>
 
@@ -101,4 +104,31 @@ If cost_func given by the last generated model is less than `0.01`, gradient des
 Everything else written in this `if()` clause is irrelevant - just some stuff for plotting and debugging.
 
 ```python
-```
+# Update the terms
+1 w_summation_temp = 0
+2 b_summation_temp = 0
+3 for el in range(0, len(y_vals_prediction)):
+4    w_summation_temp += (y_vals_prediction[el] - y_vals[el])*x_vals[el]
+5    b_summation_temp += (y_vals_prediction[el] - y_vals[el])
+
+6 w_summation_temp *= 1/(len(y_vals))
+7 b_summation_temp *= 1/(len(y_vals))
+8 w_summation_temp = alpha*w_summation_temp
+9 b_summation_temp = alpha*b_summation_temp
+10 w = w - w_summation_temp
+11 b = b - b_summation_temp
+```  
+This block represents how equations `(2)` and `(3)` are implemented in code.  
+Equations `(2)` and `(3)` are terms representing how *w* and *b* are updated using the newly created model.  
+  
+A few lines above this code block we've computed the cost function of our latest model, and we've then checked whether cost is below a certain arbitrarily define threshold - if it is, it means our model is performing as we want; it it isn't, it means we need to update our *w* and *b* parameters to get a new model for the next iteration.  
+  
+`for(..)` loop on line 3, as well as its contents, are representative of what is happening under $\sum$ operator in equations `(2)` and `(3)`.  
+  
+Result of summation (lines 3,4,5) needs to be multiplied by *m* - total number of training examples, ie. `len(x_vals)`, or `len(y_vals)`, or `len(y_hat)`. For this we have code in lines `6` and `7`.  
+  
+Then in lines `(7)` and `(8)` the end result of all previous operations in this code block is multiplied by $\alpha$ - the learning rate (represents size of each gradient descent step).  
+  
+Lastly, in lines `(10)` and `(11)` we simultaneously update *w* and *b* parameters by subtracting all computations described above from the current ("old") *w* and *b* values.  
+  
+*Note* - first version of *sol.py* had a mistake. You forgot to multiply result of lines `3,4,5` by $\frac{1}{m}$  

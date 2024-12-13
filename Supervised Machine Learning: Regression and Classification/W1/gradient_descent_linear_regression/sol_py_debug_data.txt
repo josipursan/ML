@@ -1,0 +1,9 @@
+Last computed cost is below set threshold!
+Cost : 0.009999953391639678
+Exiting!
+
+Numer of attempted w_b hypothesis : 260051
+Number of allCosts : 260051
+Number of all_y_vals : 260051
+Last model hypothesis : w,b = [3.03045031029678, 7.700878718205684]
+Original model : y = 3x+8
