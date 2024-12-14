@@ -47,7 +47,7 @@ Parameters : x_vals, y_vals, w_vec, b
 
 Steps : 
     1. gradient_descent() is called with the updated w_vec and b values
-    2. Compute the cost using the lates model parameters
+    2. Compute the cost using the latest model parameters
     3. Update the w_vec and b terms to keep reducing the cost (break this down : first do the summation part of the derivative, then multiply this with 1/m, then multiply this by alpha, and only after this
         you can update w_vec and b simultaneously)
 
@@ -71,12 +71,12 @@ def gradient_descent(x_vals, y_vals, w_vec, b):
     cost_for_given_w_vec_b = compute_cost(x_vals, y_vals, w_vec, b)
     all_costs.append(cost_for_given_w_vec_b)    # used to just save all costs in one place
 
-    dj_dw_j = np.zeros((n,))    # Why is dj_dw_j declared like this? There are as mush of w parameters as there are input variables - 4 in our case
+    dj_dw_j = np.zeros((n,))    # Why is dj_dw_j declared like this? There are as much of w parameters as there are input variables - 4 in our case
     dj_db = 0
     for i in range(m):
         f_wb = np.dot(x_vals[i], w_vec) + b # Computing what our proposed model will give for outputs
-        error_term = f_wb - y_vals[i]   # For each row (each house in this example) we compute how much the lates proposed model differs from the real output data;
-        for j in range(n):
+        error_term = f_wb - y_vals[i]   # For each row (each house in this example) we compute how much the latest proposed model differs from the real output data;
+        #for j in range(n):
             dj_dw_j[j] = dj_dw_j[j] + error_term * x_vals[i,j]
         dj_db += error_term
 
