@@ -34,7 +34,7 @@ $$
 
 $$
 \begin{align}
-w_{n} = w_{n} - \alpha \frac{1}{m} \sum_{i=1}^m(f_{w,b}(\vec{x}_{i}) - y^{i}) \cdot x_{n}^{i}
+w_{n} = w_{n} - \alpha\frac{1}{m} \sum_{i=1}^m(f_{w,b}(\vec{x}_{i}) - y^{i}) \cdot x_{n}^{i}
 \end{align}
 $$
 
@@ -73,19 +73,19 @@ Here are all input variable values :
 x_input_variables = $[[2104, 5, 1, 45], [1416, 3, 2, 40], [852, 2, 1, 35]]$  
 x_input_variables can be rearranged into a 3x4 matrix (m x n; 3 rows, 4 columns) :  
   
-x_input_variables = $\left[\begin{array}{}
+x_input_variables = $$\left[\begin{array}{}
                     2104 & 5 & 1 & 45\\
                     1416 & 3 & 2 & 40\\
                     852 & 2 & 1 & 35
-                    \end{array}\right]$  
+                    \end{array}\right]$$  
 
 Rewriting x_input_variables to indicate to which w parameter each position in matrix refers to :  
   
-x_input_variables = $\left[\begin{array}{}
+x_input_variables = $$\left[\begin{array}{}
                     x_{1}^{1} & x_{2}^{1} & x_{3}^{1} & x_{4}^{1}\\
                     x_{1}^{2} & x_{2}^{2} & x_{3}^{2} & x_{4}^{2}\\
                     x_{1}^{3} & x_{2}^{3} & x_{3}^{3} & x_{4}^{3}
-                    \end{array}\right]$  
+                    \end{array}\right]$$  
   
 $x_{j}^{i}$ refers to the $j^{th}$ feature (input) of the $i^{th}$ training example (row).  
   
@@ -95,11 +95,11 @@ y_outputs = $[460, 232, 178]$
 
 Here is a matrix containing all of the values for the input parameters (x1, x2, x3, x4) for each training example, as well as their respective outputs.  
 
-[x_input_variables | y_vals] = $\left[\begin{array}{}
+[x_input_variables | y_vals] = $$\left[\begin{array}{}
                                 2104 & 5 & 1 & 45&|460\\
                                 1416 & 3 & 2 & 40&|232\\
                                 852 & 2 & 1 & 35&|178
-                                \end{array}\right]$  
+                                \end{array}\right]$$  
 
 ## Explanation
 ### compute_cost()
@@ -128,7 +128,7 @@ Lines 4, 5, 6
 &nbsp;&nbsp;&nbsp; line 7 : finishing up cost computation by dividing it with $\frac{1}{2m}$ - value after line 7 represents what the total cost is for the hypothesis given with `w_vec` and `b`  
 <br></br>  
   
-### multiple_variable_linear_regression()  
+### gradient_descent()  
 ```python
 m,n = x_vals.shape
 alpha = 5.0e-7
@@ -159,11 +159,11 @@ line 1 and 2 : declaring variables that will be used to store partial derivative
 &nbsp;&nbsp;&nbsp;&nbsp;Why is `dj_dw_j` declared as an *n* sized row vector?  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Because we are trying to find out what is the total partial derivative for each individual parameter.  
 
-$\left[\begin{array}{}
+$$\left[\begin{array}{}
 \frac{\partial{J(w,b)}}{\partial{w_{1}^{1}}} & \frac{\partial{J(w,b)}}{\partial{w_{2}^{1}}} & \frac{\partial{J(w,b)}}{\partial{w_{3}^{1}}} & \frac{\partial{J(w,b)}}{\partial{w_{4}^{1}}}\\
 \frac{\partial{J(w,b)}}{\partial{w_{1}^{2}}} & \frac{\partial{J(w,b)}}{\partial{w_{2}^{2}}} & \frac{\partial{J(w,b)}}{\partial{w_{3}^{2}}} & \frac{\partial{J(w,b)}}{\partial{w_{4}^{2}}}\\
 \frac{\partial{J(w,b)}}{\partial{w_{1}^{3}}} & \frac{\partial{J(w,b)}}{\partial{w_{2}^{3}}} & \frac{\partial{J(w,b)}}{\partial{w_{3}^{3}}} & \frac{\partial{J(w,b)}}{\partial{w_{4}^{3}}}
-\end{array}\right]$
+\end{array}\right]$$  
 
 !["Image of a matrix containing all partial derivatives terms for each w parameter in each training example (matrix row)"](../screenshots/partial_derivatives_matrix.png "Image of a matrix containing all partial derivatives terms for each w parameter in each training example (matrix row)")
 
@@ -176,6 +176,75 @@ line 5 : computing the expression nested under $\sum$ operator in equations `(4)
 line 6 : `for` loop iterating over all columns (*n* )in each row (*m*) to compute what the derivative is for each individual row (*m*)  
   
 line 7 : implementation of expression nested under the $\sum$ operator in equation `(4)`. In each of the indices of `dj_dw_j` you accumulate what the partial derivative is for each individual parameter (e.g. w1, w2, ...) for each individual training example (*m*).  
+  
+line 8 : if we take a look at equation `(6)` we can notice that partial derivative of `J(w,b)` W.R.T. b yields only the error term, therefore we accumulate only the error term for variable `b` (which makes sense because variable `b` does not interact with any of the input parameters (x1, x2, ...))  
+<br></br>
 
+```python
+1 dj_dw_j = (dj_dw_j/m)
+2 dj_db = (dj_db/m) 
 
+3 w_vec_temp = w_vec-(alpha*dj_dw_j)
+4 b_temp = b-(alpha*dj_db)
 
+5 all_w_vec_predictions.append(w_vec_temp)
+6 all_b_predictions.append(b_temp)
+```  
+line 1 : as per equation `(1)`, result of summation operation must be divided by $\frac{1}{m}$, ie. the total number of training examples  
+  
+line 2 : look at the comment above - same applies here  
+  
+lines 3 and 4 : simultaneous update - these lines are where we update our *w* and *b* assumptions to new *w* and *b* assumptions  
+&nbsp;&nbsp;&nbsp;&nbsp; *w_vec* is the previous value that we update by subtracting $\alpha$*dj_dw_j  
+&nbsp;&nbsp;&nbsp;&nbsp; Why are you using *w_vec_temp* and *b_temp*? Because in this implemetation you chose to store all *w* and *b* guesses to a global list for plotting and debugging after each run - otherwise this isn't necessary, you simply could've used the same variables passed to *gradient_descent()* function  
+  
+lines 5 and 6 : irrelevant; used to save all attempts for plotting and debugging  
+<br></br>  
+
+### multiple_variable_linear_regression()
+```python
+1 x_vals = np.array([[2104, 5, 1, 45],[1416, 3, 2, 40],[852, 2, 1, 35]])
+2 y_vals = np.array([460, 232, 178])
+
+# Let's check out the shape of our arrays, as well as their contents
+3 print("x_vals shape : {}\nx_vals : {}\n\n".format(x_vals.shape, x_vals))
+4 print("y_vals shape : {}\ny_vals : {}\n\n".format(y_vals.shape, y_vals))
+```  
+lines 1 and 2 : defining training examples/data the same way they were defined in course  
+lines 3 and 4 : printing data just to check it out  
+<br></br>  
+
+```python
+1 number_of_iterations = 1000
+2 initial_w_assumption = np.zeros((x_vals.shape[1],))
+3 b_assumption = 0
+4 all_w_vec_predictions.append(initial_w_assumption)
+5 all_b_predictions.append(b_assumption)
+```  
+line 1 : number of iterations we will run our grad desc algo  
+line 2 : initializing our assumed *w* value to 0  
+line 3 : same as line above, but for variable *b*  
+line 4 and 5 : just adding our initial *w* and *b* assumptions to the global lists - unimprotant  
+<br></br>  
+  
+```python
+for i in range(number_of_iterations):
+  gradient_descent(x_vals, y_vals, all_w_vec_predictions[-1], all_b_predictions[-1])
+```  
+Running the gradient descent for *number_of_iterations* iterations.  
+Why are you passing latest *w* and *b* predictions as *all_w_vec_predictions[-1]* and *all_b_predictions[-1]*?  
+&nbsp;&nbsp;&nbsp;&nbsp; Because these are global lists, meaning that whatever the last entry in these lists we find is actually the last *w* and *b* assumptions that should be used to evaluate the new model, hence `[-1]` access index  
+<br></br>  
+  
+```python
+print("Last cost after {} iteratons : {}\n".format(number_of_iterations, all_costs[-1]))
+print("Last w prediction : {}\nLast b prediction : {}\n".format(all_w_vec_predictions[-1], all_b_predictions[-1]))
+y_predicted = np.dot(x_vals, all_w_vec_predictions[-1]) + all_b_predictions[-1]
+print("Real y_vals : {}\nPredicted y : {}\n".format(y_vals, y_predicted))
+plt.plot([i for i in range(number_of_iterations)], all_costs)
+plt.title("Cost function W.R.T number of iterations", loc="center")
+plt.xlabel("number of iterations")
+plt.ylabel("cost function")
+plt.show()
+```  
+Just some debug and comprehension stuff.  

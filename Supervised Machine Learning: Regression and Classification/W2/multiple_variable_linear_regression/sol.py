@@ -111,7 +111,7 @@ def multiple_variable_linear_regression():
     y_predicted = np.dot(x_vals, all_w_vec_predictions[-1]) + all_b_predictions[-1]
     print("Real y_vals : {}\nPredicted y : {}\n".format(y_vals, y_predicted))
     plt.plot([i for i in range(number_of_iterations)], all_costs)
-    plt.title("Cost functioon W.R.T number of iterations", loc="center")
+    plt.title("Cost function W.R.T number of iterations", loc="center")
     plt.xlabel("number of iterations")
     plt.ylabel("cost function")
     plt.show()
