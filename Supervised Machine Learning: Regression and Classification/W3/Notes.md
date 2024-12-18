@@ -113,7 +113,7 @@ $L(f_{\vec{w},b}(\vec{x^{i}}, y^{i}) = -y^{(i)} log(f_{\vec{w},b}(\vec{x^{i}})) 
 &nbsp;&nbsp;&nbsp;
 
 $J(\vec{w}, b) = \frac{1}{m} \sum_{i = 1}^{m} [L(f_{\vec{w},b}(\vec{x^{i}}, y^{i})]$  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$ = -\frac{1}{m} \sum_{i = 1}^{m}[y^{(i)} log(f_{\vec{w},b}(\vec{x^{i}})) + (1-y^{(i)})log(1 - f_{\vec{w},b}(\vec{x^{i}})]$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $ = -\frac{1}{m} \sum_{i = 1}^{m}[y^{(i)} log(f_{\vec{w},b}(\vec{x^{i}})) + (1-y^{(i)})log(1 - f_{\vec{w},b}(\vec{x^{i}})]$  
 &nbsp;&nbsp;&nbsp;NOTE : negative signs from the shorter expression were taken out and put in front of the fraction before the summation operator  
 <br></br>
 
@@ -134,10 +134,10 @@ $J(\vec{w}, b) = -\frac{1}{m} \sum_{i = 1}^{m}[y^{(i)} log(f_{\vec{w},b}(\vec{x^
 -index j goes from 1 to n, where *n* is the number of features in our model  
 -let's take a look at the derivative terms now  
   
-$ \frac{\partial}{\partial{w_{j}}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\vec{w},b}(\vec{x^{i}}) - y^{(i)}) x_{j}^{(i)}$  
+$\frac{\partial}{\partial{w_{j}}} J(\vec{w}, b) = \frac{1}{m} \sum_{i=1}^{m}(f_{\vec{w},b} (\vec{x^{i}}) - y^{(i)}) x_{j}^{(i)}$  
 &nbsp;&nbsp;&nbsp;- $x_{j}^{(i)}$ is the the j-th feature of the i-th training example  
   
-$ \frac{\partial}{\partial{b}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\vec{w},b}(\vec{x^{i}}) - y^{(i)})$  
+$\frac{\partial}{\partial{b}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\vec{w},b}(\vec{x^{i}}) - y^{(i)})$  
   
 -REMEMBER! Always do the updates simultaneously - first compute everything that can be computed on the right hand side, and only then go and update both *w* and *b* simultaneously  
   
@@ -148,7 +148,7 @@ $ \frac{\partial}{\partial{b}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\v
 &nbsp;&nbsp;&nbsp; }  
   
 -you might notice that the update expressions for logistic regression look exactly the same as for linear regression, however this does not mean they are one and the same, quite the opposite  
-&nbsp;&nbsp;&nbsp;-the main difference is hidden - it is the $f_{\vec{w}, b}(\vec{x^{(i)}})$ that makes the difference because it is differently defined for **linear regression** (linear eq.) and **logistic regression** (sigmoid)  
+&nbsp;&nbsp;&nbsp;-the main difference is hidden - it is $f_{\vec{w}, b}(\vec{x^{(i)}})$ function that makes the difference because it is differently defined for **linear regression** (linear eq.) and **logistic regression** (sigmoid)  
 <br></br>  
 
 # The problem of overfitting  
@@ -158,7 +158,7 @@ $ \frac{\partial}{\partial{b}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\v
 -for models that fit the training data pretty well, we say the are **generalizations**, and that they generalize the training data pretty well  
   
 -**overfit model** - a mode that fits the data extremely well  
-&nbsp;&nbsp;&nbsp;-do not generalize well because they are to tightly couple to the underlying math found in the training data, ie. it aims to emulate the training data 100%  
+&nbsp;&nbsp;&nbsp;-do not generalize well because they are very tightly coupled to the underlying math pattern found in the training data, ie. it aims to emulate the training data 100%  
 &nbsp;&nbsp;&nbsp;-another term for overfit models is **high variance**  
 &nbsp;&nbsp;&nbsp;-why is term **high variance** used for overfit models? Because they are so tightly couple to the training data, even a slight difference in the training data will result in a drastically different predictions (ie. model outputs), hence the term high variance - small input differences result in high output variance of the model  
 <br></br>
@@ -169,17 +169,17 @@ $ \frac{\partial}{\partial{b}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\v
 &nbsp;&nbsp;&nbsp;-**2. feature selection** - you can select which features you want to include/exclude in your model - if you use a lot of features, but don't have enough data, it is highly likely you will end up with an overfit model; selecting what you believe are most appropriate features (process called **feature selection**) can mitigate this  
 &nbsp;&nbsp;&nbsp;-**3. regularization** - overfit models can often high very high polynomial in them  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-a method which gently reduces impact chosen features of the model have  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-regularization encourages the learning algorithm to shrink the values of parameters without necessarily outright eliminating the parmaters, and therefore features  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-regularization encourages the learning algorithm to shrink the values of parameters without necessarily outright eliminating the parameters, and therefore features  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-after regularization is done, even the high order polynomial model will behave significantly better than before  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-regularization lets us keep all of the features, but it keeps potentially problematic fetaures from having an overly large effect on the overall behaviour of the model  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-only *w* paramters are usually regularized, *b* not - however it *b* can also be regularized, it is not an issue (regularizing b in practice makes very little difference)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-only *w* paramters are usually regularized, *b* not - however *b* can also be regularized, it is not an issue (regularizing b in practice makes very little difference)  
 
 
 
 # Cost function with regularization  
   
 -the idea of regularization is to have small parameter values so that we can end up with a simpler model, which is less likely to overfit  
-&nbsp;&nbsp;&nbsp;-of course, this approach can not be pushed too far  
+&nbsp;&nbsp;&nbsp;-of course, this approach mustn't be pushed too far  
   
 -generally, regularization is implemented in such way that it penalizes all of the features (by *penalize* we actually mean it penalizes the parameter, the coefficient, of each feature) - this is done because in a scenario where you have a lot of features for a model you might not be able to determine which features are the important ones  
   
@@ -235,9 +235,9 @@ $J(\vec{w}, b) = -\frac{1}{m} \sum_{i = 1}^{m}[y^{(i)} log(f_{\vec{w},b}(\vec{x^
 &nbsp;&nbsp;&nbsp; }  
 
 -let us now figure out what the derivative terms will be for the regularized cost function :   
-$ \frac{\partial}{\partial{w_{j}}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\vec{w},b}(\vec{x^{i}}) - y^{(i)}) x_{j}^{(i)} + \frac{\lambda}{2m}w_{j}$  
+$\frac{\partial}{\partial{w_{j}}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\vec{w},b}(\vec{x^{i}}) - y^{(i)}) x_{j}^{(i)} + \frac{\lambda}{2m}w_{j}$  
 
-$ \frac{\partial}{\partial{b}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\vec{w},b}(\vec{x^{i}}) - y^{(i)})$  
+$\frac{\partial}{\partial{b}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\vec{w},b}(\vec{x^{i}}) - y^{(i)})$  
   
 -note that the above stated derivative expressions for regularized cost function for logistic regression are identical to the derivative expressions of regularized cost function for linear regression - this is true, but the actual difference is hidden in $f_{\vec{w},b}(\vec{x^{i}})$  
   
