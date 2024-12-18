@@ -13,28 +13,28 @@ This week covers category prediction using logistic regression, as well as what 
 &nbsp;&nbsp;&nbsp;-everything right of the equals sign can be called *z* : z = $\vec{w} \cdot \vec{x} + b$  
 &nbsp;&nbsp;&nbsp;-now this whole expression *z* becomes what gets inserted into *z* in our sigmoid expression, thus getting the **logistic regression model**  
   
-&nbsp;&nbsp;&nbsp;- f<sub>w,b</sub>($\vec{x}$) = g(z) = g($\vec{w} \cdot \vec{x} + b$) = $\frac{1}{1+e^-{(\vec{w} \cdot \vec{x} + b)}}$  
+&nbsp;&nbsp;&nbsp; f<sub>w,b</sub>($\vec{x}$) = g(z) = g($\vec{w} \cdot \vec{x} + b$) = $\frac{1}{1+e^-{(\vec{w} \cdot \vec{x} + b)}}$  
   
 &nbsp;&nbsp;&nbsp;-it inputs a feature x, or a set of features, and outputs a number between 0 and 1 (ie. class 0 or class 1)  
 <br></br>
 
 ### Interpretation of logistic regression output  
--logistic regression output value can be though of as the probability that class is 1 (or that it is not 0, or vice versa, or however you posit it)  
+-logistic regression output value can be thought of as the probability that class is 1 (or that it is not 0, or vice versa)  
   
-- f<sub>w,b</sub>($\vec{x}$) = P(y = 1 | $\vec{x};\vec{w}, b$)  
+f<sub>w,b</sub>($\vec{x}$) = P(y = 1 | $\vec{x};\vec{w}, b$)  
 &nbsp;&nbsp;&nbsp;&nbsp;-translated in english : Probability that y is 1, given input $\vec{x}$ and parameters $\vec{w}$,b  
   
-`Optional lab : Sigmoid function and logistic regression` is more of an exploratory lab for what sigmid is and how it behaves - check it out later if you get stuck on some code implementations  
+`Optional lab : Sigmoid function and logistic regression` is more of an exploratory lab for what sigmoid is and how it behaves - check it out later if you get stuck on some code implementations  
 <br></br>
 ## Decision boundary  
 -the `z` term we are using in our model can be used to determine where the `decision boundary` is  
 &nbsp;&nbsp;&nbsp;-to be more precise, we check out when our term `z` will be equal to zero to figure out where the decision boundary is  
 &nbsp;&nbsp;&nbsp;-if the models we are working for are modeled by some well known and described mathematical equations (such as a line, circle, etc.), by rearranging the equation we can figure out where exactly the boundary between y = 1 and y = 0 lies  
   
-`Optional lab : Decision boundary` has a nice example of how logistic regression, specifically decision boundary works - check it out if later in the course you get stuck on some implementations  
+`Optional lab : Decision boundary` has a nice example of how logistic regression, specifically decision boundary works - check it out later in the course if you get stuck on some implementations  
 <br></br>
 ## Cost function for logistic regression
--cost functions, generally speaking, give us a way of measuring how well a specific set of parameters fits the training data, enabling us to choose best possible parameters  
+-cost functions, generally speaking, give us a way of measuring how well y_hat values a specific set of parameters yields fit the training data, enabling us to choose best possible parameters  
   
 -*m* - number of training examples  
 -*n* - total number of features (each training example, ie. row in table, has *n* features)  
@@ -44,7 +44,7 @@ This week covers category prediction using logistic regression, as well as what 
 &nbsp;&nbsp;&nbsp; $f_{\vec{w},b}(\vec{x}) = \frac{1}{1+e^{-(\vec{w} \cdot \vec{x} + b)}}$  
   
 -recall that for linear regression we used the **squared error cost** :  
-&nbsp;&nbsp;&nbsp; J($\vec{w}, b$) = $\frac{1}{m} \sum_{i=1}^m \frac{1}{2}(f_{\vec{w}, b}(\vec{x^{i}}) - y^{i})^{2}$  
+&nbsp;&nbsp;&nbsp; $J(\vec{w}, b) = \frac{1}{m} \sum_{i=1}^m \frac{1}{2}(f_{\vec{w}, b}(\vec{x^{i}}) - y^{i})^{2}$  
   
 &nbsp;&nbsp;&nbsp;-if you try using this cost function for logistic regression, you will end up with a cost function that is highly non-convex, ie. it has a lot of local minima, which is not what we want  
 &nbsp;&nbsp;&nbsp;-we want a different cost function, one that will be convex and with only one, global, minimum if possible  
@@ -52,11 +52,11 @@ This week covers category prediction using logistic regression, as well as what 
 -**remember** : the loss function tells you how well you are doing on that one training example - by summing up all of the losses of all of the training examples we get the cost function (which measures how well you are doing on the whole training set)  
 
 -let's again take a look at the squared error cost expression :  
-&nbsp;&nbsp;&nbsp; J($\vec{w}, b$) = $\frac{1}{m} \sum_{i=1}^m \frac{1}{2}(f_{\vec{w}, b}(\vec{x^{i}}) - y^{i})^{2}$  
+&nbsp;&nbsp;&nbsp; $J(\vec{w}, b) = \frac{1}{m} \sum_{i=1}^m \frac{1}{2}(f_{\vec{w}, b}(\vec{x^{i}}) - y^{i})^{2}$  
 &nbsp;&nbsp;&nbsp;&nbsp;-the chunk under summation operator will be called *loss*:  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; L($f_{\vec{w},b}(\vec{x^{i}}, y^{i})) =  \frac{1}{2} (f_{\vec{w}, b}(\vec{x^{i}}) - y^{i})^{2}$  
   
-&nbsp;&nbsp;&nbsp;-the loss functions input f(x) and the true label y, and tells us how well we are doing on that example  
+&nbsp;&nbsp;&nbsp;-the loss functions inputs f(x) and the true label y, and tells us how well we are doing on that example  
 &nbsp;&nbsp;&nbsp;-so, what kind of format/expression will we use for the loss function when doing logistic regression  
 &nbsp;&nbsp;&nbsp;&nbsp;-we will actually split it into two cases, and therefore two expressions, based on the true label  
 &nbsp;&nbsp;&nbsp;&nbsp;if y<sup>(i)</sup> = 1 ---> $-log(f_{\vec{w}, b}(\vec{x^{i}}))$  
@@ -88,7 +88,7 @@ _ _ _ _ _ _ _ _
 <br></br>
 
 ## Simplified cost function for logistic regression
--here we will lay out simpler terms for the loss and cost so that the implementation once we reach grad desc for logistic regression becomes simpler  
+-here we will lay out simpler terms for the loss and cost so that the grad desc implementation for logistic regression becomes simpler  
   
 -let's first write down the loss function we figure out in the previous video :  
   
@@ -97,7 +97,9 @@ $L(f_{\vec{w},b}(\vec{x^{i}}, y^{i}) = $
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $-log(1 - f_{\vec{w},b}(\vec{x^{i}})$ if y<sup>(i)</sup> = 0  
   
 -we can write this more succintly, in one line :  
+  
 $L(f_{\vec{w},b}(\vec{x^{i}}, y^{i}) = -y^{(i)} log(f_{\vec{w},b}(\vec{x^{i}})) - (1-y^{(i)})log(1 - f_{\vec{w},b}(\vec{x^{i}}))$  
+  
 &nbsp;&nbsp;&nbsp;&nbsp;(note that further in text you will refer to halves of this equation as left and right half, left half being everything left from the subtraction sign in the middle, and the right half being everything to the right from the subtraction sign in the middle)  
   
 -why is this expression equivalent to the two, split, expressions from the previous video?  
