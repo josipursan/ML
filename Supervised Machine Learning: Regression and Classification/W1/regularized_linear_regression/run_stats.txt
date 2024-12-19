@@ -1,0 +1,6 @@
+Number of iterations : 1000000
+Alpha : 1e-08
+lambda : 0.001
+mReal model : y = wx + b = 0.54x1 + 1.33x2 + 4.69x3 + 8.11x4 + 7.65x5 + 8
+Last w and b guess : [ 0.62229778 -0.01526267  0.24286667  6.25669122  2.60397185] + 0.22135501844187494
+Last model hypothesis cost : 815.6855892879494
