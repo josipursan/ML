@@ -1,0 +1,5 @@
+Last attempted w + b : [-0.42063873  0.80840365] + 0.30638638148651803
+Cost of last hypothesis : 0.4706325618332049
+alpha : 0.0001
+lambda : 0.0001
+iterations : 50000
