@@ -240,7 +240,3 @@ $\frac{\partial}{\partial{w_{j}}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_
 $\frac{\partial}{\partial{b}} J(\vec{w}, b) =  \frac{1}{m} \sum_{i=1}^{m}(f_{\vec{w},b}(\vec{x^{i}}) - y^{(i)})$  
   
 -note that the above stated derivative expressions for regularized cost function for logistic regression are identical to the derivative expressions of regularized cost function for linear regression - this is true, but the actual difference is hidden in $f_{\vec{w},b}(\vec{x^{i}})$  
-  
-TO DO :  
-&nbsp;&nbsp;&nbsp; implement regularized linear regression  
-&nbsp;&nbsp;&nbsp; implement regularized logistic regression
