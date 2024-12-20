@@ -5,7 +5,7 @@
 -we will start this week off with `Linear regression with multiple input variables`  
   
 ## Multiple features  
--our example for W1 had one input variable (feature *x* )and one output variable (*y*) - using square area of the house (*x*) we were predicting its price (*y*) : `f(x) = y = wx+b`  
+-our example for W1 had one input variable (feature *x*) and one output variable (*y*) - using square area of the house (*x*) we were predicting its price (*y*) : `f(x) = y = wx+b`  
   
 -what if instead of having only one input feature (square area) we actually had more input features : number of bedrooms, number of floors, age of house in years  
   
@@ -15,7 +15,7 @@
 &nbsp;&nbsp;&nbsp;-number of floors - x<sub>3</sub>  
 &nbsp;&nbsp;&nbsp;-age in years - x<sub>4</sub>  
   
--x<sub>j</sub> = represents the j<sup>th</sup> feature  
+- x<sub>j</sub> = represents the j<sup>th</sup> feature  
 -`n` - number of features  
 $\vec{x}$ <sup>i</sup> = features of the i<sup>th</sup> training example (vector containing all features of the i<sup>th</sup> training example)  
 &nbsp;&nbsp;&nbsp;-example : $\vec{x}$<sup>2</sup> - vector of features for the second training example (ie. the second row in table)  
@@ -37,10 +37,9 @@ $\vec{x}$ <sup>i</sup> = features of the i<sup>th</sup> training example (vector
 -`b` is just a scalar  
   
 -now the model can be written more succintly :  
-&nbsp;&nbsp;&nbsp;f<sub>w,b</sub>($\vec{x}$) = $\vec{x}\cdot\vec{w}$ + b  
+&nbsp;&nbsp;&nbsp;$f_{\vec{w},b}(\vec{x}) = \vec{x}\cdot\vec{w}$ + b  
 &nbsp;&nbsp;&nbsp;-the `dot` product refers to the action of multiplying corresponding pairs of values between the used vectors;  
 &nbsp;&nbsp;&nbsp;-example : for $\vec{w}$ and $\vec{x}$ we will multiply elements positionally, namely w<sub>1</sub> * x<sub>1</sub>, w<sub>2</sub> * x<sub>2</sub>, w<sub>3</sub> * x<sub>3</sub>, etc.  
-NOTE : in the expression above, `w` in subscript of `f` should also have a vector above it, but it wouldn't render successfully when `\vec` was in `sub` tag  
   
 -this model is called **multiple linear regression** (NOT multivariate linear regression)  
   
@@ -63,7 +62,7 @@ NOTE : in the expression above, `w` in subscript of `f` should also have a vecto
   
 -another option, without vectorization is using a `for` loop, which is a lot better than the hardcoded example above  
   
--now we will implement our mutiple linear regression model WITH vectorization :  
+-now we will implement our multiple linear regression model WITH vectorization :  
 &nbsp;&nbsp;&nbsp;`f = np.dot(w,x) + b`  
 &nbsp;&nbsp;&nbsp;-when `n` is large, vectorized approach will always run much faster than the 2 other approaches outlined above  
   
@@ -77,7 +76,7 @@ NOTE : in the expression above, `w` in subscript of `f` should also have a vecto
   
 -remember that the update term for `w` when running grad desc is w<sub>j</sub> = w<sub>j</sub> - $\alpha$*d<sub>j</sub> for j = 1,...,16  
   
--implementing this in python without vectorization would mean we would have to approach one by one each parameter `w` and compute its new value :  
+-implementing this in python without vectorization would mean we would have to observe one by one each parameter `w` and compute its new value :  
 &nbsp;&nbsp;&nbsp;w<sub>1</sub> = w<sub>1</sub> - $\alpha$*d<sub>1</sub>  
 &nbsp;&nbsp;&nbsp;w<sub>2</sub> = w<sub>2</sub> - $\alpha$*d<sub>2</sub>  
 &nbsp;&nbsp;&nbsp;w<sub>3</sub> = w<sub>3</sub> - $\alpha$*d<sub>3</sub>  
@@ -87,7 +86,7 @@ NOTE : in the expression above, `w` in subscript of `f` should also have a vecto
 &nbsp;&nbsp;&nbsp;&nbsp;`for j in range(0, 16) : `  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`w[j] = w[j] - alpha*d[j]`  
   
--using vectorization, we can use can clean, pretty line of code, which also makes the code maintenance easier :  
+-using vectorization, we can use a clean, pretty line of code, which also makes the code maintenance easier :  
 &nbsp;&nbsp;&nbsp; $\vec{w}$ = $\vec{w}$ - 0.1* $\vec{d}$  
 -in python : `w = w - 0.1*d`  
   
@@ -95,11 +94,11 @@ NOTE : in the expression above, `w` in subscript of `f` should also have a vecto
   
 ## Gradient descent for multiple linear regression  
   
--`b` is just a number  
-- $\vec{w}$ = [w<sub>1</sub>, w<sub>2</sub>, ..., w<sub>n</sub>]  
--model : f<sub>w,b</sub> = $\vec{w} \cdot \vec{x}$ + b  
--cost function : J($\vec{w}$, b)  
--grad desc algo :  
+`b` is just a number  
+$\vec{w}$ = [w<sub>1</sub>, w<sub>2</sub>, ..., w<sub>n</sub>]  
+model : f<sub>w,b</sub> = $\vec{w} \cdot \vec{x}$ + b  
+cost function : J($\vec{w}$, b)  
+grad desc algo :  
 &nbsp;&nbsp;&nbsp;&nbsp;repeat until convergence {  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;w<sub>j</sub> = w<sub>j</sub> - $\alpha \frac{\partial}{\partial w_j}$ J($\vec{w}$, b)  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b = w<sub>j</sub> - $\alpha \frac{\partial}{\partial b}$ J($\vec{w}$, b)  
@@ -107,12 +106,12 @@ NOTE : in the expression above, `w` in subscript of `f` should also have a vecto
   
 -remember :  
 &nbsp;&nbsp;&nbsp;-superscript `i` represents all features for the i<sup>th</sup> training example  
-&nbsp;&nbsp;&nbsp;-subscript `j` represents the j<sup>th</sup> feature out of all available features
+&nbsp;&nbsp;&nbsp;-subscript `j` represents the j<sup>th</sup> feature out of all available features in the observed training example  
 
 -in case we have n=>2 features, update terms for grad desc will change only a little bit :  
 &nbsp;&nbsp;&nbsp;&nbsp;repeat until convergence {  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; w<sub>n</sub> = w<sub>n</sub> - $\alpha \frac{1}{m} \sum_{i=1}^m$(f<sub>w,b</sub>($\vec{x}$<sup>i</sup>) - y<sup>i</sup>) $\cdot$ x<sub>n</sub><sup>i</sup>  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b = b - $\alpha \frac{1}{m} \sum_{i=1}^m$(f<sub>w,b</sub>($\vec{x}$<sup>i</sup>) - y<sup>i</sup>)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $w_{n} = w_{n} - \alpha \frac{1}{m} \sum_{i=1}^m(f_{w,b}(\vec{x}_{i}) - y^{i}) \cdot x_{n}^{i}$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $b = b - \alpha \frac{1}{m} \sum_{i=1}^{m}(f_{w,b}(\vec{x}^{i}) - y^{i})$  
   
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; simultaneously update  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; w<sub>j</sub> (for j = 1,..., n) and b  

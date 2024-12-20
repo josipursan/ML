@@ -165,7 +165,9 @@ $$\left[\begin{array}{}
 \frac{\partial{J(w,b)}}{\partial{w_{1}^{3}}} & \frac{\partial{J(w,b)}}{\partial{w_{2}^{3}}} & \frac{\partial{J(w,b)}}{\partial{w_{3}^{3}}} & \frac{\partial{J(w,b)}}{\partial{w_{4}^{3}}}
 \end{array}\right]$$  
 
-!["Image of a matrix containing all partial derivatives terms for each w parameter in each training example (matrix row)"](../screenshots/partial_derivatives_matrix.png "Image of a matrix containing all partial derivatives terms for each w parameter in each training example (matrix row)")
+<p align="center">
+  <img src="../screenshots/partial_derivatives_matrix.png">
+</p>
 
 line 3 : `for` loop representing the $\sum$ operator in equations `(4)` and `(6)`.  
   

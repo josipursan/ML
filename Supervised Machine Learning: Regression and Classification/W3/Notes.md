@@ -13,7 +13,7 @@ This week covers category prediction using logistic regression, as well as what 
 &nbsp;&nbsp;&nbsp;-everything right of the equals sign can be called *z* : z = $\vec{w} \cdot \vec{x} + b$  
 &nbsp;&nbsp;&nbsp;-now this whole expression *z* becomes what gets inserted into *z* in our sigmoid expression, thus getting the **logistic regression model**  
   
-&nbsp;&nbsp;&nbsp; f<sub>w,b</sub>($\vec{x}$) = g(z) = g($\vec{w} \cdot \vec{x} + b$) = $\frac{1}{1+e^-{(\vec{w} \cdot \vec{x} + b)}}$  
+&nbsp;&nbsp;&nbsp; $f_{\vec{w},b}(\vec{x}) = g(z) = g(\vec{w} \cdot \vec{x} + b) = \frac{1}{1+e^-{(\vec{w} \cdot \vec{x} + b)}}$  
   
 &nbsp;&nbsp;&nbsp;-it inputs a feature x, or a set of features, and outputs a number between 0 and 1 (ie. class 0 or class 1)  
 <br></br>
