@@ -47,3 +47,16 @@ Here is a screenshot focusing on **L[3]** :
 This is a general expression used to compute activation value of neuron *j* in layer *l* :  
 &nbsp;&nbsp;&nbsp;&nbsp; $a_{j}^{[l]} = g(\vec{w}_{j}^{[l]} \cdot \vec{a}^{[l-1]} + b_{j}^{[l]})$  
 &nbsp;&nbsp;&nbsp;&nbsp; $g$ represents the sigmoid function, however in the broader context of neural networks, whichever function is used here instead of the *sigmoid* is generally called the **activation function**  
+  
+# Inference : making predictions (forward prop)  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/vYsrR/inference-making-predictions-forward-propagation  
+  
+-forward propagation - neural network structure that propagates the activation values from left to right  
+-backward propagation - contrasts forward propagation, contrasts forward prop (covered later)  
+  
+-neural network structure with decreasing number of neurons in each layer is a pretty typical neural network structure  
+  
+# TensorFlow implementation  
+-covers using forward prop offered by TF library  
+-points out difference in TF matrix representation (tensors) and how it must be handled using numpy to adhere to TF's convention  
+-
