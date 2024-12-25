@@ -73,19 +73,21 @@ Here are all input variable values :
 x_input_variables = $[[2104, 5, 1, 45], [1416, 3, 2, 40], [852, 2, 1, 35]]$  
 x_input_variables can be rearranged into a 3x4 matrix (m x n; 3 rows, 4 columns) :  
   
-x_input_variables = $$\left[\begin{array}{}
-                    2104 & 5 & 1 & 45\\
-                    1416 & 3 & 2 & 40\\
-                    852 & 2 & 1 & 35
-                    \end{array}\right]$$  
+x_input_variables =
+$$\left[\begin{array}{}
+2104 & 5 & 1 & 45\\
+1416 & 3 & 2 & 40\\
+852 & 2 & 1 & 35
+\end{array}\right]$$  
 
 Rewriting x_input_variables to indicate to which w parameter each position in matrix refers to :  
   
-x_input_variables = $$\left[\begin{array}{}
-                    x_{1}^{1} & x_{2}^{1} & x_{3}^{1} & x_{4}^{1}\\
-                    x_{1}^{2} & x_{2}^{2} & x_{3}^{2} & x_{4}^{2}\\
-                    x_{1}^{3} & x_{2}^{3} & x_{3}^{3} & x_{4}^{3}
-                    \end{array}\right]$$  
+x_input_variables = 
+$$\left[\begin{array}{}
+x_{1}^{1} & x_{2}^{1} & x_{3}^{1} & x_{4}^{1}\\
+x_{1}^{2} & x_{2}^{2} & x_{3}^{2} & x_{4}^{2}\\
+x_{1}^{3} & x_{2}^{3} & x_{3}^{3} & x_{4}^{3}
+\end{array}\right]$$  
   
 $x_{j}^{i}$ refers to the $j^{th}$ feature (input) of the $i^{th}$ training example (row).  
   
@@ -95,11 +97,12 @@ y_outputs = $[460, 232, 178]$
 
 Here is a matrix containing all of the values for the input parameters (x1, x2, x3, x4) for each training example, as well as their respective outputs.  
 
-[x_input_variables | y_vals] = $$\left[\begin{array}{}
-                                2104 & 5 & 1 & 45&|460\\
-                                1416 & 3 & 2 & 40&|232\\
-                                852 & 2 & 1 & 35&|178
-                                \end{array}\right]$$  
+[x_input_variables | y_vals] = 
+$$\left[\begin{array}{}
+2104 & 5 & 1 & 45&|460\\
+1416 & 3 & 2 & 40&|232\\
+852 & 2 & 1 & 35&|178
+\end{array}\right]$$  
 
 ## Explanation
 ### compute_cost()
