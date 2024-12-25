@@ -110,11 +110,9 @@ $L(f_{\vec{w},b}(\vec{x^{i}}, y^{i}) = -y^{(i)} log(f_{\vec{w},b}(\vec{x^{i}})) 
 !["Simplified cost function for logistic regression, and how it works"](./screenshots/Simplified_cost_function_for_logistic_regression_1.png "Simplified cost function for logistic regression, and how it works")  
   
 -let's write it out one final time  
-&nbsp;&nbsp;&nbsp;
 
-$J(\vec{w}, b) = \frac{1}{m} \sum_{i = 1}^{m} [L(f_{\vec{w},b}(\vec{x^{i}}, y^{i})]$  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $ = -\frac{1}{m} \sum_{i = 1}^{m}[y^{(i)} log(f_{\vec{w},b}(\vec{x^{i}})) + (1-y^{(i)})log(1 - f_{\vec{w},b}(\vec{x^{i}})]$  
-&nbsp;&nbsp;&nbsp;NOTE : negative signs from the shorter expression were taken out and put in front of the fraction before the summation operator  
+$J(\vec{w}, b) = \frac{1}{m} \sum_{i = 1}^{m} [L(f_{\vec{w},b}(\vec{x^{i}}, y^{i})] = -\frac{1}{m} \sum_{i = 1}^{m}[y^{(i)} log(f_{\vec{w},b}(\vec{x^{i}})) + (1-y^{(i)})log(1 - f_{\vec{w},b}(\vec{x^{i}})]$  
+NOTE : negative signs from the shorter expression were taken out and put in front of the fraction before the summation operator  
 <br></br>
 
 # Gradient descent implementation  
