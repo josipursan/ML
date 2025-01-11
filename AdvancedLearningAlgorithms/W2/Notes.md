@@ -100,6 +100,7 @@ https://www.coursera.org/learn/advanced-learning-algorithms/lecture/ZQPG3/neural
 &nbsp;&nbsp;&nbsp; -what does *SparseCategorical* mean? Categorical means we are binning our outputs in *N* specific output categories, while *Sparse* means that the each input value belongs to only one of the possible output categories  
   
 # Improved implementation of softmax  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/Tyil1/improved-implementation-of-softmax  
 -using logistic regression as an example we will demonstrate how loss, and cost, computations can be more precies avoiding the numberical roundoff error pileup  
   
 -consider $g(z)$ expression for logistic regression : $a = g(z) = \frac{1}{1+e^{-z}}$  
@@ -122,3 +123,51 @@ model.compile(loss=BinaryCrossEntropy(from_logits=True))
 </p>  
   
 -same logic is applicable for our logistic regression model - instad of applying the sigmoid activation function in the last layer, we will actually use the linear activation function in our output layer, and then once we are running prediction using our trained model we will apply sigmoid function  
+  
+# Classification with multiple outputs  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/pjIk0/classification-with-multiple-outputs-optional  
+-multi-label classification - type of classification characterized by the existence of multiple labels within a single image input (e.g. a given image might contain a car, a pedestrian, an airplane visible in the sky, etc. - all of these labels appear simultaneously)  
+  
+-how do we implement such NN?  
+&nbsp;&nbsp; -we could build a separate NN for each label we want to detect - one NN for detecting pedestrians, one for detecting cars, etc.  
+&nbsp;&nbsp; -another approach is to train one NN with three outputs (one output value represents cars, one represents pedestrians, and one represents airplanes)  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -such implementation would result in the output layer having three neurons  
+  
+-additional explanation of the difference between multiclass and multilabel classification : https://stats.stackexchange.com/questions/11859/what-is-the-difference-between-a-multiclass-and-a-multilabel-problem  
+&nbsp;&nbsp;&nbsp;&nbsp; -multiclass classification can be considered mutually exclusive - it makes the assumption that each sample (*input*) belongs to only one possible output class
+  
+&nbsp;&nbsp;&nbsp;&nbsp; -multilabel classification assigns a set of labels to each sample - each label, within the same sample, represents a different classification task  
+  
+# Advanced optimization  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/5Qt9E/advanced-optimization  
+-despite gradient descent being a widely used optimization algorithm, there are other, better, optimization algorithms  
+  
+-ADAM algorithm - speeds up optimization by increasing *alpha* (learning rate)  
+&nbsp;&nbsp;&nbsp; -when ADAM sees that gradient descent is moving in the right direction, but the "steps" it is taking are too small (therefore losing time), it increases *alpha* to try and save some iterations  
+&nbsp;&nbsp;&nbsp; -ADAM will also reduce *alpha* if grad.desc. results in an oscilating cost function (meaning the step is too large)  
+  
+&nbsp;&nbsp;&nbsp; -ADAM stands for *Adaptive Moment Estimation*  
+  
+&nbsp;&nbsp;&nbsp; -ADAM doesn't use one, global, *alpha* value - it instead uses different learning rate for each model parameter (e.g. assume we have a model represented by 5 different *w* parameters ($w_{1}$, $w_{2}$, ..., $w_{5}$), and one parameter *b* - in such scenario ADAM will create 5 different *alpha* values, one for each *w* parameter, and one *alpha* param for *b*)  
+  
+&nbsp;&nbsp;&nbsp; -how does ADAM decide whether to increase or decrease *alpha* size?  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -if the observed parameter is, iteration after iteration, moving in the same direction, increase $\alpha_{j}$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -if the observed parameter is, iteration after iteration, oscilating, reduce $\alpha_{j}$  
+  
+# Additional layer types  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/L0aFK/additional-layer-types  
+  
+-so far we've dealt only with **dense** layers  
+-depending on what we want to do with out NN we might choose different types of layers  
+-**dense layer** - a type of layer in which each neuron output is a function of **all** activation outputs of the previous layer  
+  
+-**convolutional layer** - a simplistic solution : each neuron is assigned a specific region of the input image to look at (e.g. neuron_0 looks only at the top left subsection made up of 4x4 pixels, neuron_1 looks at the first two subsections made up of 4x8 pixels, etc...)  
+  
+&nbsp;&nbsp;&nbsp; -each neuron looks at a part of the previous layer's output  
+  
+&nbsp;&nbsp;&nbsp; -such approach is computationally faster, and can need less training data (also less prone to overfitting)  
+
+
+
+
+TO DO : take a look at the labs to figure out what you could implement/try out yourself

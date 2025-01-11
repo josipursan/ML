@@ -4,7 +4,7 @@
 -*y* - output variable (also called target, ie. the value we are trying to predict based on *x*)  
 -*m* - total number of training examples  
 -*(x,y)* - single training example  
--$(x^{i}, y^{i})$ - i-th training examples (i-th row in training data matrix)  
+- $(x^{i}, y^{i})$ - i-th training examples (i-th row in training data matrix)  
 
 Model : $f_{w,b}(x) = wx + b$  
 Cost function : $J(w,b) = \frac{1}{2m}\sum_{i = 1}^{m}(f_{w,b}(x^{i}) - y^{i})^{2}$  
@@ -67,7 +67,7 @@ Loss function : $L(f_{\vec{w},b}(\vec{x^{i}}, y^{i}) = -y^{(i)} log(f_{\vec{w},b
   
 -take a look at $z$ equation written couple of lines above - we can use this to determine the decision boundary, ie. figure out where the border between `class = 0` and `class = 1` exactly is  
 &nbsp;&nbsp;&nbsp;&nbsp;-this is done by solving the *z* equation for $z = 0$ :  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\vec{w} \cdot \vec{x} + b = 0$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $\vec{w} \cdot \vec{x} + b = 0$  
 -this is exactly what we are doing by training our model - figuring out the best possible *w* and *b* parameters, thus enabling us to have the most appropriately trained model by figuring out exactly where the decision boundary lies  
 
 # Regularized logistic regression  
