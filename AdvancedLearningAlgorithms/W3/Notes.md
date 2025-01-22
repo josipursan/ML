@@ -48,6 +48,73 @@ $m_{cv}$ - number of cross validation examples
 -when evaluating multiple models, we will use *cross validation error* to determine which model we should choose  
 &nbsp;&nbsp;&nbsp; -generalization error is now estimated using the *test set error*  
 
-
+## Diagnosing bias and variance  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/L6SHx/diagnosing-bias-and-variance  
   
+-high bias - underfit model  
+-high variance - overfit model  
+  
+-underfit models (high bias) usually have very poor performance both on the training set ($J_{train}$) and the cross validation set ($J_{cv}$)  
+  
+-overfit models (high variance) usually have excellent performance on the training set ($J_{train}$), and very poor performance on the cross validation set ($J_{cv}$)  
+  
+-well trained model performs pretty well both on the training set ($J_{train}$), ie. cost is low, and has a very comparable performance on the cross validation set ($J_{cv}$)  
+  
+-here is a nice "cheat sheet" from professor's lecture for determining what is wrong with our model :  
+<p style="text-align: center">
+    <img src="./screenshots/diagnosing_bias_variance.png"/>
+</p>  
+  
+## Regularization and bias/variance  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/JQZRO/regularization-and-bias-variance  
+  
+-here we will check out how $\lambda$ (regularization term) affects bias and variance  
+  
+-the approach to choosing best possible regularization values is similar to the one previously described for choosing best possible model parameters - for a chosen $\lambda$ value you minimize the model cost, compute cross validation set cost ($J_{cv}$), and then compare cross validation set costs for all models  
+&nbsp;&nbsp;&nbsp;&nbsp; -whichever model, and its chosen $\lambda$ value, offers the lowest cross validation set cost, is chosen as the best combo  
+  
+-general logic about the impact of $\lambda$ on cost :  
+&nbsp;&nbsp;&nbsp; -big lambda values mean we are less focused on minimizing the training set error (can lead to extreme underfitting) 
+&nbsp;&nbsp;&nbsp; -small lambda values mean we are forcing smallest possible training set error (can lead to extreme overfitting)  
+  
+## Establishing a baseline level of performance  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/acyFT/establishing-a-baseline-level-of-performance  
+  
+-prior to solving a problem using our model, we need to have some kind of performance baseline to which we can compare our model  
+  
+-often times you will be able to set a benchmark using how a human, or some previous non-ML models perform some task, and then use that value as the baseline to which training set and cross validation set errors are compared to  
+  
+-if a training set error is noticeably higher than the baseline, and the cross validation set error is comparable to the training set error, we are probably dealing with a high bias (*underfit*) model  
 
+-if the training set error is comparable to the baseline, but the cross validation set error is noticeably higher than the training set error, we are most likely dealing with a high variance (*overfit*) model  
+  
+-the gap between *baselin* and *training set error* tells you if you have a high bias (*underfit*) problem  
+-the gap between *training set error* and *cross validation set error* tells you if you have a high variance problem (*overfit*)  
+  
+## Learning curves  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/X8i9Z/learning-curves  
+  
+-this lecture covers how, generally speaking, learning and error curves look like for high bias and high variance cases  
+  
+### High bias  
+<p style="text-align: center">
+    <img src="./screenshots/high_bias_learning_curves.png"/>
+</p>  
+  
+-high bias scenarios (underfit) result in $J_{train}$ and $J_{cv}$ being noticeably higher than human level performance for the chosen task (or whichever other baseline is chosen)  
+-however, $J_{train}$ and $J_{cv}$ are most often comparable in high bias scenarios  
+  
+-notice how both error curves flatten out as the number of training examples rises - **adding more training data to high bias (underfit) models DOES NOT HELP**  
+  
+-high bias of a model implies your model is not sufficiently complex enough to properly mimic system/behaviour we are trying to model  
+  
+### High variance  
+<p style="text-align: center">
+    <img src="./screenshots/high_variance_learning_curves.png"/>
+</p>  
+  
+-high variance scenarios often, but not always, result in training set error ($J_{train}$) being stupendously low, often times significantly lower than the baseline chosen for the task  
+  
+-both $J_{train}$ and $J_{cv}$ flatten as the number of training examples increases  
+  
+-**increasing number of training examples is likely to help for high variance scenarions**  
