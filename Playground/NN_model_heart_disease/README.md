@@ -8,7 +8,7 @@ https://archive.ics.uci.edu/dataset/45/heart+disease
 Based on the dataset description, it looks like this UCI dataset is similar, or identical, to this one on Kaggle : https://www.kaggle.com/datasets/johnsmith88/heart-disease-dataset  
   
 Original database used to construct this dataset is made up of 76 different attributes/measured variables.  
-However, dataset is made up of only 14 of the initial 76 variables :  
+However, dataset is made up of only 14 of the initial 76 variables (13 features (X), and 1 target (y)) :  
 &nbsp;&nbsp;&nbsp; age (*integer*) - age of the patient  
 &nbsp;&nbsp;&nbsp; sex (*categorical*) - male or female  
 &nbsp;&nbsp;&nbsp; cp (*categorical) - chest pain; can have 4 possible values (probably increasing in intensity from 0 to 3)   
@@ -22,7 +22,7 @@ However, dataset is made up of only 14 of the initial 76 variables :
 &nbsp;&nbsp;&nbsp; slope (*categorical*) - slope of the peak ST segment during exercise; looks like possible categories are 0, 1, 2  
 &nbsp;&nbsp;&nbsp; ca (*integer*) - (ca = coronary angiogram?); variable used to define number of major vessels colored by fluoroscopy; possible values are 0,1,2,3,4, so I guess this can also be considered a categorical variable  
 &nbsp;&nbsp;&nbsp; thal (*categorical*) - don't know what this means; categorical variable, possible values being 1 (normal), 2 (fixed defect), 3 (reversable defect)  
-&nbsp;&nbsp;&nbsp; target (*categorical*) - target label used to define whether a patient represented by the row of values listed above has, or has not, a hearte condition; possible values are 0 and 1  
+&nbsp;&nbsp;&nbsp; target (*integer/categorical*) - target label used to define whether a patient represented by the row of values listed above has, or has not, a heart condition; possible values are 0, 1, 2, 3, 4. Value *0* indicates no heart conditions are present. Values *1*, *2*, *3*, *4* probably indicate increasing severity of found heart condition.
   
 Looks like the original (76 variable) dataset contains some other, interesting, inputs such as smoker (*y/n*), number of cigarettes (*integer*), ...  
   
