@@ -48,7 +48,11 @@ print("y : {}\n".format(y[0:10]))
 NN_model = Sequential(
     [
         Dense(12, activation='relu'),     #input layer
-        Dense(12, activation='relu'),    #hidden layer
+        Dense(11, activation='relu'),    #hidden layer
+        Dense(10, activation='relu'),    #hidden layer
+        Dense(9, activation='relu'),    #hidden layer
+        Dense(8, activation='relu'),    #hidden layer
+        Dense(6, activation='relu'),    #hidden layer
         Dense(5, activation='softmax'),     #output layer
     ]
 )
@@ -60,7 +64,7 @@ NN_model.compile(
 
 NN_model.fit(
     X, y,
-    epochs=500
+    epochs=250
 )
 
 # Now we test our model (although here it is done using the same dataset used to train the NN)
