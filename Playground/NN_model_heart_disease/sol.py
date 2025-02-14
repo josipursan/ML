@@ -52,6 +52,7 @@ NN_model = Sequential(
         Dense(10, activation='relu'),    #hidden layer
         Dense(9, activation='relu'),    #hidden layer
         Dense(8, activation='relu'),    #hidden layer
+        Dense(7, activation='relu'),    #hidden layer
         Dense(6, activation='relu'),    #hidden layer
         Dense(5, activation='softmax'),     #output layer
     ]
@@ -64,7 +65,7 @@ NN_model.compile(
 
 NN_model.fit(
     X, y,
-    epochs=250
+    epochs=500
 )
 
 # Now we test our model (although here it is done using the same dataset used to train the NN)
@@ -74,7 +75,12 @@ for i in range(X.shape[0]):  # for every data row in X ...
         print("{} : {}".format(features_only_list[j], X[i][j]))
     
     val = np.where(NN_output_probabilities[i] == max(NN_output_probabilities[i]))
-    print("NN_output_probabilities[{}] : {}\nHeart condition classification : {}\ny : {}\n\n".format(i, NN_output_probabilities[i], NN_output_probabilities[i][val[0]], y[i]))
+    print("NN_output_probabilities[{}] : {}\nHeart condition classification : {}\ny : {}\n\n".format(i, NN_output_probabilities[i], val[0], y[i]))
 
-for i in range(0,10):
-    print("NN_output_probabilities : {}\ny : {}\n".format(NN_output_probabilities[i], y[i]))
+matches_counter = 0
+for i in range(len(NN_output_probabilities)):
+    index_of_max_probability = np.where(NN_output_probabilities[i] == max(NN_output_probabilities[i]))
+    if(y[i] == index_of_max_probability[0]):    # if the label y class, and class predicted by model match, increment match counter
+        matches_counter += 1
+
+print("Class matches between y label and model output : {}  Percentage : {}\n".format(matches_counter, matches_counter/len(y)*100))
