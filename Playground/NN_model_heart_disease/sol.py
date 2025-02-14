@@ -83,7 +83,6 @@ NN_model.fit(training_set, y_training_set, epochs=500)
 # Now we try predicting
 logits = NN_model(test_set)
 softmaxed_output = tf.nn.softmax(logits)
-print("softmaxed_output : {}\n".format(softmaxed_output))
 
 matches_counter = 0
 for i in range(len(softmaxed_output)):
@@ -92,7 +91,16 @@ for i in range(len(softmaxed_output)):
         matches_counter += 1
 
 print("Len test_set : {}\nLen y_test_set : {}\n".format(len(test_set), len(y_test_set)))
-print("Class matches between y label and model output : {}  Percentage : {}\n".format(matches_counter, matches_counter/len(y_test_set)*100))
+print("TEST_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(matches_counter, matches_counter/len(y_test_set)*100))
+
+logits_cv_test = NN_model(cv_set)
+cv_set_softmaxed_model_output = tf.nn.softmax(logits_cv_test)
+cv_test_matches = 0
+for i in range(len(cv_set_softmaxed_model_output)):
+    index_of_max_probability_cv = np.where(cv_set_softmaxed_model_output[i] == max(cv_set_softmaxed_model_output[i]))
+    if(y_cv_set[i] == index_of_max_probability_cv[0]):
+        cv_test_matches += 1
+print("CV_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(cv_test_matches, cv_test_matches/len(y_cv_set)*100))
 
 # Now we test our model (although here it is done using the same dataset used to train the NN)
 """ NN_output_probabilities = NN_model.predict(X)
