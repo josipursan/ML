@@ -46,13 +46,17 @@ print("0.6*X.shape[0] : {}\n0.2*X.shape[0] : {}\n0.2*X.shape[0] : {}\n".format(m
 print("X[0:{}]\nX[{}:{}]\nX[{}:{}]\n".format(math.floor(0.6*X.shape[0]), math.floor(0.6*X.shape[0])+1, math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]), math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]) + 1, X.shape[0]-1))
 
 
-training_set = X[0:math.floor(0.6*X.shape[0])]  # get first 60% of elements from X; why math.floor()? To make sure end index 0.6*X.shape[0] returns is a whole number, and also to ensure the indices won't overrun max range of array
-test_set = X[(math.floor(0.6*X.shape[0]) + 1) : (math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]))]
-cv_set = X[(math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]) + 1 ):(X.shape[0] - 1)]
+TRAINING_SET_SIZE = 0.6
+TEST_SET_SIZE = 0.10
+CV_SET_SIZE = 0.30
 
-y_training_set = y[0:math.floor(0.6*y.shape[0])]
-y_test_set = y[(math.floor(0.6*y.shape[0]) + 1):((math.floor(0.6*y.shape[0]) + (math.floor(0.2*y.shape[0]))))]
-y_cv_set = y[((math.floor(0.6*y.shape[0]) + (math.floor(0.2*y.shape[0]) + 1))):(y.shape[0] - 1)]
+training_set = X[0:math.floor(TRAINING_SET_SIZE*X.shape[0])]  # get first 60% of elements from X; why math.floor()? To make sure end index 0.6*X.shape[0] returns is a whole number, and also to ensure the indices won't overrun max range of array
+test_set = X[(math.floor(TRAINING_SET_SIZE*X.shape[0]) + 1) : (math.floor(TRAINING_SET_SIZE*X.shape[0]) + math.floor(TEST_SET_SIZE*X.shape[0]))]
+cv_set = X[(math.floor(TRAINING_SET_SIZE*X.shape[0]) + math.floor(CV_SET_SIZE*X.shape[0]) + 1 ):(X.shape[0] - 1)]
+
+y_training_set = y[0:math.floor(TRAINING_SET_SIZE*y.shape[0])]
+y_test_set = y[(math.floor(TRAINING_SET_SIZE*y.shape[0]) + 1):((math.floor(TRAINING_SET_SIZE*y.shape[0]) + (math.floor(TEST_SET_SIZE*y.shape[0]))))]
+y_cv_set = y[((math.floor(TRAINING_SET_SIZE*y.shape[0]) + (math.floor(CV_SET_SIZE*y.shape[0]) + 1))):(y.shape[0] - 1)]
 
 # variable information 
 print(heart_disease.variables) 
@@ -79,6 +83,17 @@ NN_model.compile(
 )
 
 NN_model.fit(training_set, y_training_set, epochs=500)
+
+logits_training_set = NN_model(training_set)
+softmaxed_training_set_predictions = tf.nn.softmax(logits_training_set)
+
+#Yes, yes, repeated code, I know...
+matches_training_set = 0
+for i in range(len(softmaxed_training_set_predictions)):
+    index_max_probability_class_training_set = np.where(softmaxed_training_set_predictions[i] == max(softmaxed_training_set_predictions[i]))
+    if(y_training_set[i] == index_max_probability_class_training_set[0]):
+        matches_training_set += 1
+print("TRAINING SET | Class matches between y label and model output : {}  Percentage : {}\n".format(matches_training_set, matches_training_set/len(y_training_set)*100))
 
 # Now we try predicting
 logits = NN_model(test_set)
