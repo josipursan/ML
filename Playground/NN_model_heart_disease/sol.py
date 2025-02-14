@@ -48,38 +48,31 @@ print("y : {}\n".format(y[0:10]))
 NN_model = Sequential(
     [
         Dense(12, activation='relu'),     #input layer
-        Dense(11, activation='relu'),    #hidden layer
-        Dense(10, activation='relu'),    #hidden layer
-        Dense(9, activation='relu'),    #hidden layer
         Dense(8, activation='relu'),    #hidden layer
-        Dense(7, activation='relu'),    #hidden layer
-        Dense(6, activation='relu'),    #hidden layer
-        Dense(5, activation='softmax'),     #output layer
+        #Dense(10, activation='relu'),    #hidden layer
+        #Dense(9, activation='relu'),    #hidden layer
+        #Dense(8, activation='relu'),    #hidden layer
+        #Dense(7, activation='relu'),    #hidden layer
+        #Dense(6, activation='relu'),    #hidden layer
+        Dense(5, activation='linear'),     #output layer
     ]
 )
 
 NN_model.compile(
-    loss = tf.keras.losses.SparseCategoricalCrossentropy(),
+    loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     optimizer=tf.keras.optimizers.Adam(0.01),
 )
 
-NN_model.fit(
-    X, y,
-    epochs=500
-)
+NN_model.fit(X, y, epochs=500)
 
-# Now we test our model (although here it is done using the same dataset used to train the NN)
-NN_output_probabilities = NN_model.predict(X)
-for i in range(X.shape[0]):  # for every data row in X ...
-    for j in range(len(features_only_list)): # for every feature available in each data row of X...
-        print("{} : {}".format(features_only_list[j], X[i][j]))
-    
-    val = np.where(NN_output_probabilities[i] == max(NN_output_probabilities[i]))
-    print("NN_output_probabilities[{}] : {}\nHeart condition classification : {}\ny : {}\n\n".format(i, NN_output_probabilities[i], val[0], y[i]))
+# Now we try predicting
+logits = NN_model(X)
+softmaxed_output = tf.nn.softmax(logits)
+print("softmaxed_output : {}\n".format(softmaxed_output))
 
 matches_counter = 0
-for i in range(len(NN_output_probabilities)):
-    index_of_max_probability = np.where(NN_output_probabilities[i] == max(NN_output_probabilities[i]))
+for i in range(len(softmaxed_output)):
+    index_of_max_probability = np.where(softmaxed_output[i] == max(softmaxed_output[i]))
     if(y[i] == index_of_max_probability[0]):    # if the label y class, and class predicted by model match, increment match counter
         matches_counter += 1
 
