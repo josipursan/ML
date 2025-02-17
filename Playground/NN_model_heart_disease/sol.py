@@ -46,9 +46,9 @@ print("0.6*X.shape[0] : {}\n0.2*X.shape[0] : {}\n0.2*X.shape[0] : {}\n".format(m
 print("X[0:{}]\nX[{}:{}]\nX[{}:{}]\n".format(math.floor(0.6*X.shape[0]), math.floor(0.6*X.shape[0])+1, math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]), math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]) + 1, X.shape[0]-1))
 
 
-TRAINING_SET_SIZE = 0.6
-TEST_SET_SIZE = 0.10
-CV_SET_SIZE = 0.30
+TRAINING_SET_SIZE = 0.7
+TEST_SET_SIZE = 0.15
+CV_SET_SIZE = 0.15
 
 training_set = X[0:math.floor(TRAINING_SET_SIZE*X.shape[0])]  # get first 60% of elements from X; why math.floor()? To make sure end index 0.6*X.shape[0] returns is a whole number, and also to ensure the indices won't overrun max range of array
 test_set = X[(math.floor(TRAINING_SET_SIZE*X.shape[0]) + 1) : (math.floor(TRAINING_SET_SIZE*X.shape[0]) + math.floor(TEST_SET_SIZE*X.shape[0]))]
@@ -63,26 +63,28 @@ print(heart_disease.variables)
 print("\n\nX: \n{}".format(X[0:10]))  #example of accessing one column in X : X.age
 print("y : {}\n".format(y[0:10]))
 
+regularization_terms = np.arange(0.01, 0.1, 0.01, dtype="float64")
 
+regTerm = 0.0025
 NN_model = Sequential(
     [
-        Dense(12, activation='relu'),     #input layer
-        Dense(11, activation='relu'),    #hidden layer
-        Dense(10, activation='relu'),    #hidden layer
-        Dense(9, activation='relu'),    #hidden layer
-        Dense(8, activation='relu'),    #hidden layer
+        Dense(12, activation='relu', kernel_initializer='ones', activity_regularizer = tf.keras.regularizers.L2(l2=regTerm)),     #input layer
+        #Dense(11, activation='relu'),    #hidden layer
+        #Dense(10, activation='relu'),    #hidden layer
+        #Dense(9, activation='relu'),    #hidden layer
+        #Dense(8, activation='relu'),    #hidden layer
         Dense(7, activation='relu'),    #hidden layer
-        Dense(6, activation='relu'),    #hidden layer
+        #Dense(6, activation='relu'),    #hidden layer
         Dense(5, activation='linear'),     #output layer
     ]
 )
 
 NN_model.compile(
     loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    optimizer=tf.keras.optimizers.Adam(0.01),
+    optimizer=tf.keras.optimizers.Adam(0.005),
 )
 
-NN_model.fit(training_set, y_training_set, epochs=500)
+NN_model.fit(training_set, y_training_set, epochs=200)
 
 logits_training_set = NN_model(training_set)
 softmaxed_training_set_predictions = tf.nn.softmax(logits_training_set)
@@ -93,7 +95,7 @@ for i in range(len(softmaxed_training_set_predictions)):
     index_max_probability_class_training_set = np.where(softmaxed_training_set_predictions[i] == max(softmaxed_training_set_predictions[i]))
     if(y_training_set[i] == index_max_probability_class_training_set[0]):
         matches_training_set += 1
-print("TRAINING SET | Class matches between y label and model output : {}  Percentage : {}\n".format(matches_training_set, matches_training_set/len(y_training_set)*100))
+
 
 # Now we try predicting
 logits = NN_model(test_set)
@@ -105,9 +107,6 @@ for i in range(len(softmaxed_output)):
     if(y_test_set[i] == index_of_max_probability[0]):    # if the label y class, and class predicted by model match, increment match counter
         matches_counter += 1
 
-print("Len test_set : {}\nLen y_test_set : {}\n".format(len(test_set), len(y_test_set)))
-print("TEST_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(matches_counter, matches_counter/len(y_test_set)*100))
-
 logits_cv_test = NN_model(cv_set)
 cv_set_softmaxed_model_output = tf.nn.softmax(logits_cv_test)
 cv_test_matches = 0
@@ -115,7 +114,13 @@ for i in range(len(cv_set_softmaxed_model_output)):
     index_of_max_probability_cv = np.where(cv_set_softmaxed_model_output[i] == max(cv_set_softmaxed_model_output[i]))
     if(y_cv_set[i] == index_of_max_probability_cv[0]):
         cv_test_matches += 1
+
+print("Regularization term : {}\n".format(i))
+print("TRAINING SET | Class matches between y label and model output : {}  Percentage : {}\n".format(matches_training_set, matches_training_set/len(y_training_set)*100))
 print("CV_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(cv_test_matches, cv_test_matches/len(y_cv_set)*100))
+print("TEST_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(matches_counter, matches_counter/len(y_test_set)*100))
+print("NN_model losses : {}\n".format(NN_model.losses))
+    
 
 # Now we test our model (although here it is done using the same dataset used to train the NN)
 """ NN_output_probabilities = NN_model.predict(X)
