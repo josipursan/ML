@@ -118,3 +118,50 @@ https://www.coursera.org/learn/advanced-learning-algorithms/lecture/X8i9Z/learni
 -both $J_{train}$ and $J_{cv}$ flatten as the number of training examples increases  
   
 -**increasing number of training examples is likely to help for high variance scenarions**  
+  
+# Deciding what to do next
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/WbRtr/deciding-what-to-try-next-revisited  
+  
+-there is a number of things we can try in order to improve the performance of our high bias, or our high variance, model  
+  
+-to improve a high variance model (OVERFIT) :  
+&nbsp;&nbsp;&nbsp;-more training examples  
+&nbsp;&nbsp;&nbsp;-try smaller sets of features  
+&nbsp;&nbsp;&nbsp;-try increasing $\lambda$ (regularization parameter)  
+
+-to improve a high bias model (UNDERFIT) :  
+&nbsp;&nbsp;&nbsp;-try getting additional features  
+&nbsp;&nbsp;&nbsp;-try adding polynomial features  
+&nbsp;&nbsp;&nbsp;-try decreasing $\lambda$ (regularization parameter)  
+  
+# Bias, variance, and neural networks  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/d1EGK/bias-variance-and-neural-networks  
+  
+-model too complex --> usually leads to high variance (OVERFIT) models  
+-model too simple --> usually leads to high bias (UNDERFIT) models  
+  
+-we will usually look to pick the model with the lowest cross-validation error  
+  
+-large NN, when trained on small to moderate datasets, are **low bias** machines  
+&nbsp;&nbsp;&nbsp;-what is meant by this? *A large enough NN will pretty much always fit the data well*  
+  
+&nbsp;&nbsp;&nbsp;-here is a general approach to trying to make our network perform as best as possible :  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-does it do well on the training set? - if NOT, we have a high bias problem - to rectify this issue, we can try using a bigger NN  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-if YES, we check does it do well on the cross validation set - if NOT, we have a high variance issue (it does well on training set, but poorly on CV set, hence conclusion we have a high variance issue) - get more data  
+
+-graphical representation of everything explained above :  
+<p style="text-align: center">
+    <img src="./screenshots/bias_variance_and_neural_networks_1.png"/>
+</p>
+  
+-bear in mind that increasing network size and getting more data aren't one shot solutions - you can not get an infinite amount of data, and you can infinitiely increase the network size with the aim of improving the model  
+
+-two important takeaways :  
+&nbsp;&nbsp;&nbsp;1. a large NN will usually to as well, or better, than a smaller one, so long as regularization is chosen appropriately  
+&nbsp;&nbsp;&nbsp;2. if your dataset is not too large, your NN can be considered a low bias machine  
+  
+# Iterative loop of ML development  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/uOXJM/iterative-loop-of-ml-development  
+  
+
+  
