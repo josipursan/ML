@@ -161,7 +161,68 @@ https://www.coursera.org/learn/advanced-learning-algorithms/lecture/d1EGK/bias-v
 &nbsp;&nbsp;&nbsp;2. if your dataset is not too large, your NN can be considered a low bias machine  
   
 # Iterative loop of ML development  
+# Error analysis  
+# Adding data  
 https://www.coursera.org/learn/advanced-learning-algorithms/lecture/uOXJM/iterative-loop-of-ml-development  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/FaPgS/error-analysis  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/AHAJy/adding-data  
+  
+-all of the above listed chapters are covered in one body because there is not enough info for all chapters to make them standalone  
+
+-besides bias and variance, error analysis is another tool quite useful when trying to improve the performance of our model  
+&nbsp;&nbsp;&nbsp;-quite often it is useful to manually check out misclassified examples - this will enable you to ascertain whether there is some frequent subcategory of data often being misclassified  
+&nbsp;&nbsp;&nbsp;-such approach enables you to quickly improve the performance of your algorithm by adjusting the algorithm to perform better on the frequently misclassified subcategory of data  
+  
+-more data can be added in multiple ways : add more all of data, add more data for data subcategories where error analysis indicates it might help, creating new training examples using data augmentation  
+-**data augmentation** - modifying an existing training example to create a new training example  
+-**data synthesis** - using artifical data to create a new training example  
+  
+# Transfer learning  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/ycgS5/transfer-learning-using-data-from-a-different-task  
+  
+-this, like everything in life, is simultaneously "an inch deep, and a mile wide", and "a mile deep and an inch wide" topic
+
+-**transfer learning** - knowledge learned from a task is re-used in order to boost performance, and shorten training time, of a new learning task  
+-transfer learning can be separated into two distinct phases : **pre-training** AND **fine-tuning**  
+  
+-**pre-training** - aims to learn fundamental structure and semantics  
+-**fine tuning** - aims to optimize pre-trained model's performance for a specific task using a task-specific dataset  
+  
+# Skewed datasets  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/pjuBJ/error-metrics-for-skewed-datasets  
+  
+-often times we can find ourselves working on datasets skewed to a different degree - sometimes the datasets are relatively balanced, while other times the ratio of positive to negative examples is very skewed  
+-if we have a very skewed dataset, conventional performance measurements (e.g. accuracy) do not work that well  
+  
+NOTE TO SELF : this is exactly what you are facing with the heart disease NN project (https://github.com/josipursan/ML/tree/main/Playground/NN_model_heart_disease)  
+  
+-we will usually use different error metrics when handling skewed datasets  
+  
+-a common pair of error metrics is **precision** and **recall**  
+
+-to compute these two values we will need the help of *confusion matrix* (example shown below)
+<p style="text-align: center">
+    <img src="./screenshots/error_metrics_for_skewed_datasets.png"/>
+</p>  
+  
+-**precision** - defined as ratio of *true positives* and the number of predicted positives  
+&nbsp;&nbsp;&nbsp;-in other words, of all the examples predicted as positive, what fraction did we actually get right  
+&nbsp;&nbsp;&nbsp; $precision = \frac{true positives}{number of predicted positives} = \frac{true positives}{true positives + false positives}$  
+&nbsp;&nbsp;&nbsp;-precision - a metric representing the ability of a model to correctly predict positive instances  
+  
+-**recall** - ratio of *true positives* and the nmber of actual positives  
+&nbsp;&nbsp;&nbsp; $recall = \frac{true positives}{number of actual positives} = \frac{true positives}{true positives + false negatives}$  
+  
+-precision - fraction of relevant instances among the retrieved instances  
+-recall - fraction of relevant instances that were retrieved  
+  
+-example from Wikipedia :  
+*Upon processing a picture which contains ten cats and twelve dogs, the program identifies eight dogs. Of the eight elements identified as dogs, only five actually are dogs (true positives), while the other three are cats (false positives). Seven dogs were missed (false negatives), and seven cats were correctly excluded (true negatives). The program's precision is then 5/8 (true positives / selected elements) while its recall is 5/12 (true positives / relevant elements).*  
+  
+&nbsp;&nbsp;&nbsp;-picture, as stated, has 10 cats and 12 dogs
+&nbsp;&nbsp;&nbsp;-so, an algorithm is run on an image, and it identifies 8 dogs (at least it says so)  
+&nbsp;&nbsp;&nbsp;-of the 8 picture elements identified as dogs, only 5 are actually dogs  
+&nbsp;&nbsp;&nbsp;-algorithm's precision is $\frac{5}{8} = 0.625 = 62.5\%$ - why? Because out of the 8 elements algorithm claims are dogs, only 5 are dogs, hence 62.5%  
+&nbsp;&nbsp;&nbsp;-algorithm's recall is $\frac{5}{12} = 0.416 = 41.6\%$ - why? Because out of all of the dogs in the picutre (12), algorithm has managed to identify only 5, hence 41.6%  
   
 
-  
