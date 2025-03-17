@@ -8,16 +8,51 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 import pandas as pd
+import json
 # fetch dataset 
 heart_disease = fetch_ucirepo(id=45) 
-  
+
+
+def the_ol_trusworthy(X, y, features_only_list):
+    X_rows, X_cols = X.shape
+    number_of_new_examples = 100
+    #clean_X = np.empty(shape=(0, X.shape[1]))
+    # What is clean_X numpy array? It is an array containing only those rows from X whose y label is 1,2,3, or 4 - we do not want to generate examples with y label 0!
+    dict__min_max_per_variable = {}
+
+    print("y shape : {}\nX shape : {}\n".format(y.shape, X.shape))
+
+    """ for i in range(len(y)):
+        if(y[i] != 0):
+            clean_X = np.vstack((clean_X, X[i])) """
+
+    #print("clean_X : {}\ndim : {}\n".format(clean_X, clean_X.shape))  # clean_X must have X.shape[0] - X_where_y_equals rows (e.g. X has 297 rows, of which 160 have y=0, hence clean_X must have 137 rows)
+
+    min_values_columns = np.min(X, axis = 0)
+    max_values_columns = np.max(X, axis = 0)
+
+    print("min : {}\nmax : {}\n".format(min_values_columns, max_values_columns))
+
+    for example in range(number_of_new_examples):
+        current_example = np.empty(shape=(1, X_cols))
+
+        for i in range(X_cols):
+            random_value = np.random.uniform(min_values_columns[i], max_values_columns[i])
+            current_example[0][i] = random_value
+
+        X = np.vstack((X, current_example))
+        y = np.append(y, math.floor(np.random.uniform(np.min(y), np.max(y))))
+
+    return X, y
+
 # data (as pandas dataframes) 
 X = heart_disease.data.features 
-y = heart_disease.data.targets 
-
+y = heart_disease.data.targets
 
 features_only_list = X.columns.tolist()
 del features_only_list[-1]
+
+print("features_only_list : {}\n".format(features_only_list))
 
 X = X.to_numpy()
 y = y.to_numpy()
@@ -36,16 +71,15 @@ X = np.delete(X, (rows_to_remove), axis = 0)
 y = np.delete(y, (rows_to_remove), axis = 0) 
 print("Row containing NaN : {}\nX dim after removing offending rows : {}\n".format(rows_to_remove, X.shape))
 
-print("y labels : {}\n".format(y))
-unique, counts = np.unique(y, return_counts=True)
-occurence_counts = dict(zip(unique, counts))
-print("Unique : {}\nCounts : {}\nOccurence counts : {}\n".format(unique, counts, occurence_counts))
-plt.bar(unique, counts, color='skyblue', edgecolor='black')
-plt.xlabel("Y label classes")
-plt.ylabel("Number of occurences")
-plt.title("Y label class distribution")
-plt.show()
-time.sleep(10)
+print("X : {}\n".format(X[20]))
+rows, cols = X.shape
+print("X rows/cols : {} {}\n".format(rows, cols))
+generated_Data_X, generated_y = the_ol_trusworthy(X, y, features_only_list)
+print("generated_Data_X : {}\n[:10] : {}\ndims : {}\n".format(generated_Data_X, generated_Data_X[:10], generated_Data_X.shape))
+print("generated_y = {}\n".format(generated_y))
+print("min_generated_y : {}\nmax_generated_y : {}\n".format(np.min(generated_y), np.max(generated_y)))
+time.sleep(5)
+
 
 print("Pre normalization : {}\n".format(X))
 tf.keras.utils.normalize(X)
@@ -57,17 +91,17 @@ print("0.6*X.shape[0] : {}\n0.2*X.shape[0] : {}\n0.2*X.shape[0] : {}\n".format(m
 print("X[0:{}]\nX[{}:{}]\nX[{}:{}]\n".format(math.floor(0.6*X.shape[0]), math.floor(0.6*X.shape[0])+1, math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]), math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]) + 1, X.shape[0]-1))
 
 
-TRAINING_SET_SIZE = 0.7
+TRAINING_SET_SIZE = 0.6
 TEST_SET_SIZE = 0.15
 CV_SET_SIZE = 0.15
 
-training_set = X[0:math.floor(TRAINING_SET_SIZE*X.shape[0])]  # get first 60% of elements from X; why math.floor()? To make sure end index 0.6*X.shape[0] returns is a whole number, and also to ensure the indices won't overrun max range of array
-test_set = X[(math.floor(TRAINING_SET_SIZE*X.shape[0]) + 1) : (math.floor(TRAINING_SET_SIZE*X.shape[0]) + math.floor(TEST_SET_SIZE*X.shape[0]))]
-cv_set = X[(math.floor(TRAINING_SET_SIZE*X.shape[0]) + math.floor(CV_SET_SIZE*X.shape[0]) + 1):(X.shape[0] - 1)]
+training_set = generated_Data_X[0:math.floor(TRAINING_SET_SIZE*generated_Data_X.shape[0])]  # get first 60% of elements from X; why math.floor()? To make sure end index 0.6*X.shape[0] returns is a whole number, and also to ensure the indices won't overrun max range of array
+test_set = generated_Data_X[(math.floor(TRAINING_SET_SIZE*generated_Data_X.shape[0]) + 1) : (math.floor(TRAINING_SET_SIZE*generated_Data_X.shape[0]) + math.floor(TEST_SET_SIZE*generated_Data_X.shape[0]))]
+cv_set = generated_Data_X[(math.floor(TRAINING_SET_SIZE*generated_Data_X.shape[0]) + math.floor(CV_SET_SIZE*generated_Data_X.shape[0]) + 1):(generated_Data_X.shape[0] - 1)]
 
-y_training_set = y[0:math.floor(TRAINING_SET_SIZE*y.shape[0])]
-y_test_set = y[(math.floor(TRAINING_SET_SIZE*y.shape[0]) + 1):((math.floor(TRAINING_SET_SIZE*y.shape[0]) + (math.floor(TEST_SET_SIZE*y.shape[0]))))]
-y_cv_set = y[((math.floor(TRAINING_SET_SIZE*y.shape[0]) + (math.floor(CV_SET_SIZE*y.shape[0]) + 1))):(y.shape[0] - 1)]
+y_training_set = generated_y[0:math.floor(TRAINING_SET_SIZE*generated_y.shape[0])]
+y_test_set = generated_y[(math.floor(TRAINING_SET_SIZE*generated_y.shape[0]) + 1):((math.floor(TRAINING_SET_SIZE*generated_y.shape[0]) + (math.floor(TEST_SET_SIZE*generated_y.shape[0]))))]
+y_cv_set = generated_y[((math.floor(TRAINING_SET_SIZE*generated_y.shape[0]) + (math.floor(CV_SET_SIZE*generated_y.shape[0]) + 1))):(generated_y.shape[0] - 1)]
 
 # variable information 
 print(heart_disease.variables) 
@@ -79,12 +113,13 @@ regularization_terms = np.arange(0.01, 0.1, 0.01, dtype="float64")
 regTerm = 0.0025
 NN_model = Sequential(
     [
-        Dense(12, activation='relu', kernel_initializer='ones', activity_regularizer = tf.keras.regularizers.L2(l2=regTerm)),     #input layer
-        #Dense(11, activation='relu'),    #hidden layer
-        #Dense(10, activation='relu'),    #hidden layer
-        #Dense(9, activation='relu'),    #hidden layer
+        Dense(13, activation='relu', kernel_initializer='ones', activity_regularizer = tf.keras.regularizers.L2(l2=regTerm)),     #input layer
+        Dense(12, activation='relu'),    #hidden layer
+        Dense(11, activation='relu'),    #hidden layer
+        Dense(10, activation='relu'),    #hidden layer
+        Dense(9, activation='relu'),    #hidden layer
         #Dense(8, activation='relu'),    #hidden layer
-        Dense(7, activation='relu'),    #hidden layer
+        #Dense(7, activation='relu'),    #hidden layer
         #Dense(6, activation='relu'),    #hidden layer
         Dense(5, activation='linear'),     #output layer
     ]
@@ -92,10 +127,10 @@ NN_model = Sequential(
 
 NN_model.compile(
     loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    optimizer=tf.keras.optimizers.Adam(0.005),
+    optimizer=tf.keras.optimizers.Adam(0.0057),
 )
 
-NN_model.fit(training_set, y_training_set, epochs=200)
+NN_model.fit(training_set, y_training_set, epochs=250)
 
 logits_training_set = NN_model(training_set)
 softmaxed_training_set_predictions = tf.nn.softmax(logits_training_set)
@@ -126,7 +161,6 @@ for i in range(len(cv_set_softmaxed_model_output)):
     if(y_cv_set[i] == index_of_max_probability_cv[0]):
         cv_test_matches += 1
 
-print("Regularization term : {}\n".format(i))
 print("TRAINING SET | Class matches between y label and model output : {}  Percentage : {}\n".format(matches_training_set, matches_training_set/len(y_training_set)*100))
 print("CV_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(cv_test_matches, cv_test_matches/len(y_cv_set)*100))
 print("TEST_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(matches_counter, matches_counter/len(y_test_set)*100))
