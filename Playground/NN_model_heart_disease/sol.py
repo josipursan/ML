@@ -36,6 +36,17 @@ X = np.delete(X, (rows_to_remove), axis = 0)
 y = np.delete(y, (rows_to_remove), axis = 0) 
 print("Row containing NaN : {}\nX dim after removing offending rows : {}\n".format(rows_to_remove, X.shape))
 
+print("y labels : {}\n".format(y))
+unique, counts = np.unique(y, return_counts=True)
+occurence_counts = dict(zip(unique, counts))
+print("Unique : {}\nCounts : {}\nOccurence counts : {}\n".format(unique, counts, occurence_counts))
+plt.bar(unique, counts, color='skyblue', edgecolor='black')
+plt.xlabel("Y label classes")
+plt.ylabel("Number of occurences")
+plt.title("Y label class distribution")
+plt.show()
+time.sleep(10)
+
 print("Pre normalization : {}\n".format(X))
 tf.keras.utils.normalize(X)
 print("\nAfter normalization : {}\n".format(X))
@@ -52,7 +63,7 @@ CV_SET_SIZE = 0.15
 
 training_set = X[0:math.floor(TRAINING_SET_SIZE*X.shape[0])]  # get first 60% of elements from X; why math.floor()? To make sure end index 0.6*X.shape[0] returns is a whole number, and also to ensure the indices won't overrun max range of array
 test_set = X[(math.floor(TRAINING_SET_SIZE*X.shape[0]) + 1) : (math.floor(TRAINING_SET_SIZE*X.shape[0]) + math.floor(TEST_SET_SIZE*X.shape[0]))]
-cv_set = X[(math.floor(TRAINING_SET_SIZE*X.shape[0]) + math.floor(CV_SET_SIZE*X.shape[0]) + 1 ):(X.shape[0] - 1)]
+cv_set = X[(math.floor(TRAINING_SET_SIZE*X.shape[0]) + math.floor(CV_SET_SIZE*X.shape[0]) + 1):(X.shape[0] - 1)]
 
 y_training_set = y[0:math.floor(TRAINING_SET_SIZE*y.shape[0])]
 y_test_set = y[(math.floor(TRAINING_SET_SIZE*y.shape[0]) + 1):((math.floor(TRAINING_SET_SIZE*y.shape[0]) + (math.floor(TEST_SET_SIZE*y.shape[0]))))]
