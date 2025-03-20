@@ -8,40 +8,36 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 import pandas as pd
-import json
+import random
 # fetch dataset 
 heart_disease = fetch_ucirepo(id=45) 
 
 
-def the_ol_trusworthy(X, y, features_only_list):
+def adding_noisy_examples(X, y):
     X_rows, X_cols = X.shape
-    number_of_new_examples = 100
-    #clean_X = np.empty(shape=(0, X.shape[1]))
-    # What is clean_X numpy array? It is an array containing only those rows from X whose y label is 1,2,3, or 4 - we do not want to generate examples with y label 0!
-    dict__min_max_per_variable = {}
+    number_of_new_examples = 2000
 
-    print("y shape : {}\nX shape : {}\n".format(y.shape, X.shape))
+    max_percentage_to_vary_examples = 1.10  # 10%
 
-    """ for i in range(len(y)):
-        if(y[i] != 0):
-            clean_X = np.vstack((clean_X, X[i])) """
+    new_examples = np.empty(shape=(0, X_cols))
+    new_y_labels = np.empty(shape=(0, 1))
 
-    #print("clean_X : {}\ndim : {}\n".format(clean_X, clean_X.shape))  # clean_X must have X.shape[0] - X_where_y_equals rows (e.g. X has 297 rows, of which 160 have y=0, hence clean_X must have 137 rows)
+    counter = 0
+    i = 0
+    while i < number_of_new_examples:
+        print("i : {}\n".format(i))
+        
+        if counter == X_rows-1: # why -1? Because 5 total rows means indices are 0,1,2,3,4, meaning if counter = 5 we will have out of bounds access attempt to X
+            counter = 0 #simply restart the counter
 
-    min_values_columns = np.min(X, axis = 0)
-    max_values_columns = np.max(X, axis = 0)
+        if(y[counter] != 0 or (y[counter] == 0 and counter%2==0)):
+            new_examples = np.vstack((new_examples, X[counter]*random.uniform(0.90, max_percentage_to_vary_examples)))  # X[i] is multiplied by a random scalar whose value can be [0.90, 1.10] (this is effectively +/- 10% around the original value)
+            new_y_labels = np.vstack((new_y_labels, y[counter]))
+            i += 1
+        counter += 1
 
-    print("min : {}\nmax : {}\n".format(min_values_columns, max_values_columns))
-
-    for example in range(number_of_new_examples):
-        current_example = np.empty(shape=(1, X_cols))
-
-        for i in range(X_cols):
-            random_value = np.random.uniform(min_values_columns[i], max_values_columns[i])
-            current_example[0][i] = random_value
-
-        X = np.vstack((X, current_example))
-        y = np.append(y, math.floor(np.random.uniform(np.min(y), np.max(y))))
+    X = np.vstack((X, new_examples))
+    y = np.vstack((y, new_y_labels))
 
     return X, y
 
@@ -73,17 +69,17 @@ print("Row containing NaN : {}\nX dim after removing offending rows : {}\n".form
 
 print("X : {}\n".format(X[20]))
 rows, cols = X.shape
-print("X rows/cols : {} {}\n".format(rows, cols))
-generated_Data_X, generated_y = the_ol_trusworthy(X, y, features_only_list)
-print("generated_Data_X : {}\n[:10] : {}\ndims : {}\n".format(generated_Data_X, generated_Data_X[:10], generated_Data_X.shape))
-print("generated_y = {}\n".format(generated_y))
-print("min_generated_y : {}\nmax_generated_y : {}\n".format(np.min(generated_y), np.max(generated_y)))
-time.sleep(5)
+generated_Data_X, generated_y = adding_noisy_examples(X, y)
+#print("generated_Data_X : {}\n[:10] : {}\n\n\ndims : {}\n\n".format(generated_Data_X, generated_Data_X[:10], generated_Data_X.shape))
+print("\ngenerated_X : {}\nX : {}\n".format(generated_Data_X.shape, X.shape))
+print("generated_Data_X[:5] : {}\n\nX[:5] : {}".format(generated_Data_X[:10], X[:5]))
+
 
 
 print("Pre normalization : {}\n".format(X))
-tf.keras.utils.normalize(X)
+tf.keras.utils.normalize(X, order=2)
 print("\nAfter normalization : {}\n".format(X))
+#time.sleep(20)
 
 print("Example of how I will slice the initial dataset to get training set, test set and cv set\n")
 print("X.shape : {}\nX.shape : {}\n".format(X.shape, X[X.shape[0]-1]))
@@ -91,7 +87,7 @@ print("0.6*X.shape[0] : {}\n0.2*X.shape[0] : {}\n0.2*X.shape[0] : {}\n".format(m
 print("X[0:{}]\nX[{}:{}]\nX[{}:{}]\n".format(math.floor(0.6*X.shape[0]), math.floor(0.6*X.shape[0])+1, math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]), math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]) + 1, X.shape[0]-1))
 
 
-TRAINING_SET_SIZE = 0.6
+""" TRAINING_SET_SIZE = 0.6
 TEST_SET_SIZE = 0.15
 CV_SET_SIZE = 0.15
 
@@ -101,14 +97,28 @@ cv_set = generated_Data_X[(math.floor(TRAINING_SET_SIZE*generated_Data_X.shape[0
 
 y_training_set = generated_y[0:math.floor(TRAINING_SET_SIZE*generated_y.shape[0])]
 y_test_set = generated_y[(math.floor(TRAINING_SET_SIZE*generated_y.shape[0]) + 1):((math.floor(TRAINING_SET_SIZE*generated_y.shape[0]) + (math.floor(TEST_SET_SIZE*generated_y.shape[0]))))]
-y_cv_set = generated_y[((math.floor(TRAINING_SET_SIZE*generated_y.shape[0]) + (math.floor(CV_SET_SIZE*generated_y.shape[0]) + 1))):(generated_y.shape[0] - 1)]
+y_cv_set = generated_y[((math.floor(TRAINING_SET_SIZE*generated_y.shape[0]) + (math.floor(CV_SET_SIZE*generated_y.shape[0]) + 1))):(generated_y.shape[0] - 1)] """
+
+TRAINING_SET_SIZE = 0.6
+TEST_SET_SIZE = 0.15
+CV_SET_SIZE = 0.15
+
+training_set_indices = np.random.choice(generated_Data_X.shape[0], size=math.floor(TRAINING_SET_SIZE*generated_Data_X.shape[0]), replace=False)
+test_set_indices = np.random.choice(generated_Data_X.shape[0], size=math.floor(TEST_SET_SIZE*generated_Data_X.shape[0]), replace=False)
+cv_set_indices = np.random.choice(generated_Data_X.shape[0], size=math.floor(CV_SET_SIZE*generated_Data_X.shape[0]), replace=False)
+
+training_set = generated_Data_X[training_set_indices]
+test_set = generated_Data_X[test_set_indices]
+cv_set = generated_Data_X[cv_set_indices]
+
+y_training_set = generated_y[training_set_indices]
+y_test_set = generated_y[test_set_indices]
+y_cv_set = generated_y[cv_set_indices]
 
 # variable information 
 print(heart_disease.variables) 
 print("\n\nX: \n{}".format(X[0:10]))  #example of accessing one column in X : X.age
 print("y : {}\n".format(y[0:10]))
-
-regularization_terms = np.arange(0.01, 0.1, 0.01, dtype="float64")
 
 regTerm = 0.0025
 NN_model = Sequential(
@@ -117,7 +127,7 @@ NN_model = Sequential(
         Dense(12, activation='relu'),    #hidden layer
         Dense(11, activation='relu'),    #hidden layer
         Dense(10, activation='relu'),    #hidden layer
-        Dense(9, activation='relu'),    #hidden layer
+        #Dense(9, activation='relu'),    #hidden layer
         #Dense(8, activation='relu'),    #hidden layer
         #Dense(7, activation='relu'),    #hidden layer
         #Dense(6, activation='relu'),    #hidden layer
@@ -127,10 +137,10 @@ NN_model = Sequential(
 
 NN_model.compile(
     loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    optimizer=tf.keras.optimizers.Adam(0.0057),
+    optimizer=tf.keras.optimizers.Adam(0.0009),
 )
 
-NN_model.fit(training_set, y_training_set, epochs=250)
+NN_model.fit(training_set, y_training_set, epochs=200)
 
 logits_training_set = NN_model(training_set)
 softmaxed_training_set_predictions = tf.nn.softmax(logits_training_set)
@@ -146,7 +156,6 @@ for i in range(len(softmaxed_training_set_predictions)):
 # Now we try predicting
 logits = NN_model(test_set)
 softmaxed_output = tf.nn.softmax(logits)
-
 matches_counter = 0
 for i in range(len(softmaxed_output)):
     index_of_max_probability = np.where(softmaxed_output[i] == max(softmaxed_output[i]))
@@ -165,6 +174,7 @@ print("TRAINING SET | Class matches between y label and model output : {}  Perce
 print("CV_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(cv_test_matches, cv_test_matches/len(y_cv_set)*100))
 print("TEST_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(matches_counter, matches_counter/len(y_test_set)*100))
 print("NN_model losses : {}\n".format(NN_model.losses))
+print("\ngenerated_X : {}\nX : {}\n".format(generated_Data_X.shape, X.shape))
     
 
 # Now we test our model (although here it is done using the same dataset used to train the NN)
