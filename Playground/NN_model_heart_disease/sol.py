@@ -43,7 +43,7 @@ def mean_normalization(X):
 
 def adding_noisy_examples(X, y):
     X_rows, X_cols = X.shape
-    number_of_new_examples = 500
+    number_of_new_examples = 1000
 
     max_percentage_to_vary_examples = 1.10  # 10%
 
@@ -131,8 +131,8 @@ print("Row containing NaN : {}\nX dim after removing offending rows : {}\n".form
 rows, cols = X.shape
 scaled_X = max_val_scaling(X)
 print("scaled_X : {}\n".format(scaled_X))
-generated_Data_X, generated_y = adding_noisy_examples(scaled_X, y)
-#generated_Data_X, generated_y = scaled_X, y
+#generated_Data_X, generated_y = adding_noisy_examples(scaled_X, y)
+generated_Data_X, generated_y = scaled_X, y
 
 print("Example of how I will slice the initial dataset to get training set, test set and cv set\n")
 print("X.shape : {}\nX.shape : {}\n".format(X.shape, X[X.shape[0]-1]))
@@ -177,10 +177,10 @@ regTerm = 0.0025
 NN_model = Sequential(
     [
         Dense(13, activation='relu', kernel_initializer='ones', activity_regularizer = tf.keras.regularizers.L2(l2=regTerm)),     #input layer
-        #Dense(12, activation='relu'),    #hidden layer
-        Dense(11, activation='relu'),    #hidden layer
+        Dense(12, activation='relu'),    #hidden layer
+        #Dense(11, activation='relu'),    #hidden layer
         #Dense(10, activation='relu'),    #hidden layer
-        Dense(9, activation='relu'),    #hidden layer
+        #Dense(9, activation='relu'),    #hidden layer
         #Dense(8, activation='relu'),    #hidden layer
         #Dense(7, activation='relu'),    #hidden layer
         #Dense(6, activation='relu'),    #hidden layer
@@ -190,10 +190,10 @@ NN_model = Sequential(
 
 NN_model.compile(
     loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    optimizer=tf.keras.optimizers.Adam(0.01),
+    optimizer=tf.keras.optimizers.Adam(0.00875),
 )
 
-NN_model.fit(training_set, y_training_set, epochs=500)
+NN_model.fit(training_set, y_training_set, epochs=550)
 
 logits_training_set = NN_model(training_set)
 softmaxed_training_set_predictions = tf.nn.softmax(logits_training_set)
