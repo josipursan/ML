@@ -13,9 +13,37 @@ import random
 heart_disease = fetch_ucirepo(id=45) 
 
 
+def max_val_scaling(X):
+    X_rows, X_cols = X.shape
+    max_values_columns = np.max(X, axis = 0)
+
+    scaled_X = np.empty(shape=(X_rows, X_cols))
+
+    for column in range(X_cols):
+        for row in range(X_rows):
+            scaled_X[row][column] = X[row][column]/max_values_columns[column]
+
+    return scaled_X
+
+def mean_normalization(X): 
+    X_rows, X_cols = X.shape
+    X_scaled = np.empty(shape=(X_rows, X_cols))
+    all_column_means = np.mean(X, axis = 0)
+
+    min_values_columns = np.min(X, axis = 0)
+    max_values_columns = np.max(X, axis = 0)
+
+
+    for column in range(X_cols):
+        for row in range(X_rows):
+            X_scaled[row][column] = (X[row][column] - all_column_means[column])/max_values_columns[column] - min_values_columns[column]
+
+    return X_scaled
+     
+
 def adding_noisy_examples(X, y):
     X_rows, X_cols = X.shape
-    number_of_new_examples = 2000
+    number_of_new_examples = 500
 
     max_percentage_to_vary_examples = 1.10  # 10%
 
@@ -40,6 +68,39 @@ def adding_noisy_examples(X, y):
     y = np.vstack((y, new_y_labels))
 
     return X, y
+
+
+""" def the_ol_trusworthy(X, y, features_only_list):
+    X_rows, X_cols = X.shape
+    number_of_new_examples = 100
+    #clean_X = np.empty(shape=(0, X.shape[1]))
+    # What is clean_X numpy array? It is an array containing only those rows from X whose y label is 1,2,3, or 4 - we do not want to generate examples with y label 0!
+    dict__min_max_per_variable = {}
+
+    print("y shape : {}\nX shape : {}\n".format(y.shape, X.shape))
+
+    #for i in range(len(y)):
+    #    if(y[i] != 0):
+    #        clean_X = np.vstack((clean_X, X[i]))
+
+    #print("clean_X : {}\ndim : {}\n".format(clean_X, clean_X.shape))  # clean_X must have X.shape[0] - X_where_y_equals rows (e.g. X has 297 rows, of which 160 have y=0, hence clean_X must have 137 rows)
+
+    min_values_columns = np.min(X, axis = 0)
+    max_values_columns = np.max(X, axis = 0)
+
+    print("min : {}\nmax : {}\n".format(min_values_columns, max_values_columns))
+
+    for example in range(number_of_new_examples):
+        current_example = np.empty(shape=(1, X_cols))
+
+        for i in range(X_cols):
+            random_value = np.random.uniform(min_values_columns[i], max_values_columns[i])
+            current_example[0][i] = random_value
+
+        X = np.vstack((X, current_example))
+        y = np.append(y, math.floor(np.random.uniform(np.min(y), np.max(y))))
+
+    return X, y """
 
 # data (as pandas dataframes) 
 X = heart_disease.data.features 
@@ -67,19 +128,11 @@ X = np.delete(X, (rows_to_remove), axis = 0)
 y = np.delete(y, (rows_to_remove), axis = 0) 
 print("Row containing NaN : {}\nX dim after removing offending rows : {}\n".format(rows_to_remove, X.shape))
 
-print("X : {}\n".format(X[20]))
 rows, cols = X.shape
-generated_Data_X, generated_y = adding_noisy_examples(X, y)
-#print("generated_Data_X : {}\n[:10] : {}\n\n\ndims : {}\n\n".format(generated_Data_X, generated_Data_X[:10], generated_Data_X.shape))
-print("\ngenerated_X : {}\nX : {}\n".format(generated_Data_X.shape, X.shape))
-print("generated_Data_X[:5] : {}\n\nX[:5] : {}".format(generated_Data_X[:10], X[:5]))
-
-
-
-print("Pre normalization : {}\n".format(X))
-tf.keras.utils.normalize(X, order=2)
-print("\nAfter normalization : {}\n".format(X))
-#time.sleep(20)
+scaled_X = max_val_scaling(X)
+print("scaled_X : {}\n".format(scaled_X))
+generated_Data_X, generated_y = adding_noisy_examples(scaled_X, y)
+#generated_Data_X, generated_y = scaled_X, y
 
 print("Example of how I will slice the initial dataset to get training set, test set and cv set\n")
 print("X.shape : {}\nX.shape : {}\n".format(X.shape, X[X.shape[0]-1]))
@@ -124,10 +177,10 @@ regTerm = 0.0025
 NN_model = Sequential(
     [
         Dense(13, activation='relu', kernel_initializer='ones', activity_regularizer = tf.keras.regularizers.L2(l2=regTerm)),     #input layer
-        Dense(12, activation='relu'),    #hidden layer
+        #Dense(12, activation='relu'),    #hidden layer
         Dense(11, activation='relu'),    #hidden layer
-        Dense(10, activation='relu'),    #hidden layer
-        #Dense(9, activation='relu'),    #hidden layer
+        #Dense(10, activation='relu'),    #hidden layer
+        Dense(9, activation='relu'),    #hidden layer
         #Dense(8, activation='relu'),    #hidden layer
         #Dense(7, activation='relu'),    #hidden layer
         #Dense(6, activation='relu'),    #hidden layer
@@ -137,10 +190,10 @@ NN_model = Sequential(
 
 NN_model.compile(
     loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    optimizer=tf.keras.optimizers.Adam(0.0009),
+    optimizer=tf.keras.optimizers.Adam(0.01),
 )
 
-NN_model.fit(training_set, y_training_set, epochs=200)
+NN_model.fit(training_set, y_training_set, epochs=500)
 
 logits_training_set = NN_model(training_set)
 softmaxed_training_set_predictions = tf.nn.softmax(logits_training_set)
