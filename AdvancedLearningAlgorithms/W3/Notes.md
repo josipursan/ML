@@ -219,10 +219,29 @@ NOTE TO SELF : this is exactly what you are facing with the heart disease NN pro
 -example from Wikipedia :  
 *Upon processing a picture which contains ten cats and twelve dogs, the program identifies eight dogs. Of the eight elements identified as dogs, only five actually are dogs (true positives), while the other three are cats (false positives). Seven dogs were missed (false negatives), and seven cats were correctly excluded (true negatives). The program's precision is then 5/8 (true positives / selected elements) while its recall is 5/12 (true positives / relevant elements).*  
   
-&nbsp;&nbsp;&nbsp;-picture, as stated, has 10 cats and 12 dogs
+&nbsp;&nbsp;&nbsp;-picture, as stated, has 10 cats and 12 dogs  
 &nbsp;&nbsp;&nbsp;-so, an algorithm is run on an image, and it identifies 8 dogs (at least it says so)  
 &nbsp;&nbsp;&nbsp;-of the 8 picture elements identified as dogs, only 5 are actually dogs  
 &nbsp;&nbsp;&nbsp;-algorithm's precision is $\frac{5}{8} = 0.625 = 62.5\%$ - why? Because out of the 8 elements algorithm claims are dogs, only 5 are dogs, hence 62.5%  
 &nbsp;&nbsp;&nbsp;-algorithm's recall is $\frac{5}{12} = 0.416 = 41.6\%$ - why? Because out of all of the dogs in the picutre (12), algorithm has managed to identify only 5, hence 41.6%  
   
+# Trading off precision and recall  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/42TEG/trading-off-precision-and-recall  
+  
+-high precision algorithm - means that if the algorithm says a patient has some kind of disease, it is highly likely this is the case  
+-high recall algorithm - if there is a petient with some disease, it is highly likely the algorithm will be able to correctly identify and diagnose this patient  
+  
+-however, real life usually results in some kind of level of trade-off between precision and recall  
+  
+-a higher threshold used to determine the presence, or absence, of some e.g. disease, will result in higher precision - however it will also result in lower recall  
+&nbsp;&nbsp;&nbsp;-think of it as a balancing scale, one side being algorithm precision, and the other being algorithm recall  
+&nbsp;&nbsp;&nbsp;-if you increase the algorithm's precision (by raising the detection threshold), you will lower the algorithm's recall, and vice versa  
+&nbsp;&nbsp;&nbsp;-if we want to be very certain we have correctly detected presence of a disease, we will raise the threshold  
+&nbsp;&nbsp;&nbsp;-if we want to avoid missing too many cases (ie. failing to detect some cases due to high detection threshold), we will lower the threshold, hence increasing algorithm's recall  
+  
+-rephrasing the paragraph above :  
+&nbsp;&nbsp;&nbsp;-higher detection threshold - higher precision, lower recall  
+&nbsp;&nbsp;&nbsp;-lower detection threshold - lower precision, higher recall  
+  
+-**F1 score** - value used to 
 
