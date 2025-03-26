@@ -13,6 +13,7 @@ import random
 heart_disease = fetch_ucirepo(id=45) 
 
 
+# Scaling all values of a given variable W.R.T. max value that variable achieves (ie. max value in column)
 def max_val_scaling(X):
     X_rows, X_cols = X.shape
     max_values_columns = np.max(X, axis = 0)
@@ -25,6 +26,7 @@ def max_val_scaling(X):
 
     return scaled_X
 
+# Mean normalization : https://builtin.com/articles/mean-normalization
 def mean_normalization(X): 
     X_rows, X_cols = X.shape
     X_scaled = np.empty(shape=(X_rows, X_cols))
@@ -33,7 +35,6 @@ def mean_normalization(X):
     min_values_columns = np.min(X, axis = 0)
     max_values_columns = np.max(X, axis = 0)
 
-
     for column in range(X_cols):
         for row in range(X_rows):
             X_scaled[row][column] = (X[row][column] - all_column_means[column])/max_values_columns[column] - min_values_columns[column]
@@ -41,7 +42,7 @@ def mean_normalization(X):
     return X_scaled
      
 
-def adding_noisy_examples(X, y):
+def creating_data__adding_noisy_examples(X, y):
     X_rows, X_cols = X.shape
     number_of_new_examples = 1000
 
@@ -70,7 +71,7 @@ def adding_noisy_examples(X, y):
     return X, y
 
 
-""" def the_ol_trusworthy(X, y, features_only_list):
+def creating_data__the_ol_trusworthy(X, y, features_only_list):
     X_rows, X_cols = X.shape
     number_of_new_examples = 100
     #clean_X = np.empty(shape=(0, X.shape[1]))
@@ -100,7 +101,7 @@ def adding_noisy_examples(X, y):
         X = np.vstack((X, current_example))
         y = np.append(y, math.floor(np.random.uniform(np.min(y), np.max(y))))
 
-    return X, y """
+    return X, y
 
 # data (as pandas dataframes) 
 X = heart_disease.data.features 
@@ -130,27 +131,8 @@ print("Row containing NaN : {}\nX dim after removing offending rows : {}\n".form
 
 rows, cols = X.shape
 scaled_X = max_val_scaling(X)
-print("scaled_X : {}\n".format(scaled_X))
 #generated_Data_X, generated_y = adding_noisy_examples(scaled_X, y)
 generated_Data_X, generated_y = scaled_X, y
-
-print("Example of how I will slice the initial dataset to get training set, test set and cv set\n")
-print("X.shape : {}\nX.shape : {}\n".format(X.shape, X[X.shape[0]-1]))
-print("0.6*X.shape[0] : {}\n0.2*X.shape[0] : {}\n0.2*X.shape[0] : {}\n".format(math.floor(0.6*X.shape[0]), math.floor(0.2*X.shape[0]), math.floor(0.2*X.shape[0])))
-print("X[0:{}]\nX[{}:{}]\nX[{}:{}]\n".format(math.floor(0.6*X.shape[0]), math.floor(0.6*X.shape[0])+1, math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]), math.floor(0.6*X.shape[0]) + math.floor(0.2*X.shape[0]) + 1, X.shape[0]-1))
-
-
-""" TRAINING_SET_SIZE = 0.6
-TEST_SET_SIZE = 0.15
-CV_SET_SIZE = 0.15
-
-training_set = generated_Data_X[0:math.floor(TRAINING_SET_SIZE*generated_Data_X.shape[0])]  # get first 60% of elements from X; why math.floor()? To make sure end index 0.6*X.shape[0] returns is a whole number, and also to ensure the indices won't overrun max range of array
-test_set = generated_Data_X[(math.floor(TRAINING_SET_SIZE*generated_Data_X.shape[0]) + 1) : (math.floor(TRAINING_SET_SIZE*generated_Data_X.shape[0]) + math.floor(TEST_SET_SIZE*generated_Data_X.shape[0]))]
-cv_set = generated_Data_X[(math.floor(TRAINING_SET_SIZE*generated_Data_X.shape[0]) + math.floor(CV_SET_SIZE*generated_Data_X.shape[0]) + 1):(generated_Data_X.shape[0] - 1)]
-
-y_training_set = generated_y[0:math.floor(TRAINING_SET_SIZE*generated_y.shape[0])]
-y_test_set = generated_y[(math.floor(TRAINING_SET_SIZE*generated_y.shape[0]) + 1):((math.floor(TRAINING_SET_SIZE*generated_y.shape[0]) + (math.floor(TEST_SET_SIZE*generated_y.shape[0]))))]
-y_cv_set = generated_y[((math.floor(TRAINING_SET_SIZE*generated_y.shape[0]) + (math.floor(CV_SET_SIZE*generated_y.shape[0]) + 1))):(generated_y.shape[0] - 1)] """
 
 TRAINING_SET_SIZE = 0.6
 TEST_SET_SIZE = 0.15
@@ -167,11 +149,6 @@ cv_set = generated_Data_X[cv_set_indices]
 y_training_set = generated_y[training_set_indices]
 y_test_set = generated_y[test_set_indices]
 y_cv_set = generated_y[cv_set_indices]
-
-# variable information 
-print(heart_disease.variables) 
-print("\n\nX: \n{}".format(X[0:10]))  #example of accessing one column in X : X.age
-print("y : {}\n".format(y[0:10]))
 
 regTerm = 0.0025
 NN_model = Sequential(
@@ -224,25 +201,5 @@ for i in range(len(cv_set_softmaxed_model_output)):
         cv_test_matches += 1
 
 print("TRAINING SET | Class matches between y label and model output : {}  Percentage : {}\n".format(matches_training_set, matches_training_set/len(y_training_set)*100))
-print("CV_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(cv_test_matches, cv_test_matches/len(y_cv_set)*100))
 print("TEST_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(matches_counter, matches_counter/len(y_test_set)*100))
-print("NN_model losses : {}\n".format(NN_model.losses))
-print("\ngenerated_X : {}\nX : {}\n".format(generated_Data_X.shape, X.shape))
-    
-
-# Now we test our model (although here it is done using the same dataset used to train the NN)
-""" NN_output_probabilities = NN_model.predict(X)
-for i in range(X.shape[0]):  # for every data row in X ...
-    for j in range(len(features_only_list)): # for every feature available in each data row of X...
-        print("{} : {}".format(features_only_list[j], X[i][j]))
-    
-    val = np.where(NN_output_probabilities[i] == max(NN_output_probabilities[i]))
-    print("NN_output_probabilities[{}] : {}\nHeart condition classification : {}\ny : {}\n\n".format(i, NN_output_probabilities[i], val[0], y[i]))
-
-matches_counter = 0
-for i in range(len(NN_output_probabilities)):
-    index_of_max_probability = np.where(NN_output_probabilities[i] == max(NN_output_probabilities[i]))
-    if(y[i] == index_of_max_probability[0]):    # if the label y class, and class predicted by model match, increment match counter
-        matches_counter += 1
-
-print("Class matches between y label and model output : {}  Percentage : {}\n".format(matches_counter, matches_counter/len(y)*100)) """
+print("CV_SET | Class matches between y label and model output : {}  Percentage : {}\n".format(cv_test_matches, cv_test_matches/len(y_cv_set)*100))

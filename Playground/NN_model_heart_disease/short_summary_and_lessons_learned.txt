@@ -1,0 +1,56 @@
+Initial implementation of the model yielded performance in the 60% range on TEST and CV sets.
+Multiple different TRAINING/TEST/CV subset splits were tested, but none of them resulted in significant performance improvement.
+The model usually performed comparably, or even significantly better (10-15% better), on the TEST set than on the TRAINING set.
+CV set performance was usually 10-20% worse than the TEST set performance.
+The fact that TEST set has somewhat better performance than CV set, at this stage at least, although not by a lot, would indicate the model is a bit overfit at this stage.
+I did comment in one of the commits how I considered this model to be high bias (underfit) - I will outright disagree with this simply because none of the sets peformed well.
+Training set accuracy being in the 75% region, at best, is not really stellar performance to begin with.
+If all sets are observed, then I'd say the model was generally underfit, but if the performance of TEST and CV sets is observed in relationship to one another I'd consider this overfit because CV performs a bit worse than TEST set.
+
+Attempts were made to improve the model by changing the activation functions, as well as the number of hidden layers, but none of these provided any substantial improvement.
+
+In attempting to improve the model I thought having only 297 rows of data to train and test was not enough, so I tried creating a bit more data.
+Two separate methods were used : 
+    -creating new data by randomly generating values for each variable, W.R.T. the maximum and minimum range dictated by the already existing data - this is not a good approach because in addition to generating random X values, you also randomly generated y_label,
+            which doesn't make sense because it has a detrimental effect on the existing, underlying relationship between certain classes of y_label, and the values of features in the source data
+
+    -adding noisy examples - values for each feature row were varied by +/- 10%, leaving the y_label unchanged for the new example because I assumed it is plausible features' values could vary by +/-10% while maintaining the same
+            y_label (heart condition diagnosis)
+
+    
+    Neither of these two methods helped.
+    Why? Because the amount of data wasn't really the issue.
+    You forgot to do the feature scaling :(.
+
+From commit af64f38 onwards you messed around with feature scaling and normalization.
+Max value scaling was attempted, as well as mean normalization.
+Mean normalization helped a bit, but not that much, which makes me wonder whether I have some kind of error in my implementation.
+
+Max value scaling worked beautifully, I finally got some respectable performance out of the model.
+Naturally, along with adding max value scaling, I also played around with the number of hidden layers, as well as the number of epochs and the learning rate.
+
+A few nice runs : 
+Max value scaling
+500 epochs
+Learning rate 0.00925
+
+TRAINING SET | Class matches between y label and model output : 166  Percentage : 93.25842696629213
+CV_SET | Class matches between y label and model output : 32  Percentage : 72.72727272727273
+TEST_SET | Class matches between y label and model output : 37  Percentage : 84.0909090909091
+Used layers : 13, 11, 9, 5
+
+=====================================================================================================
+
+Max value scaling
+550 epochs
+Learning rate 0.009
+
+TRAINING SET | Class matches between y label and model output : 173  Percentage : 97.19101123595506
+CV_SET | Class matches between y label and model output : 38  Percentage : 86.36363636363636
+TEST_SET | Class matches between y label and model output : 36  Percentage : 81.81818181818183
+Used layers : 13, 12, 5
+
+
+
+This could definitely be improved a lot more by running learning rate optimization, regularization term optimization, as well as general network structure optimization.
+I'll leave this for now and maybe get back to it again later.
