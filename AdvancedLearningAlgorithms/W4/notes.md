@@ -108,3 +108,58 @@ https://www.wikipedia.org/https://www.coursera.org/learn/advanced-learning-algor
 &nbsp;&nbsp;&nbsp;&nbsp;-information gain from additiona splits is below a set threshold  
 &nbsp;&nbsp;&nbsp;&nbsp;-number of examples in a node is below a threshold  
   
+## One hot encoding - overcoming categorical feature dimensionality  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/RQVdw/using-one-hot-encoding-of-categorical-features  
+  
+-most often we will encounter a data set where features aren't necessarily only binary (e.g. has, or hasn't, graduated; obese or not obese, etc.)  
+  
+-in such scenarios, one hot encoding is used  
+
+-**one hot encoding** - process of substituting one categorical feature, that can take on *k* values, by *k* binary features  
+  
+-what does this mean? If a given feature can assume 4 different categories/values (e.g. car can be red, blue, green or yellow), we will create 4 new variables : *red*, *blue*, *green* and *yellow*  
+&nbsp;&nbsp;&nbsp;&nbsp;-each of these "new" variables can assume only binary values  
+&nbsp;&nbsp;&nbsp;&nbsp;-since each car can have only one color, only one of these 4 new variables will be set to 1, while others will be 0  
+  
+-this is how we overcome having to deal with multicategorical features  
+  
+## Continuous value features  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/a4v1O/continuous-valued-features  
+  
+-often times we are dealing with features existing in the continuous realm, not just discrete  
+  
+-consider weight of a person - a dataset intended to analyze fitness patterns of some app's users is comprised of a number of features, one of them being weight of each user  
+&nbsp;&nbsp;&nbsp;&nbsp;-weights vary greatly, and are noted using two decimal places  
+&nbsp;&nbsp;&nbsp;&nbsp;-when creating a decision tree used to predict risk of cardiovascular diseases amongst the app's users, weight is an important contributing factor  
+&nbsp;&nbsp;&nbsp;&nbsp;-splitting on weight is relatively simple :  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-you will compute the entropy for a lot of splitting points (ie. different weights where the splitting will occur) and determine which splitting point provides us the best entropy (in othe words, which splitting point provides greatest information gain)  
+  
+-remember the example professor Ng used - you can split on weight by computing the entropy and figuring out the best weight to split at is <=9lbs, because most cats are at, or below, this weight, providing greatest information gain  
+  
+## Regression trees  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/XlM5n/regression-trees-optional  
+  
+-decision trees can be used also to predict a value, not just categories  
+  
+-before we computed the information gain, ie. how much each split contributes to reduction in impurity in each branch, but since we are trying to construct a regression tree, meaning it is supposed to output a number instead of a category, we need to construct a tree capable of properly representing e.g. weight of a cat or a dog  
+  
+-**variance** will be used as a measure of the successfulness of splitting  
+-for each root node we will also compute its inate variance, ie. the variance of all of the examples entering the node  
+  
+-if by splitting on a feature we get very high variance, we will assume this split is not good enough (when compared to other splits)  
+  
+-consider the example professor presented :  
+<p style="text-align: center">
+    <img src="./screenshots/w4_regression_trees.png"/>
+</p>
+
+-for each branch we compute its variance (e.g. 1.47 for left branch of first split)  
+-for each split, when compting variance reduction, we take into account how many examples entered each branch (5 out of 10 possible examples have entered both the left and the right branch for the first split)  
+-then, from the root node variance (20.51 for all root nodes) we subtract the above described computation, yielding a value called **reduction in variance**  
+  
+-what is variance reduction?  
+&nbsp;&nbsp;&nbsp;&nbsp;-**variance reduction** - reduction of the root node variance by splitting  
+  
+-in the example in the image above, splitting on *ear shape* gives us the greatest variance reduction : 8.84  
+  
+-how will the leafs (end nodes, the ones supposed to give a result) then decide which weight to output? They will simply average weights of all of the examples in that branch
