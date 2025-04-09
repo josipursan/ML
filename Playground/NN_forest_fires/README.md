@@ -63,3 +63,25 @@ All other variables are **features**.
 -FFMC, DMC, DC and ISI look like they can nicely be scaled to some reasonable ranges  
 -month and day might be a bit problematic if handled as is ('jan', 'feb', ...) - preprocess this either to two categorical variables (one for months and one for day), or one hot encode it to binary variables  
   
+### 09.04.2025. - Comments about stock data distributions  
+Burned area distribution is highly skewed, overwhelming majority of the dataset sits at, or about, 0.  
+Large value range, will probably benefit from scaling, and even normalization.
+  
+DC distribution is split, right hand portion being bigger than the left hand one. Left hand portion encompasses values 0-180, while right hand portion starts about 580. Some values are sprinkled between 180 and 580.  
+Will benefit from scaling.  
+  
+DMC distribution is relatively cohesive, pretty Gaussian, some stragglers on the far right.  
+Needs scaling.  
+  
+FFMC distribution is quite skewed, although most of the values are concentrated from 80 to ~95.  
+Definitely scale, consider normalization.  
+  
+ISI distribution looks ok, quite Gaussian, scaling needs to be done.  
+  
+Rain distribution is basically a set composed of only few entries != 0. Needs to be scaled.  
+  
+RH distribution definitely needs scaling, Gaussian-ish, but quite flat.  
+  
+temp distribution is a nice Gaussian distribution, a little tail on the right, as well as whiskers on the top. Scaling is a must.
+  
+Wind distribution is quite binned. Maybe I messed up the binning? Anyways, scaling needs to be done to get a nicer range. Histo is quite sparse, although a bit Gaussian looking with a tail on the right.
