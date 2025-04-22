@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import json
 import time
 
-################# Dataset cleanup ##########################
+################### Dataset cleanup ##########################
 
 '''
 Name : column_to_categorical()
@@ -50,10 +50,13 @@ def column_to_categorical(column_to_convert_to_categorical):
 
 # Max val scaling divides all values in column by the max value found in that column, thus scaling to [0,1] range
 def maximum_value_scaling(pandas_df_for_scaling):
-    print("All columns : {}\n".format(pandas_df_for_scaling.columns))
+    max_values_in_each_column = pandas_df_for_scaling.max()
 
-
-
+    for key, value in max_values_in_each_column.items():
+        pandas_df_for_scaling[key] /= value
+    
+    return pandas_df_for_scaling
+    
 ########################## End ##############################
 
 
@@ -74,12 +77,13 @@ print(forest_fires.variables)
 
 cleaned_up_X = X.copy()
 
-maximum_value_scaling(X)
 categorized_month_column = column_to_categorical(cleaned_up_X['month'])
 categorized_day_column = column_to_categorical(cleaned_up_X['day'])
 
 cleaned_up_X['month'] = categorized_month_column
 cleaned_up_X['day'] = categorized_day_column
-
 print(cleaned_up_X)
-print(X)
+
+maximum_value_scaling(cleaned_up_X)
+
+
