@@ -111,4 +111,28 @@ def myLayer(number_of_neurons, activation_functions, x):
         neuron_a[i] = sigmoid(z[i])
         layer_output[i] = neuron_a[i]
 ```  
-I am a bit conflicted as to where to *w* and *b* guesses come from - are the guesses, and the consequent *w* and *b* corrections (just like in grad desc) done here before the activation values for each neuron are computed, or do optimized *w* and *b* parameters already arrive as such in *myLayer* function? I guess it would make sense that everything is done in *myLayer* function. This will probably be explained in later chapters.
+I am a bit conflicted as to where to *w* and *b* guesses come from - are the guesses, and the consequent *w* and *b* corrections (just like in grad desc) done here before the activation values for each neuron are computed, or do optimized *w* and *b* parameters already arrive as such in *myLayer* function? I guess it would make sense that everything is done in *myLayer* function. This will probably be explained in later chapters.  
+  
+# General implementation of forward propagation  
+https://www.coursera.org/learn/advanced-learning-algorithms/lecture/fZYiN/general-implementation-of-forward-propagation  
+  
+This video outlines how a general function would look like if we were to implement a layer generalization.  
+I was relatively close in my description above.  
+The number of units (*neurons*) in each layer equals the number of columns in *w* vector, hence there is no need to pass number of nodes as a parameter.  
+As for my conundrum about how *w* and *b* is handled, based on the lecture I think that *w* and *b* are passed as already established guesses - our layer function simply uses them.  
+  
+```python
+def dense(a_in, w, b):
+    units = w.shape[1]
+    a_out = np.zeros(w.shape[1])
+
+    for j in range(units):
+        w_current = w[:j]   # method of grabbing values per column, ie. whole column
+        z = np.dot(w_current, a_in) + b[j]
+        a_out[j] = g(z)
+    return a_out
+```  
+`a_in` represents the input vector to the observed layer *L*; `a_in` is the output of layer *L-1*  
+`g(z)` is a function defined elsewhere  
+  
+
