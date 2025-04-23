@@ -25,7 +25,7 @@ https://archive.ics.uci.edu/dataset/162/forest+fires
 All other variables are **features**.  
   
 **FFMC** - Fine Fuel Moisture Code  
-&nbsp;&nbsp;&nbsp;-a numberic rating of the moisture content of litter and other cured fine fuels  
+&nbsp;&nbsp;&nbsp;-a numeric rating of the moisture content of litter and other cured fine fuels  
 &nbsp;&nbsp;&nbsp;-this code is an indicator of the relative ease of ignition and flamability of fine fuel  
   
 **DMC** - Duff Moisture Code  

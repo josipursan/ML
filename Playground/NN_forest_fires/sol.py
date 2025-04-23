@@ -74,7 +74,6 @@ def min_max_scaling(pandas_df_for_scaling):
     print("min : \n{}\nmax : \n{}\n".format(min_values_in_each_column, max_values_in_each_column))
 
     merged_df = pd.concat([min_values_in_each_column, max_values_in_each_column], axis=1)
-    shape_merged_df = merged_df.shape
     merged_df = merged_df.T
 
     scaled_df = pd.DataFrame()
@@ -93,7 +92,42 @@ def min_max_scaling(pandas_df_for_scaling):
 
     return scaled_df
 
+# https://en.wikipedia.org/wiki/Feature_scaling#Mean_normalization
+def mean_normalization(pandas_df_for_scaling):
+    min_values_in_each_column = pandas_df_for_scaling.min()
+    max_values_in_each_column = pandas_df_for_scaling.max()
+
+    merged_min_max_values = pd.concat([min_values_in_each_column, max_values_in_each_column], axis=1)
+    merged_min_max_values = merged_min_max_values.T # Why the transposition? Because we want to align the structure of this matrix to pandas_df_for_scaling
+
+    mean_normalized_values = pd.DataFrame()
+
+    for column in pandas_df_for_scaling:
+        mean_normalized_values[column] = (pandas_df_for_scaling[column]-pandas_df_for_scaling[column].mean(axis=0))/(merged_min_max_values[column][1] - merged_min_max_values[column][0])
+        #print("column : {}\n{}\n".format(column, (pandas_df_for_scaling[column]-pandas_df_for_scaling[column].mean(axis=0))/(merged_min_max_values[column][1] - merged_min_max_values[column][0])))
+        #print(mean_normalized_values)
+        
     
+    fig = plt.figure()
+    initial_data = fig.add_subplot(121)
+    mean_normalized_data = fig.add_subplot(122)
+
+    initial_data.scatter([x for x in range(pandas_df_for_scaling.shape[0])], pandas_df_for_scaling['FFMC'])
+    initial_data.set_title("FFMC stock data")
+
+    mean_normalized_data.scatter([x for x in range(pandas_df_for_scaling.shape[0])], mean_normalized_values['FFMC'])
+    mean_normalized_data.set_title("FFMC mean normalized data")
+
+    initial_data.set_xlabel('Individual sample')
+    initial_data.set_ylabel('FFMC intensity')
+    mean_normalized_data.set_xlabel('Individual sample')
+    mean_normalized_data.set_ylabel('FFMC intensity')
+    plt.show()
+
+    print(pandas_df_for_scaling)
+    print(mean_normalized_data)
+
+    return mean_normalized_values
 ########################## End ##############################
 
 
@@ -122,6 +156,7 @@ cleaned_up_X['day'] = categorized_day_column
 #print(cleaned_up_X)
 
 #maximum_value_scaling(cleaned_up_X)
-min_max_scaling(cleaned_up_X)
+#min_max_scaling(cleaned_up_X)
+mean_normalization(cleaned_up_X)
 
 
