@@ -51,7 +51,48 @@ https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-
 -$\mu_{k}$ - cluster centroid k  
 -$\mu_{c^{(i)}}$ - cluster centroid of cluster to which example $x^{i}$ has been assigned  
 
-STOPPED THE VIDEO NOT EVEN HALF WAY THOURGH - TO BE CONTINUED
-
+-notation examples :  
+&nbsp;&nbsp;&nbsp;-$x^{(10)}$ - training example 10  
+&nbsp;&nbsp;&nbsp;-$c^{(10)}$ - cluster centroid to which the tenth training example has been assigned  
+&nbsp;&nbsp;&nbsp;-$\mu_{c}^{(10)}$ - location of the cluster centroid to which $x^{(10)}$ has been assigned  
   
-
+**Cost function**  
+$J(c^{(1)}, ..., c^{(m)}, \mu_{1}, ..., \mu_{K}) = \frac{1}{m}\sum_{i=1}^{m}||x^{(i)} - \mu_{c^{i}}||^{2}$  
+  
+-average of sum, from 1 to m, of the squared distance between every training example *i* and the location of the cluster centroid to which the training examle $x^{(i)}$ has been assigned  
+  
+-the above shown equation often gets called **distortion**  
+  
+-due to the nature of the k-means algorithm, especially the cost function it uses, cost function/distortion reduces for each iteration of k-means algorithm, converging at a cluster centroid points that can't be positioned any better due to the distribution of datapoints in space  
+  
+-cost function should NEVER go up - if it does, it usually indicates a bug in code  
+  
+-additionally, since k-means converges, once you reach an iteration that has the same cost function value as the previous one we can conclude the algorithm has converged, and there is no point in running further iterations  
+  
+## Initializing k-means  
+https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-learning/lecture/lw9LD/initializing-k-means  
+  
+-high level overview of k-means algorithm :  
+&nbsp;&nbsp;&nbsp;-step 0 : randomly initialize K cluster centroids $\mu_{1}$, $\mu_{2}$, ..., $\mu_{k}$  
+&nbsp;&nbsp;&nbsp;-step 1 : assign points to cluster centroids  
+&nbsp;&nbsp;&nbsp;-step 2 : recompute positions of cluster centroids  
+&nbsp;&nbsp;&nbsp;-repeat step 1 and step 2 until convergence is reached  
+  
+-random initialization is a crucial step, as the initial centroid positions have the ability to heavily influence what the end result will be  
+  
+-different initial cluster centroid positions can result in a vastly different datapoint grouping  
+  
+*Random initialization*  
+-randomly pick *K* training examples (*K* being the number of clusters we want to create)  
+-set cluster centroids, $\mu_{1}$, $\mu_{2}$, $\mu_{k}$, equal to *K* randomly picked training examples  
+-run k-means algorithm  
+  
+-often times we will run k-means algorithm for a number of different random initializations due to their high level of importance  
+  
+-here is a screenshot showing how three different random initializations result in different groupings once the algorithm converges : 
+<p style="text-align: center">
+    <img src="./screenshots/w1_kmeans_random_initialization.png"/>
+</p>  
+  
+-when running k-algorithm multiple times we will use the end cost function to determine which run provides us with the best clustering  
+  

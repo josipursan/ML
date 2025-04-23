@@ -2,6 +2,7 @@ from ucimlrepo import fetch_ucirepo, list_available_datasets
 import matplotlib.pyplot as plt
 import json
 import time
+import pandas as pd
 
 ################### Dataset cleanup ##########################
 
@@ -45,8 +46,17 @@ def column_to_categorical(column_to_convert_to_categorical):
 ######################## End ###############################
 
 
-################# Feature scaling functions #################
-#https://github.com/josipursan/ML/blob/main/Supervised%20Machine%20Learning%3A%20Regression%20and%20Classification/W2/Notes.md
+################# Feature scaling and normalization functions #################
+'''
+More info about feature scaling : 
+https://github.com/josipursan/ML/blob/main/Supervised%20Machine%20Learning%3A%20Regression%20and%20Classification/W2/Notes.md
+https://en.wikipedia.org/wiki/Feature_scaling
+https://www.geeksforgeeks.org/ml-feature-scaling-part-2/
+
+Note that scaling a feature, and normalizing it, are not interchangeable operations.
+Scaling means simply shifting the data range to some other data range.
+Normalization changes the distribution of the data.
+'''
 
 # Max val scaling divides all values in column by the max value found in that column, thus scaling to [0,1] range
 def maximum_value_scaling(pandas_df_for_scaling):
@@ -56,6 +66,33 @@ def maximum_value_scaling(pandas_df_for_scaling):
         pandas_df_for_scaling[key] /= value
     
     return pandas_df_for_scaling
+
+# https://www.geeksforgeeks.org/ml-feature-scaling-part-2/
+def min_max_scaling(pandas_df_for_scaling):
+    min_values_in_each_column = pandas_df_for_scaling.min()
+    max_values_in_each_column = pandas_df_for_scaling.max()
+    print("min : \n{}\nmax : \n{}\n".format(min_values_in_each_column, max_values_in_each_column))
+
+    merged_df = pd.concat([min_values_in_each_column, max_values_in_each_column], axis=1)
+    shape_merged_df = merged_df.shape
+    merged_df = merged_df.T
+
+    scaled_df = pd.DataFrame()
+    for column in pandas_df_for_scaling:
+        scaled_df[column] = (pandas_df_for_scaling[column]-merged_df[column][0])/(merged_df[column][1] - merged_df[column][0])
+
+    """ 
+    Another, more manual, way of applying min-max scaling
+    scaled_df = pd.DataFrame()
+    for column in pandas_df_for_scaling:
+        scaled_column = []
+        current_column = pandas_df_for_scaling[column].values.tolist()
+        for element in current_column:
+            scaled_column.append((element-merged_df[column][0])/(merged_df[column][1] - merged_df[column][0]))
+        scaled_df[column] = scaled_column"""
+
+    return scaled_df
+
     
 ########################## End ##############################
 
@@ -82,8 +119,9 @@ categorized_day_column = column_to_categorical(cleaned_up_X['day'])
 
 cleaned_up_X['month'] = categorized_month_column
 cleaned_up_X['day'] = categorized_day_column
-print(cleaned_up_X)
+#print(cleaned_up_X)
 
-maximum_value_scaling(cleaned_up_X)
+#maximum_value_scaling(cleaned_up_X)
+min_max_scaling(cleaned_up_X)
 
 
