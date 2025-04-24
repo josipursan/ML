@@ -3,6 +3,12 @@ import matplotlib.pyplot as plt
 import json
 import time
 import pandas as pd
+import math
+import numpy as np
+
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
 
 ################### Dataset cleanup ##########################
 
@@ -34,14 +40,17 @@ def column_to_categorical(column_to_convert_to_categorical):
         old_to_new_column_encoding[key] = counter
         counter += 1
     
-    json_object = json.dumps(old_to_new_column_encoding, indent=4)
+    """ json_object = json.dumps(old_to_new_column_encoding, indent=4)
     with open(column_to_convert_to_categorical.name + "_old_to_new_column_encoding" + str(int(time.time())) + ".json", "w") as outfile:
-        outfile.write(json_object)
+        outfile.write(json_object) """
 
+    categorical_column = pd.DataFrame()
     for i in range(len(column_to_convert_to_categorical)):
-        column_to_convert_to_categorical[i] = old_to_new_column_encoding[column_to_convert_to_categorical[i]]
+        # Inital new column assignment shown below was causing pandas to throw a warning concerning the possibility I am replacing only a slice of the original column https://pandas.pydata.org/docs/reference/api/pandas.errors.SettingWithCopyWarning.html
+        #column_to_convert_to_categorical[i] = old_to_new_column_encoding[column_to_convert_to_categorical[i]] 
+        categorical_column.at[i, column_to_convert_to_categorical.name + "_category"] = old_to_new_column_encoding[column_to_convert_to_categorical[i]]
 
-    return column_to_convert_to_categorical
+    return categorical_column
 
 ######################## End ###############################
 
@@ -104,28 +113,6 @@ def mean_normalization(pandas_df_for_scaling):
 
     for column in pandas_df_for_scaling:
         mean_normalized_values[column] = (pandas_df_for_scaling[column]-pandas_df_for_scaling[column].mean(axis=0))/(merged_min_max_values[column][1] - merged_min_max_values[column][0])
-        #print("column : {}\n{}\n".format(column, (pandas_df_for_scaling[column]-pandas_df_for_scaling[column].mean(axis=0))/(merged_min_max_values[column][1] - merged_min_max_values[column][0])))
-        #print(mean_normalized_values)
-        
-    
-    fig = plt.figure()
-    initial_data = fig.add_subplot(121)
-    mean_normalized_data = fig.add_subplot(122)
-
-    initial_data.scatter([x for x in range(pandas_df_for_scaling.shape[0])], pandas_df_for_scaling['FFMC'])
-    initial_data.set_title("FFMC stock data")
-
-    mean_normalized_data.scatter([x for x in range(pandas_df_for_scaling.shape[0])], mean_normalized_values['FFMC'])
-    mean_normalized_data.set_title("FFMC mean normalized data")
-
-    initial_data.set_xlabel('Individual sample')
-    initial_data.set_ylabel('FFMC intensity')
-    mean_normalized_data.set_xlabel('Individual sample')
-    mean_normalized_data.set_ylabel('FFMC intensity')
-    plt.show()
-
-    print(pandas_df_for_scaling)
-    print(mean_normalized_data)
 
     return mean_normalized_values
 ########################## End ##############################
@@ -150,13 +137,92 @@ cleaned_up_X = X.copy()
 
 categorized_month_column = column_to_categorical(cleaned_up_X['month'])
 categorized_day_column = column_to_categorical(cleaned_up_X['day'])
-
 cleaned_up_X['month'] = categorized_month_column
 cleaned_up_X['day'] = categorized_day_column
-#print(cleaned_up_X)
 
 #maximum_value_scaling(cleaned_up_X)
 #min_max_scaling(cleaned_up_X)
-mean_normalization(cleaned_up_X)
+inputData = mean_normalization(cleaned_up_X)
+print("Mean normalized : \n{}\n".format(inputData))
+inputData.drop(inputData.columns[[0,1,2,3]], axis = 1, inplace=True)
+print("Input data final : {}\n".format(inputData))
 
 
+TRAINING_SET_SIZE = 0.80
+TEST_SET_SIZE = 0.10
+CV_SET_SIZE = 0.10
+'''
+What does the block of code below do?
+
+TRAINING_SET_SIZE, TEST_SET_SIZE, and CV_SET_SIZE are variables defining what percentage of starting dataset will be dedicated to each subset (TRAINING, TEST, CV).
+
+training_set_indices, test_set_indices, and cv_set_indices are lists defining, based on TRAINING_SET_SIZE, TEST_SET_SIZE, and CV_SET_SIZE, what indices from the subsets will be used.
+Note that this approach WILL result in a random number of indices being shared by the subsets.
+
+A different approach is shown below this code block. '''
+
+training_set_indices = np.random.choice(inputData.shape[0], size=math.floor(TRAINING_SET_SIZE*inputData.shape[0]), replace=False)
+test_set_indices = np.random.choice(inputData.shape[0], size=math.floor(TEST_SET_SIZE*inputData.shape[0]), replace=False)
+cv_set_indices = np.random.choice(inputData.shape[0], size=math.floor(CV_SET_SIZE*inputData.shape[0]), replace=False)
+
+training_set = inputData.iloc[training_set_indices]
+y_for_training_set = y.iloc[training_set_indices]
+test_set = inputData.iloc[test_set_indices]
+y_for_test_set = y.iloc[test_set_indices]
+cv_set = inputData.iloc[cv_set_indices]
+y_for_cv_Set = y.iloc[cv_set_indices]
+#print("TRAINING_SET_SIZE : {}\nTEST_SET_SIZE : {}\nCV_SET_SIZE : {}\ntraining_set_indices : {}\ntest_set_indices : {}\ncv_set_indices : {}\n".format(TRAINING_SET_SIZE, TEST_SET_SIZE, CV_SET_SIZE, np.sort(training_set_indices), np.sort(test_set_indices), np.sort(cv_set_indices)))
+
+
+'''
+This is a different approach to creating subsets from the initial dataset - here we define starting and ending indices for each subset based on the wanted sizes of subsets.
+Going out of bounds can be problematic as proper precautions do not exist, besides the hardocded -2 xD
+
+print("Dataset dimensions : {}\n{}\t{}\n{}\t{}\n{}\t{}\n".format(inputData.shape, "0", math.floor(TRAINING_SET_SIZE*inputData.shape[0]), 
+                                            math.floor(TRAINING_SET_SIZE*inputData.shape[0]) + 1, 
+                                            math.floor(TRAINING_SET_SIZE*inputData.shape[0]) + 1 + math.floor(TEST_SET_SIZE*inputData.shape[0]), 
+                                            math.floor(TRAINING_SET_SIZE*inputData.shape[0]) + 1 + math.floor(TEST_SET_SIZE*inputData.shape[0]) + 1, 
+                                            math.floor(TRAINING_SET_SIZE*inputData.shape[0]) + 1 + math.floor(TEST_SET_SIZE*inputData.shape[0]) + 1 + math.floor(CV_SET_SIZE*inputData.shape[0]) - 2))
+'''
+
+'''
+Another, even simpler way, is shown below.
+Here we use an integrated pandas functionality, called "sample" : https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sample.html
+
+Function "sample", based on parameter frac, that we pass to it, returns a fraction of the initial dataframe, after it has been shuffled.
+
+training_set = inputData.sample(frac=TRAINING_SET_SIZE)
+test_set = inputData.sample(frac=TEST_SET_SIZE)
+cv_set = inputData.sample(frac=CV_SET_SIZE)
+print("training_set shape : {}\ntest_set shape : {}\ncv_set shape : {}\n".format(training_set.shape, test_set.shape, cv_set.shape))
+'''
+
+NN_model = Sequential(
+    [
+        #Dense(12, activation='relu'),    #input layer
+        #Dense(10, activation='relu'),
+        #Dense(9, activation='relu'),
+        Dense(8, activation='relu'),
+        Dense(16, activation='relu'),
+        Dense(32, activation='relu'),
+        Dense(64, activation='relu'),
+        Dense(128, activation='relu'),
+        Dense(32, activation='relu'),
+        Dense(16, activation='relu'),
+        Dense(8, activation='relu'),
+        #Dense(4, activation='relu'),
+        #Dense(3, activation='relu'),
+        #Dense(2, activation='relu'),
+        Dense(1, activation='linear')     #output layer
+    ]
+)
+
+NN_model.compile(
+    loss = tf.keras.losses.MeanSquaredError(),
+    optimizer=tf.keras.optimizers.Adam(0.00060)
+)
+
+NN_model.fit(training_set, y_for_training_set, epochs = 500, batch_size = 40)
+
+training_set_predictions = NN_model(training_set)
+#print("Training set predictions : {}\n".format(training_set_predictions))
