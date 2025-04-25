@@ -202,14 +202,15 @@ NN_model = Sequential(
         #Dense(12, activation='relu'),    #input layer
         #Dense(10, activation='relu'),
         #Dense(9, activation='relu'),
-        Dense(8, activation='relu'),
-        Dense(16, activation='relu'),
-        Dense(32, activation='relu'),
-        Dense(64, activation='relu'),
-        Dense(128, activation='relu'),
-        Dense(32, activation='relu'),
-        Dense(16, activation='relu'),
-        Dense(8, activation='relu'),
+        Dense(8, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(64, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        tf.keras.layers.BatchNormalization(),
+        Dense(128, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(8, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         #Dense(4, activation='relu'),
         #Dense(3, activation='relu'),
         #Dense(2, activation='relu'),
@@ -219,10 +220,10 @@ NN_model = Sequential(
 
 NN_model.compile(
     loss = tf.keras.losses.MeanSquaredError(),
-    optimizer=tf.keras.optimizers.Adam(0.00060)
+    optimizer=tf.keras.optimizers.Adam(0.00033)
 )
 
-NN_model.fit(training_set, y_for_training_set, epochs = 500, batch_size = 40)
+NN_model.fit(training_set, y_for_training_set, epochs = 750, batch_size = 40)
 
 training_set_predictions = NN_model(training_set)
 #print("Training set predictions : {}\n".format(training_set_predictions))
