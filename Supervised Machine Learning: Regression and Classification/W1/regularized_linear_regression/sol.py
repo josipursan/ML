@@ -81,7 +81,7 @@ def main():
 
     number_of_iterations = 1000000
     alpha = 0.00000001
-    lam_bda = 0.01
+    lam_bda = 0.001
 
     w = np.zeros([x_vals.shape[1], ])
     b = 0
@@ -89,7 +89,7 @@ def main():
     for i in range(number_of_iterations):
         w,b = gradient_descent(x_vals, y_vals, w, b, alpha, lam_bda)
 
-    print("Number of iterations : {}\nReal model : y = wx + b = 0.54x1 + 1.33x2 + 4.69x3 + 8.11x4 + 7.65x5 + 8\nLast w guess : {}\nLast b guess : {}\nLast model hypothesis cost : {}\n".format(number_of_iterations, all_w_guesses[-1], all_b_guesses[-1], all_costs[-1]))
+    print("Number of iterations : {}\nAlpha : {}\nlambda : {}\nmReal model : y = wx + b = 0.54x1 + 1.33x2 + 4.69x3 + 8.11x4 + 7.65x5 + 8\nLast w and b guess : {} + {}\nLast model hypothesis cost : {}\n".format(number_of_iterations, alpha, lam_bda, all_w_guesses[-1], all_b_guesses[-1], all_costs[-1]))
     
     plt.plot([i for i in range(len(all_costs))], all_costs)
     plt.xlabel("Number of iterations")

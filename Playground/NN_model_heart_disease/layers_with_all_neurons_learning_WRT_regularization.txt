@@ -1,0 +1,63 @@
+Regularization term : 0.01
+TRAINING SET | Class matches between y label and model output : 129  Percentage : 62.31884057971014
+CV_SET | Class matches between y label and model output : 20  Percentage : 45.45454545454545
+TEST_SET | Class matches between y label and model output : 25  Percentage : 58.139534883720934
+NN_model losses : [<tf.Tensor: shape=(), dtype=float32, numpy=0.008872423321008682>]
+
+
+Regularization term : 0.02
+TRAINING SET | Class matches between y label and model output : 113  Percentage : 54.589371980676326
+CV_SET | Class matches between y label and model output : 20  Percentage : 45.45454545454545
+TEST_SET | Class matches between y label and model output : 25  Percentage : 58.139534883720934
+NN_model losses : [<tf.Tensor: shape=(), dtype=float32, numpy=0.0>]
+
+
+Regularization term : 0.03
+TRAINING SET | Class matches between y label and model output : 128  Percentage : 61.83574879227053
+CV_SET | Class matches between y label and model output : 19  Percentage : 43.18181818181818
+TEST_SET | Class matches between y label and model output : 27  Percentage : 62.7906976744186
+NN_model losses : [<tf.Tensor: shape=(), dtype=float32, numpy=0.01628717966377735>]
+
+
+Regularization term : 0.04
+TRAINING SET | Class matches between y label and model output : 113  Percentage : 54.589371980676326
+CV_SET | Class matches between y label and model output : 20  Percentage : 45.45454545454545
+TEST_SET | Class matches between y label and model output : 25  Percentage : 58.139534883720934
+NN_model losses : [<tf.Tensor: shape=(), dtype=float32, numpy=0.0>]
+
+
+Regularization term : 0.05
+TRAINING SET | Class matches between y label and model output : 113  Percentage : 54.589371980676326
+CV_SET | Class matches between y label and model output : 20  Percentage : 45.45454545454545
+TEST_SET | Class matches between y label and model output : 25  Percentage : 58.139534883720934
+NN_model losses : [<tf.Tensor: shape=(), dtype=float32, numpy=0.002675212686881423>]
+
+
+Regularization term : 0.060000000000000005
+TRAINING SET | Class matches between y label and model output : 113  Percentage : 54.589371980676326
+CV_SET | Class matches between y label and model output : 20  Percentage : 45.45454545454545
+TEST_SET | Class matches between y label and model output : 25  Percentage : 58.139534883720934
+NN_model losses : [<tf.Tensor: shape=(), dtype=float32, numpy=0.0>]
+
+
+Regularization term : 0.06999999999999999
+TRAINING SET | Class matches between y label and model output : 113  Percentage : 54.589371980676326
+CV_SET | Class matches between y label and model output : 20  Percentage : 45.45454545454545
+TEST_SET | Class matches between y label and model output : 25  Percentage : 58.139534883720934
+NN_model losses : [<tf.Tensor: shape=(), dtype=float32, numpy=0.0>]
+
+
+Regularization term : 0.08
+TRAINING SET | Class matches between y label and model output : 113  Percentage : 54.589371980676326
+CV_SET | Class matches between y label and model output : 20  Percentage : 45.45454545454545
+TEST_SET | Class matches between y label and model output : 25  Percentage : 58.139534883720934
+NN_model losses : [<tf.Tensor: shape=(), dtype=float32, numpy=0.0>]
+
+
+Regularization term : 0.09
+TRAINING SET | Class matches between y label and model output : 113  Percentage : 54.589371980676326
+CV_SET | Class matches between y label and model output : 20  Percentage : 45.45454545454545
+TEST_SET | Class matches between y label and model output : 25  Percentage : 58.139534883720934
+NN_model losses : [<tf.Tensor: shape=(), dtype=float32, numpy=0.0004748708743136376>]
+
+

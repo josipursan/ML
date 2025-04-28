@@ -2,7 +2,7 @@
 This .md is used to explain `sol.py` line by line.  
 `sol.py` contains linear regression with gradient descent.  
 `import` commands will be explained where necessary.  
-All lines of code will be given in apporpriate code snippets like this :  
+All lines of code will be given in appropriately sized code snippets like this :  
 ```python
 # This is an example of a python code block
 ```  
@@ -101,7 +101,8 @@ This if check is used to check whether cost of the last generated model is less 
 Why? What does it do?  
 It is used to cleanly exit the infinite while loop used to run gradient descent, ie. the continuous process of improving model by better *w* and *b* parameter predictions.  
 If cost_func given by the last generated model is less than `0.01`, gradient descent is ended, and the last used *w* and *b* parameters are considered the right ones.  
-Everything else written in this `if()` clause is irrelevant - just some stuff for plotting and debugging.
+Everything else written in this `if()` clause is irrelevant - just some stuff for plotting and debugging.  
+<br></br>
 
 ```python
 # Update the terms

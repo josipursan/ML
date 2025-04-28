@@ -121,6 +121,8 @@ def optimize():
         else:
             print("Cost for {},{} : {}\nCost for previous w,b ({}) : {}\n".format(w, b, cost_func, all_w_b_hypothesis[-2], allCosts[-2]))   # why -2? Because we've already inserted our new values - therefore to retrieve the value which was last in list before we inserted the new elements, we need to grab the penultimate elements from lists (previously last element)
         
+        w_summation_temp *= 1/(len(y_vals))
+        b_summation_temp *= 1/(len(y_vals))
         w_summation_temp = alpha*w_summation_temp
         b_summation_temp = alpha*b_summation_temp
         w = w - w_summation_temp
