@@ -21,13 +21,13 @@ https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-
   
 -first we randomly initialize *K* cluster centroids : $\mu_{1}, \mu_{2}, ..., \mu_{K}$ (*K* represents how many clusters we want to create, therefore how many cluster centroids we need)  
 repeat {  
-&nbsp;&nbsp;&nbsp;#Assign points to cluter centroids  
+&nbsp;&nbsp;&nbsp;#Assign points to cluster centroids  
 &nbsp;&nbsp;&nbsp;for *i* = 1 to *m*  
-&nbsp;&nbsp;&nbsp;$c^{(i)}$ := index (from 1 to K) of cluster centroid closest to $x^{(i)}$  
+&nbsp;&nbsp;&nbsp; $c^{(i)}$ := index (from 1 to K) of cluster centroid closest to $x^{(i)}$  
   
 &nbsp;&nbsp;&nbsp;#Move the cluster centroids  
 &nbsp;&nbsp;&nbsp;for k = 1 to *K*   #*for all existing clusters we will compute their new clister centroids based on the total average position of all data points assigned to each observed cluster in the loop above*   
-&nbsp;&nbsp;&nbsp;$\mu_{k}$ := average (mean) of all points assigned to cluster k  
+&nbsp;&nbsp;&nbsp; $\mu_{k}$ := average (mean) of all points assigned to cluster k  
 }  
   
 -assigning data points to cluster centroids, mathematically speaking, means computing which cluster centroid is closest to each data point, and then assigning the data point to that cluster centroid  
@@ -36,7 +36,7 @@ repeat {
   
 -how do we check which cluster centroid is closest to each point/training example?  
 &nbsp;&nbsp;&nbsp;-we simply compute the distances, ie. the **L2 norm** :  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$||x^{(i)} - \mu_{k}||^{2}$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $||x^{(i)} - \mu_{k}||^{2}$  
 &nbsp;&nbsp;&nbsp;-in addition to using the above written L2 norm, we are searching for cluster centroid, *k*, that minimizes the L2 norm, ie. yields the smallest distance between the observed data point and the available cluster centroids (or to be even more blunt - we are searching for a cluster centroid (*k*) closest to the observed data  point)   
   
 -if a cluster is empty because no points have been assigned to it, it usually gets eliminated  
@@ -47,14 +47,14 @@ repeat {
 ## Optimization objective  
 https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-learning/lecture/f5G5k/optimization-objective  
   
--$c^{(i)}$ - index of clusters (1, 2, ..., *K*) to which example $x^{(i)}$ is currently assigned  
--$\mu_{k}$ - cluster centroid k  
--$\mu_{c^{(i)}}$ - cluster centroid of cluster to which example $x^{i}$ has been assigned  
+- $c^{(i)}$ - index of clusters (1, 2, ..., *K*) to which example $x^{(i)}$ is currently assigned  
+- $\mu_{k}$ - cluster centroid k  
+- $\mu_{c^{(i)}}$ - cluster centroid of cluster to which example $x^{i}$ has been assigned  
 
 -notation examples :  
-&nbsp;&nbsp;&nbsp;-$x^{(10)}$ - training example 10  
-&nbsp;&nbsp;&nbsp;-$c^{(10)}$ - cluster centroid to which the tenth training example has been assigned  
-&nbsp;&nbsp;&nbsp;-$\mu_{c}^{(10)}$ - location of the cluster centroid to which $x^{(10)}$ has been assigned  
+&nbsp;&nbsp;&nbsp;- $x^{(10)}$ - training example 10  
+&nbsp;&nbsp;&nbsp;- $c^{(10)}$ - cluster centroid to which the tenth training example has been assigned  
+&nbsp;&nbsp;&nbsp;- $\mu_{c}^{(10)}$ - location of the cluster centroid to which $x^{(10)}$ has been assigned  
   
 **Cost function**  
 $J(c^{(1)}, ..., c^{(m)}, \mu_{1}, ..., \mu_{K}) = \frac{1}{m}\sum_{i=1}^{m}||x^{(i)} - \mu_{c^{i}}||^{2}$  
@@ -96,3 +96,67 @@ https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-
   
 -when running k-algorithm multiple times we will use the end cost function to determine which run provides us with the best clustering  
   
+## Choosing the number of clusters  
+https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-learning/lecture/LK4Zn/choosing-the-number-of-clusters  
+  
+-the "right" number clusters is more often, than not, quite ambiguous  
+-some people might see 2 clusters where others see 4 clusters  
+-data often does not give a clear answer how many clusters there are  
+  
+-academic literature defines a couple of different, rigorous, methods for choosing K, one of them being *elbow method*  
+&nbsp;&nbsp;&nbsp;-K is chosen W.R.T. the decrease of cost function, ie. where we find a noticeable elbow in the cost function decrease, we choose this K value  
+  
+-choosing the right value *K* usually boils down to appropriate knowledge of what the dataset represents, and the right, conscious choice, of one of the possible K values that have been used to visualize the dataset  
+  
+# Anomaly detection  
+## Finding unusual events  
+https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-learning/lecture/1FML2/finding-unusual-events  
+  
+-one of the most common ways to conduct anomaly detection is via *density estimation*  
+### Density estimation  
+-you are given a dataset  
+-the first thing your algorithm will do is figure out what are the values of the features representing our dataset that have *high probability* and *low probability* of being seen in the dataset  
+-once we have defined the density areas in our dataset (ie. areas where it is highly probable the newly given example is not anomalous, areas where it is more likely it is anomalous, and areas where it is highly likely it is an anomalous example), we can feed new data through our model to try and determine whether they are anomalous  
+  
+## Gaussian (normal) distribution  
+https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-learning/lecture/1pURx/gaussian-normal-distribution  
+  
+Signore Gauss (hehe) :  
+$p(x) = \frac{1}{\sqrt{2\pi}\sigma}e^{\frac{-(x-\mu)^{2}}{2\sigma^{2}}}$  
+  
+-probability of *x* is determined by a Gaussian  
+-a Gaussian is defined by its mean ($\mu$) and variance ($\sigma^{2}$, ie. std.dev.)  
+  
+-value of $\mu$ defines where top of the curve is, while variance (ie.std.dev.) defines how tight or wide the bell shape is - lower variance (std.dev.) value produces a tighter bell, while higher values produces wider bells  
+  
+-always remember : *area under the curve (bell) always equals to 1*  
+  
+## Anomaly detection algorithm  
+https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-learning/lecture/nZcu2/anomaly-detection-algorithm  
+  
+-imagine you have a training set : ${\vec{x}^{(1)}, \vec{x}^{(2)}, ..., \vec{x}^{(m)}}$  
+-each example $\vec{x}^{(i)}$ has *n* features (so each example is a vector of scalars)  
+  
+-here is how probability would look like for *n* features :  
+$p(\vec{x}) = p(x_{1}; \mu_{1}, \sigma_{1}^{2}) * p(x_{2}; \mu_{2}, \sigma_{2}^{2}) * p(x_{3}; \mu_{3}, \sigma_{3}^{2}) * ... * p(x_{n}; \mu_{n}, \sigma_{n}^{2})$  
+
+-a different, more succint, way of writing the equation above :  
+$p(x) = \prod_{j=1}^{n} = p(x_{j}; \mu_{j}, \sigma_{j}^{2})$  
+  
+-the above written equation, following strict mathematical rules, can only be used if variables are statistically **independent**  
+-however, in real world, variables describing a system are rarely independent  
+-despite this, the above used equation will usually be more than good enough  
+  
+**How do we go about creating a general anomaly detection algorithm?**  
+1. choose *n* features that you think might be indicative of anomalous behaviour  
+&nbsp;&nbsp;&nbsp;&nbsp;-I wouldn't really write this like that - this means you are hunting only for variables that describe anomalies, however it might be easier to try and model what is "good" behaviour, and then catch if any new datapoints fall out of that range  
+  
+2. fit parameters $\mu$ and $\sigma$ - ie. figure out what the Gaussian is for each variable  
+&nbsp;&nbsp;&nbsp; $\mu_{j} = \frac{1}{m}\sum_{i = 1}^{m}x_{j}^{i}$  
+&nbsp;&nbsp;&nbsp; $\sigma_{j}^{2} = \frac{1}{m}\sum_{i=1}^{m}(x_{j}^{(i)} - \mu_{j})^{2}$  
+  
+3. given a new example *x*, compute *p(x)*  
+&nbsp;&nbsp;&nbsp; $p(x) = \prod_{j = 1}^{n}p(x_{j}; \mu_{j}, \sigma_{j}^{2}) = \prod_{j = 1}^{n}\frac{1}{\sqrt{2\pi}\sigma_{j}}exp(-\frac{(x_{j} - \mu_{j})^{2}}{2\sigma_{j}^{2s}})$  
+&nbsp;&nbsp;&nbsp;&nbsp; -**REMEMBER** - $x_{j}$ and $\sigma_{j}^{2}$ in the equation above are value compute in step 2., ie. we are using the already existing Gaussian curves for the variables to try and see how the new datapoint fits there (we are basically checking what kind of probability value will it return W.R.T. Gaussian distribution of the variables that describe our system)  
+  
+4. if $p(x) < \epsilon$, we have an anomaly  
