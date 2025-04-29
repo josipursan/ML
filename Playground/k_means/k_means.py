@@ -38,6 +38,7 @@ K - number of clusters
 
 import random
 import math
+import numpy as np
 
 def generate_random_x_y(number_of_datapoints):
     x = []
@@ -69,9 +70,12 @@ def main():
 
     cluster_centroid_assignments = []
 
-
     x, y = generate_random_x_y(number_of_datapoints)
     print("x : {}\ny : {}\n".format(x, y))
+
+    xy = np.vstack((x,y)).T
+    x_np_array = np.array(x)
+    y_np_array = np.array(y)
 
     # Randomly initialize cluster centroids - option_2 (look at the top)
     for i in range(K):
@@ -82,13 +86,40 @@ def main():
         K_centroid_coords.append(cluster_centroid)
     print(K_centroid_coords)
 
-    #This list contains distances for all datapoints to all cluster centroids
+    #This list contains distances for all datapoints to all cluster centroids - it will be composed of K sublists : one for each cluster centroid
     all_distances = []
     for centroid in range(K):
         current_centroid_distances = []
         for i in range(number_of_datapoints):
-            current_centroid_distances.append(L2_norm(x[], y[], K_centroid_coords[centroid]))
+            current_centroid_distances.append(L2_norm(x[i], y[i], K_centroid_coords[centroid]))
         all_distances.append(current_centroid_distances)
+
+    all_distances_array = np.array(all_distances)
+    
+    for col in range(all_distances_array.shape[1]):
+        #min_value = np.min(all_distances_array[:, col]) # How to find the smallest value in a column
+        cluster_centroid_assignments.append(np.argmin(all_distances_array[:, col]))    # How to get the row index of the smallest value in column
+    
+    print("cluster_centroid_assignments : {}\n".format(cluster_centroid_assignments))
+
+    per_cluster_datapoint_indices = []
+    for centroid in range(K):
+        per_cluster_datapoint_indices.append([index for index,value in enumerate(cluster_centroid_assignments) if value == centroid])
+    #centroid_A_datapoint_indices = [index for index,value in enumerate(cluster_centroid_assignments) if value == 0]
+    #centroid_A_datapoint_indices = [index for index,value in enumerate(cluster_centroid_assignments) if value == 1]
+
+    print("per_cluster_datapoint_indices : \n{}\n".format(per_cluster_datapoint_indices))
+    for centroid in range(K):
+        #print("Centroid {} (len : {}) : \n{}\n".format(centroid, len(per_cluster_datapoint_indices[centroid]), per_cluster_datapoint_indices[centroid]))
+        print("Centroid {}\nX datapoints : \n{}\nY datapoints : \n{}\n".format(centroid, x_np_array[per_cluster_datapoint_indices[centroid]], y_np_array[per_cluster_datapoint_indices[centroid]]))
+        
+    
+    
+
+
+    
+
+
     
 main()
 
