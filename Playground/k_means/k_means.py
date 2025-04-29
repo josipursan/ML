@@ -110,11 +110,16 @@ def main():
 
     print("per_cluster_datapoint_indices : \n{}\n".format(per_cluster_datapoint_indices))
     for centroid in range(K):
+        print("centroid : {}\n".format(centroid))
         #print("Centroid {} (len : {}) : \n{}\n".format(centroid, len(per_cluster_datapoint_indices[centroid]), per_cluster_datapoint_indices[centroid]))
         print("Centroid {}\nX datapoints : \n{}\nY datapoints : \n{}\n".format(centroid, x_np_array[per_cluster_datapoint_indices[centroid]], y_np_array[per_cluster_datapoint_indices[centroid]]))
-        
-    
-    
+        current_centroid_datapoints = np.vstack((x_np_array[per_cluster_datapoint_indices[centroid]], y_np_array[per_cluster_datapoint_indices[centroid]])).T
+        print("\n current_centroid_datapoints : \n{}\n".format(current_centroid_datapoints))
+        print("New mean : {}\n".format( np.mean(current_centroid_datapoints, axis = 0) ))
+        print("BEFORE K_centroid_coords : \n{}\n".format(K_centroid_coords))
+        K_centroid_coords[centroid] = list(np.mean(current_centroid_datapoints, axis = 0))
+        print("AFTER K_centroid_coords : \n{}\n".format(K_centroid_coords))
+
 
 
     
