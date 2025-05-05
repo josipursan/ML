@@ -17,6 +17,6 @@ before the model's internal parameters are updated
   
 -but what is it about mini-batching that it improves the learning process?  
 &nbsp;&nbsp;&nbsp;-gradient approximation - mini-batching provides a good trade-off by approximating the gradient efficiently while still capturing enough variability to generalize well  
-&nbsp;&nbsp;&nbsp;-noise injection - each mini-batch possesses enough noise in it to help the optimization process by provoding enough info for a better generalization  
+&nbsp;&nbsp;&nbsp;-noise injection - each mini-batch possesses enough noise in it to help the optimization process by providing enough info for a better generalization  
 &nbsp;&nbsp;&nbsp;-parallelization - mini-batches nicely allow for parallelization using modern hardware  
 &nbsp;&nbsp;&nbsp;-learning stability - mini-batches smooth out extreme gradient fluctuations that might occur with single-sample updates
