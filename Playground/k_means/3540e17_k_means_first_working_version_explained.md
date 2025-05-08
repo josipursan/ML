@@ -153,7 +153,7 @@ main()
   
 All relevant chunks will be copied from above when explaining them.  
   
-## Chunk 1
+## Chunk 1 - the setup
 ```python
 K = 2
 number_of_datapoints = 100
@@ -193,7 +193,8 @@ for iteration in range(10):
 ```  
 You will notice that the `compute and update` section of the algorithm is in a non-infinite for loop.  
 This is only for testing purposes, and will be later changed.  
-In order to make this work like it should, each iteration **i** needs to look at iteration **i-1** whether there were any changes in datapoint assignments to cluster centroids - if there wasn't, algorithm has converged  
+In order to make this work like it should, each iteration **i** needs to look at iteration **i-1** whether there were any changes in datapoint assignments to cluster centroids, or if the cluster centroid position changed after computing its new position - if there wasn't, algorithm has converged.  
+
   
 ## Chunk 4 - computing distances to all centroids
 ```python
@@ -235,7 +236,7 @@ Why?
 Take a look at **Chunk 5**.
 <br><br/>  
   
-## Chunk 5 - assigning datapoitns to centroids
+## Chunk 5 - assigning datapoints to centroids
 ```python
 for col in range(all_distances_array.shape[1]):
     cluster_centroid_assignments.append(np.argmin(all_distances_array[:, col])
@@ -251,4 +252,77 @@ All of this is done by this line in the `for` loop :
 cluster_centroid_assignments.append(np.argmin(all_distances_array[:, col])
 ```  
 This is exactly why we change `all_distances` from a python 2D list to a numpy array in **Chunk 4** - `np.argmin()` allows us to easily get index of the row where the smallest value was found in the column-vector.  
+<br></br>
+Example of how `cluster_centroid_assignments` will look like :  
+```terminal
+cluster_centroid_assignments : [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1]
+```  
+The above shown example is for **K = 2**, hence why `cluster_centroid_assignments` has only values **0** and **1**.  
+## Chunk 6 - sorting datapoints to cluster centroids
+```python
+per_cluster_datapoint_indices = []  
+for centroid in range(K):
+    per_cluster_datapoint_indices.append([index for index,value in enumerate(cluster_centroid_assignments) if value == centroid])
+```  
   
+`per_cluster_datapoint_indices` is a list made up of **K** sublists, each containing indices, from lists holding *x* and *y* coordinates, for the points assigned to the *K*-th centroid.  
+Indices found in this matrix correspond to the indices of points assigned to each cluster.  
+  
+A nice list comprehension with enumeration is used in the for loop to sort which datapoints belong to which cluster centroid.  
+`cluster_centroid_assignments` is used as the input for this sorting operation as it is a row-vector whose indices represent datapoint indices, and the value at each index represents datapoint's assignment to specific cluster centroid.  
+
+## Chunk 7 - computing new positions of all cluster centroids
+```python
+for centroid in range(K):
+    current_centroid_datapoints = np.vstack((x_np_array[per_cluster_datapoint_indices[centroid]], y_np_array[per_cluster_datapoint_indices[centroid]])).T
+    K_centroid_coords[centroid] = list(np.mean(current_centroid_datapoints, axis = 0))
+```  
+Almost everything up to this point was list/array handling to filter out which datapoints are closest to each centroid.  
+Our datapoints, before any actions in **Chunk 7** are done, are in two separate python lists, one representing x coordinates, and the other representing y coordinates.  
+Together these two numpy lists, that are positionally (index) matched, represent all datapoints.  
+Here is an example, during one of the runs, what the output looks like when we print `x_np_array` and `y_np_array` when we print them by passing them `per_cluster_datapoint_indicex[centroid]` (*note that*`per_cluster_datapoint_indicex[centroid]`*is used to easily get all corresponding datapoints for each centroid*) :  
+```terminal
+Centroid 0
+X datapoints :
+[ 18  53  25  70  52  72  87  44  32  99  72  72  29  68  64  75  21  46
+   2  88  95  98  90  98  40  32  93  98  72  25  98   4  59  55  87  44
+  99  80  88  23  73  67  69  92  74  79  74 101  60  63  57  36  38  49]
+Y datapoints :
+[ 99  69  89  84  57 100  74  89  88  52  76  86  82  84  44  41  99  62
+  87  93 100  32  56  48  78  71  79  27  70  95  67  96  84  94  50  65
+  68  86  88  71  56  69  88  69  49  37  94  35  49  47  73  80 100  69]
+```  
+  
+To compute the new position of `Centroid 0`, we need to compute the mean position of `Centroid 0` after the latest `update` step, ie. after computing distances to all datapoints, and assigning those closest.  
+We can either do this manually, or leverage some library, such as `numpy` in this case.  
+  
+We will take our 1D arrays `x_np_array` and `y_np_array`, and stack them vertically in our new numpy array `current_centroid_datapoints`, and then transpose this matrix so that we end up with two columns.  
+One column represents the x coordinate (this is orignally `x_np_array`), while the other column represents the y coordinate (this is originally `y_np_array`).  
+Each row in `current_centroid_datapoints` represents an individual datapoint.  
+Example of `current_centroid_datapoints` :  
+```terminal
+ current_centroid_datapoints :
+[[ 18  99]
+ [ 53  69]
+ [ 25  89]
+ [ 70  84]
+ [ 52  57]
+ [ 72 100]
+ [ 87  74]
+ [ 44  89]
+ [ 32  88]
+ ...
+ ...
+  [ 36  80]
+ [ 38 100]
+ [ 49  69]]
+```  
+All of this is done using this line of code :  
+```python
+current_centroid_datapoints = np.vstack((x_np_array[per_cluster_datapoint_indices[centroid]], y_np_array[per_cluster_datapoint_indices[centroid]])).T
+```  
+<br></br>
+Lastly, computing new position for the current centroid is now a piece of cake :  
+```python
+K_centroid_coords[centroid] = list(np.mean(current_centroid_datapoints, axis = 0))
+```  

@@ -40,6 +40,9 @@ import random
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import random
+import sys
+import time
 
 def generate_random_x_y(number_of_datapoints):
     x = []
@@ -63,14 +66,15 @@ def L2_norm(x, y, given_centroid):
 def main():
     # Number of cluster centroids
     K = 2
+    # Generating K random colors for plotting k-means iterations
+    colors = []
+    for i in range(K):
+        colors.append('#%06X' % random.randint(0, 0xFFFFFF))
     
     #Number of datapoints
     number_of_datapoints = 100
 
     K_centroid_coords = []
-
-#    cluster_centroid_assignments = []
-
     x, y = generate_random_x_y(number_of_datapoints)
     print("x : {}\ny : {}\n".format(x, y))
 
@@ -78,6 +82,8 @@ def main():
     x_np_array = np.array(x)
     y_np_array = np.array(y)
     print("Shapes\nx_np_array : {}\ny_np_array : {}".format(x_np_array.shape, y_np_array.shape))
+
+    previous_iteration_cluster_assignments = []
 
     # Randomly initialize cluster centroids - option_2 (look at the top)
     for i in range(K):
@@ -90,7 +96,8 @@ def main():
 
     #This list contains distances for all datapoints to all cluster centroids - it will be composed of K sublists : one for each cluster centroid
     # For each centroid we compute distance to each point
-    for iteration in range(10):
+    iteration = 0
+    while True:
         print("ITERATION : {}".format(iteration))
         cluster_centroid_assignments = []
         all_distances = []
@@ -109,6 +116,14 @@ def main():
             cluster_centroid_assignments.append(np.argmin(all_distances_array[:, col]))    # How to get the row index of the smallest value in column
         
         print("cluster_centroid_assignments : {}\n".format(cluster_centroid_assignments))
+        if (len(previous_iteration_cluster_assignments) == 0):
+            previous_iteration_cluster_assignments = cluster_centroid_assignments
+        else :
+            if(previous_iteration_cluster_assignments == cluster_centroid_assignments):
+                print("\nNo assignment changes.\nConverged.\nExiting.\n")
+                break
+            else:
+                previous_iteration_cluster_assignments = cluster_centroid_assignments
 
         per_cluster_datapoint_indices = []  # list made up of K sublists, each containing indices, in x and y, for the points assigned to the K-th centroid
         for centroid in range(K):
@@ -130,13 +145,10 @@ def main():
 
         fig = plt.figure()
         ax1 = fig.add_subplot(111)
+
         for centroid in range(K):
-            if centroid == 0:   #If first centroid, use color blue | Dumb hard encoding just for the sake of this example
-                ax1.scatter(x_np_array[per_cluster_datapoint_indices[centroid]], y_np_array[per_cluster_datapoint_indices[centroid]], c = 'w', edgecolors = 'b', label = 'dp_centroid_' + str(centroid))
-                ax1.scatter(K_centroid_coords[centroid][0], K_centroid_coords[centroid][1], c = 'b', label = 'CENTROID_' + str(centroid), linewidths = 5) # Plotting the centroid_0
-            else : 
-                ax1.scatter(x_np_array[per_cluster_datapoint_indices[centroid]], y_np_array[per_cluster_datapoint_indices[centroid]], c = 'w', edgecolors = 'r', label = 'centroid_' + str(centroid))
-                ax1.scatter(K_centroid_coords[centroid][0], K_centroid_coords[centroid][1], c = 'r', label = 'CENTROID_' + str(centroid), linewidths = 5) # Plotting the centroid_1
+            ax1.scatter(x_np_array[per_cluster_datapoint_indices[centroid]], y_np_array[per_cluster_datapoint_indices[centroid]], c = 'w', edgecolors = colors[centroid], label = 'dp_centroid_' + str(centroid))
+            ax1.scatter(K_centroid_coords[centroid][0], K_centroid_coords[centroid][1], c = colors[centroid], label = 'CENTROID_' + str(centroid), linewidths = 5) # Plotting the centroid_0
 
         ax1.set_title("k-means iteration " + str(iteration))
         plt.xlabel("X coord")
@@ -144,5 +156,6 @@ def main():
         plt.legend(loc = 'upper left')
         plt.savefig("iteration_" + str(iteration) + ".png")
         print("\n=========================================================\n\n")
+        iteration += 1
                     
 main()
