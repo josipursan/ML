@@ -90,8 +90,8 @@ def main():
 
     iteration = 0
     while True:
-        all_distances = []
-        cluster_centroid_assignments = []
+        all_distances = []  # matrix; each sublist hold distances between all datapoints and the sublist's centroid
+        cluster_centroid_assignments = []   # list; each index corresponds to index of datapoints represented by x and y lists; values at each index position represent assignment of i-th datapoint to some centroid (centroids are represented by values 0,1,2, ..., K)
         per_cluster_datapoint_indices = []  # list made up of K sublists, each containing indices, in x and y, for the points assigned to the K-th centroid
         
         for centroid in range(K):
