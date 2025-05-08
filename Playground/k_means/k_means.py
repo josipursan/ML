@@ -41,8 +41,6 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-import sys
-import time
 
 def generate_random_x_y(number_of_datapoints):
     x = []
@@ -71,7 +69,7 @@ def main():
     K = 2 # Number of cluster centroids    
     number_of_datapoints = 100 #Number of datapoints to randomly generate
 
-    colors = [] # Stores K random colors for plotting each k-means iteration
+    colors = generate_random_colors(K) # Stores K random colors for plotting each k-means iteration
     K_centroid_coords = []    
     previous_iteration_cluster_assignments = []
 
@@ -113,7 +111,7 @@ def main():
             previous_iteration_cluster_assignments = cluster_centroid_assignments
         else :
             if(previous_iteration_cluster_assignments == cluster_centroid_assignments):
-                print("\nNo assignment changes.\nConverged.\nExiting.\n")
+                print("\nIteration {}\nNo assignment changes.\nConverged.\nExiting.\n".format(iteration))
                 break
             else:
                 previous_iteration_cluster_assignments = cluster_centroid_assignments
