@@ -74,7 +74,6 @@ def main():
     previous_iteration_cluster_assignments = []
 
     x, y = generate_random_x_y(number_of_datapoints)
-    xy = np.vstack((x,y)).T
     x_np_array = np.array(x)
     y_np_array = np.array(y)
 
@@ -105,7 +104,6 @@ def main():
         for col in range(all_distances_array.shape[1]):
             cluster_centroid_assignments.append(np.argmin(all_distances_array[:, col]))    # How to get the row index of the smallest value in column
             #min_value = np.min(all_distances_array[:, col]) # How to find the smallest value in a column
-
         
         if (len(previous_iteration_cluster_assignments) == 0):
             previous_iteration_cluster_assignments = cluster_centroid_assignments
@@ -128,7 +126,7 @@ def main():
 
         for centroid in range(K):
             ax1.scatter(x_np_array[per_cluster_datapoint_indices[centroid]], y_np_array[per_cluster_datapoint_indices[centroid]], c = 'w', edgecolors = colors[centroid], label = 'dp_centroid_' + str(centroid))
-            ax1.scatter(K_centroid_coords[centroid][0], K_centroid_coords[centroid][1], c = colors[centroid], label = 'CENTROID_' + str(centroid), linewidths = 5) # Plotting the centroid_0
+            ax1.scatter(K_centroid_coords[centroid][0], K_centroid_coords[centroid][1], c = colors[centroid], label = 'CENTROID_' + str(centroid), linewidths = 5)
 
         ax1.set_title("k-means iteration " + str(iteration))
         plt.xlabel("X coord")
