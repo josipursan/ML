@@ -142,7 +142,7 @@ cleaned_up_X['day'] = categorized_day_column
 
 #maximum_value_scaling(cleaned_up_X)
 #min_max_scaling(cleaned_up_X)
-inputData = mean_normalization(cleaned_up_X.iloc[:, 4:]) #ignoring the first 4 columns with this slicing operation
+inputData = mean_normalization(cleaned_up_X) #ignoring the first 4 columns with this slicing operation : cleaned_up_X.iloc[:, 4:])
 #print("Mean normalized : \n{}\n".format(inputData))
 #inputData.drop(inputData.columns[[0,1,2,3]], axis = 1, inplace=True)    # removing columns for X coordinates, Y coordinates, day and month - for now they seem irrelevant
 print("Input data final : {}\n".format(inputData))
@@ -197,6 +197,18 @@ cv_set = inputData.sample(frac=CV_SET_SIZE)
 print("training_set shape : {}\ntest_set shape : {}\ncv_set shape : {}\n".format(training_set.shape, test_set.shape, cv_set.shape))
 '''
 
+class CustomThresholdCallback(tf.keras.callbacks.Callback):
+    def __init__(self, threshold):
+        super().__init__()
+        self.threshold = threshold
+
+    def on_epoch_end(self, epoch, logs=None):
+        if logs.get('loss') is not None and logs.get('loss') < self.threshold:
+            print("Stopping training! Loss below threshold {}\n".format(self.threshold))
+            self.model.stop_training = True
+
+threshold_callback = CustomThresholdCallback(threshold = 5)
+
 learning_rate_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
     initial_learning_rate = 0.0009,
     decay_steps = 1500,
@@ -215,7 +227,6 @@ NN_model = Sequential(
         Dense(28, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(34, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(38, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(42, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(8, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
@@ -228,7 +239,7 @@ NN_model.compile(
     optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate_schedule) # 0.00033
 )
 
-model_history = NN_model.fit(training_set, y_for_training_set, epochs = 2000) #, batch_size = 32
+model_history = NN_model.fit(training_set, y_for_training_set, epochs = 1750, callbacks = [threshold_callback]) #, batch_size = 32
 training_loss = model_history.history['loss']
 plt.plot(training_loss, label="Training loss")
 plt.xlabel("Epochs")
