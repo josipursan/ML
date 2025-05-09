@@ -142,9 +142,9 @@ cleaned_up_X['day'] = categorized_day_column
 
 #maximum_value_scaling(cleaned_up_X)
 #min_max_scaling(cleaned_up_X)
-inputData = mean_normalization(cleaned_up_X)
-print("Mean normalized : \n{}\n".format(inputData))
-inputData.drop(inputData.columns[[0,1,2,3]], axis = 1, inplace=True)
+inputData = mean_normalization(cleaned_up_X.iloc[:, 4:]) #ignoring the first 4 columns with this slicing operation
+#print("Mean normalized : \n{}\n".format(inputData))
+#inputData.drop(inputData.columns[[0,1,2,3]], axis = 1, inplace=True)    # removing columns for X coordinates, Y coordinates, day and month - for now they seem irrelevant
 print("Input data final : {}\n".format(inputData))
 
 
@@ -200,7 +200,8 @@ print("training_set shape : {}\ntest_set shape : {}\ncv_set shape : {}\n".format
 learning_rate_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
     initial_learning_rate = 0.0009,
     decay_steps = 1500,
-    decay_rate = 0.95
+    decay_rate = 0.95,
+    staircase=True
 )
 
 NN_model = Sequential(
@@ -213,6 +214,9 @@ NN_model = Sequential(
         Dense(24, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(28, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(34, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(38, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(42, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(8, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(1, activation='linear')     #output layer
@@ -224,13 +228,15 @@ NN_model.compile(
     optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate_schedule) # 0.00033
 )
 
-model_history = NN_model.fit(training_set, y_for_training_set, epochs = 500) #, batch_size = 32
+model_history = NN_model.fit(training_set, y_for_training_set, epochs = 2000) #, batch_size = 32
 training_loss = model_history.history['loss']
 plt.plot(training_loss, label="Training loss")
 plt.xlabel("Epochs")
 plt.ylabel("Loss")
 plt.legend()
 plt.show()
+
+print("Training loss last 20 epoch values : {}".format(training_loss[-20::]))
 
 #training_set_predictions = NN_model(training_set)
 #print("Training set predictions : {}\n".format(training_set_predictions))
