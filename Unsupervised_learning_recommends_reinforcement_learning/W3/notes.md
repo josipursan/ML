@@ -70,5 +70,46 @@ $0 + (0.5)100 = 50$
 ## Bellman equation  
 https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-learning/lecture/3Wpee/bellman-equation  
   
+-Bellman equation is one of the most important equations in unsupervised learning, enabling us to compute actions *a* depending on states *s*  
+  
+-*s* - current state  
+-*R(s)* - reward of current state  
+-*a* - current action (the action taken when in state *s*)  
+-*s'* - state you get to after taking action *a* (*s'* is read as *s prime*)  
+-*a'* - action that you take in state *s'*  
+  
+**Bellman equation**  
+$Q(s,a) = R(s) + \gamma max_{a}Q(s', a')$  
+  
+-the return under the used set of assumptions (*s* and *a*) is equal to reward of current state (*R(s)*) plus the discount factor gamma ($\gamma$) times maximum value, over all possible actions *a'*, of the new state we just got to ( *Q(s', a')* )  
+  
+-an example of Bellman's equation follows :  
+&nbsp;&nbsp;&nbsp;&nbsp;-imagine we are in state 2 and have chosen action *a* to be *right*  
+&nbsp;&nbsp;&nbsp;&nbsp;-imagine another example : we are in state 4 and choose to go *left*  
+&nbsp;&nbsp;&nbsp;&nbsp;-the screenshot shown below details all of the computations, as well as visualizations  
 
+<p style="text-align: center">
+    <img src="./screenshots/bellmanEquation.png"/>
+</p>  
+  
+-Bellman equation, when in terminal states, simplifies to $Q(s,a) = R(s)$ (the expression in the top right section of the screenshot above)  
+  
+-Bellman equation can be broken down into two parts :  
+&nbsp;&nbsp;&nbsp;- $R(s)$ - the reward you get right away (in literature also referred to as *immediate reward*)  
+&nbsp;&nbsp;&nbsp;- $max_{a'}Q(s', a')$ - return from behaving optimally starting from state *s'*  
+  
+## Stochastic environment  
+https://www.coursera.org/learn/unsupervised-learning-recommenders-reinforcement-learning/lecture/rL525/random-stochastic-environment-optional  
+  
+-in real life, the outcome is not always completely reliable due to everchanging circumstances, as well as any unknown variables affecting the system we are designing  
+  
+-for random, stochastic, environments we need a generalization of the reinforcement learning framework discussed up to this point  
+  
+-consequences of actions are now no longer modeled as deterministic events, but rather probabilistic  
+-continuing on with our Mars rover example, choosing to move left (action *a*) from current state *s* no longer results in a definitive move to the state left of our current state  
+&nbsp;&nbsp;&nbsp;-now we have two probabilities : a probability that we actually will move to left, and a probability that we will move to the right  
+  
+-considering we are dealing with a probabilistic environment now, our goal isn't anymore to maximize the return, but to rather maximize the average return value of all of the possible event chains our system can experience  
+  
+-this average is referred to as *expected return* (ie. average)  
   
