@@ -10,6 +10,9 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 
+
+seed_value = 11
+
 ################### Dataset cleanup ##########################
 
 '''
@@ -128,7 +131,7 @@ X = forest_fires.data.features
 y = forest_fires.data.targets 
   
 # metadata 
-print(forest_fires.metadata) 
+#print(forest_fires.metadata) 
   
 # variable information 
 print(forest_fires.variables)
@@ -142,11 +145,10 @@ cleaned_up_X['day'] = categorized_day_column
 
 #maximum_value_scaling(cleaned_up_X)
 #min_max_scaling(cleaned_up_X)
-inputData = mean_normalization(cleaned_up_X) #ignoring the first 4 columns with this slicing operation : cleaned_up_X.iloc[:, 4:])
+inputData = mean_normalization(cleaned_up_X.iloc[:, 4:]) #ignoring the first 4 columns with this slicing operation : cleaned_up_X.iloc[:, 4:])
 #print("Mean normalized : \n{}\n".format(inputData))
 #inputData.drop(inputData.columns[[0,1,2,3]], axis = 1, inplace=True)    # removing columns for X coordinates, Y coordinates, day and month - for now they seem irrelevant
-print("Input data final : {}\n".format(inputData))
-
+print("Input data final : \n{}\n".format(inputData))
 
 TRAINING_SET_SIZE = 0.80
 TEST_SET_SIZE = 0.10
@@ -197,7 +199,7 @@ cv_set = inputData.sample(frac=CV_SET_SIZE)
 print("training_set shape : {}\ntest_set shape : {}\ncv_set shape : {}\n".format(training_set.shape, test_set.shape, cv_set.shape))
 '''
 
-class CustomThresholdCallback(tf.keras.callbacks.Callback):
+""" class CustomThresholdCallback(tf.keras.callbacks.Callback):
     def __init__(self, threshold):
         super().__init__()
         self.threshold = threshold
@@ -214,32 +216,28 @@ learning_rate_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
     decay_steps = 1500,
     decay_rate = 0.95,
     staircase=True
-)
+) """
+
+#tf.random.set_seed(seed_value)
 
 NN_model = Sequential(
     [
         Dense(8, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(18, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(20, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(22, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(24, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(28, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(64, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(48, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(34, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(42, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(24, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(8, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(1, activation='linear')     #output layer
     ]
 )
 
 NN_model.compile(
     loss = tf.keras.losses.MeanSquaredError(),
-    optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate_schedule) # 0.00033
+    optimizer=tf.keras.optimizers.Adam(learning_rate = 0.00033) # 0.00033
 )
 
-model_history = NN_model.fit(training_set, y_for_training_set, epochs = 1750, callbacks = [threshold_callback]) #, batch_size = 32
+model_history = NN_model.fit(training_set, y_for_training_set, epochs = 1000) #, batch_size = 32, callbacks = [threshold_callback]
 training_loss = model_history.history['loss']
 plt.plot(training_loss, label="Training loss")
 plt.xlabel("Epochs")
