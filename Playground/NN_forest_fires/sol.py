@@ -135,6 +135,7 @@ y = forest_fires.data.targets
   
 # variable information 
 print(forest_fires.variables)
+print("\nFeatures dataframe length : {}\nTarget dataframe length : {}\n\n".format(len(X), len(y)))
 
 cleaned_up_X = X.copy()
 
@@ -148,7 +149,7 @@ cleaned_up_X['day'] = categorized_day_column
 inputData = mean_normalization(cleaned_up_X.iloc[:, 4:]) #ignoring the first 4 columns with this slicing operation : cleaned_up_X.iloc[:, 4:])
 #print("Mean normalized : \n{}\n".format(inputData))
 #inputData.drop(inputData.columns[[0,1,2,3]], axis = 1, inplace=True)    # removing columns for X coordinates, Y coordinates, day and month - for now they seem irrelevant
-print("Input data final : \n{}\n".format(inputData))
+print("Input data final : \n{}\nInput data format : {}\n".format(inputData, len(inputData)))
 
 TRAINING_SET_SIZE = 0.80
 TEST_SET_SIZE = 0.10
@@ -163,7 +164,7 @@ Note that this approach WILL result in a random number of indices being shared b
 
 A different approach is shown below this code block. '''
 
-training_set_indices = np.random.choice(inputData.shape[0], size=math.floor(TRAINING_SET_SIZE*inputData.shape[0]), replace=False)
+""" training_set_indices = np.random.choice(inputData.shape[0], size=math.floor(TRAINING_SET_SIZE*inputData.shape[0]), replace=False)
 test_set_indices = np.random.choice(inputData.shape[0], size=math.floor(TEST_SET_SIZE*inputData.shape[0]), replace=False)
 cv_set_indices = np.random.choice(inputData.shape[0], size=math.floor(CV_SET_SIZE*inputData.shape[0]), replace=False)
 
@@ -173,7 +174,7 @@ test_set = inputData.iloc[test_set_indices]
 y_for_test_set = y.iloc[test_set_indices]
 cv_set = inputData.iloc[cv_set_indices]
 y_for_cv_Set = y.iloc[cv_set_indices]
-#print("TRAINING_SET_SIZE : {}\nTEST_SET_SIZE : {}\nCV_SET_SIZE : {}\ntraining_set_indices : {}\ntest_set_indices : {}\ncv_set_indices : {}\n".format(TRAINING_SET_SIZE, TEST_SET_SIZE, CV_SET_SIZE, np.sort(training_set_indices), np.sort(test_set_indices), np.sort(cv_set_indices)))
+ """#print("TRAINING_SET_SIZE : {}\nTEST_SET_SIZE : {}\nCV_SET_SIZE : {}\ntraining_set_indices : {}\ntest_set_indices : {}\ncv_set_indices : {}\n".format(TRAINING_SET_SIZE, TEST_SET_SIZE, CV_SET_SIZE, np.sort(training_set_indices), np.sort(test_set_indices), np.sort(cv_set_indices)))
 
 
 '''
@@ -198,6 +199,17 @@ test_set = inputData.sample(frac=TEST_SET_SIZE)
 cv_set = inputData.sample(frac=CV_SET_SIZE)
 print("training_set shape : {}\ntest_set shape : {}\ncv_set shape : {}\n".format(training_set.shape, test_set.shape, cv_set.shape))
 '''
+
+training_set = inputData[0:math.floor(TRAINING_SET_SIZE*len(inputData))]
+training_set_targets = y[0:math.floor(TRAINING_SET_SIZE*len(inputData))]
+dev_set = inputData[math.floor(TRAINING_SET_SIZE*len(inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(inputData))]
+dev_set_targets = y[math.floor(TRAINING_SET_SIZE*len(inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(inputData))]
+test_set = inputData[len(training_set) + math.floor(CV_SET_SIZE*len(inputData)):len(inputData) - 1]
+test_set_targets = y[len(training_set) + math.floor(CV_SET_SIZE*len(inputData)):len(inputData) - 1]
+#print("Training set ending index : {}".format(math.floor(TRAINING_SET_SIZE*len(inputData))))
+#print("Dev set start/end index : {}/{}".format(math.floor(TRAINING_SET_SIZE*len(inputData)), len(training_set) + math.floor(CV_SET_SIZE*len(inputData))))
+#print("Test set start/end index : {}/{}".format(len(training_set) + math.floor(CV_SET_SIZE*len(inputData)), len(inputData) - 1))
+#print("train_targets : {}\ndev_targets : {}\ntest_targets : {}\n".format(training_set_targets, dev_set_targets, test_set_targets))
 
 """ class CustomThresholdCallback(tf.keras.callbacks.Callback):
     def __init__(self, threshold):
@@ -225,8 +237,8 @@ NN_model = Sequential(
         Dense(8, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(64, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(48, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(24, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        #Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        #Dense(24, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
         Dense(1, activation='linear')     #output layer
     ]
@@ -234,10 +246,10 @@ NN_model = Sequential(
 
 NN_model.compile(
     loss = tf.keras.losses.MeanSquaredError(),
-    optimizer=tf.keras.optimizers.Adam(learning_rate = 0.00033) # 0.00033
+    optimizer=tf.keras.optimizers.Adam(learning_rate = 0.00075) # 0.00033
 )
 
-model_history = NN_model.fit(training_set, y_for_training_set, epochs = 1000) #, batch_size = 32, callbacks = [threshold_callback]
+model_history = NN_model.fit(training_set, training_set_targets, epochs = 1500) #, batch_size = 32, callbacks = [threshold_callback]
 training_loss = model_history.history['loss']
 plt.plot(training_loss, label="Training loss")
 plt.xlabel("Epochs")
