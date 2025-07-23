@@ -8,7 +8,7 @@ import numpy as np
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, Dropout
 
 
 seed_value = 11
@@ -128,7 +128,24 @@ forest_fires = fetch_ucirepo(id=162)
   
 # data (as pandas dataframes) 
 X = forest_fires.data.features 
-y = forest_fires.data.targets 
+y = forest_fires.data.targets
+plt.figure()
+plt.scatter([i for i in range(len(y))], y['area'])
+plt.title("Target (area) in ha")
+plt.xlabel("Individual datapoint")
+plt.ylabel("Burned are (ha)")
+plt.show()
+print("Before transformation : {}".format(y[-10:]))
+y = np.log1p(y['area']) # aaaaaaaa... never cut the branch you are sitting on - revisit this once NN works ok
+print("\nAfter log1p transformation : {}".format(y[-10:]))
+plt.figure()
+plt.scatter([i for i in range(len(y))], y)
+plt.title("Target (area) in ha after log scaling")
+plt.xlabel("Individual datapoint")
+plt.ylabel("Burned are (ha)")
+plt.show()
+time.sleep(5)
+
   
 # metadata 
 #print(forest_fires.metadata) 
@@ -152,8 +169,8 @@ inputData = mean_normalization(cleaned_up_X.iloc[:, 4:]) #ignoring the first 4 c
 print("Input data final : \n{}\nInput data format : {}\n".format(inputData, len(inputData)))
 
 TRAINING_SET_SIZE = 0.80
-TEST_SET_SIZE = 0.10
-CV_SET_SIZE = 0.10
+TEST_SET_SIZE = 0
+CV_SET_SIZE = 0.20
 '''
 What does the block of code below do?
 
@@ -211,7 +228,7 @@ test_set_targets = y[len(training_set) + math.floor(CV_SET_SIZE*len(inputData)):
 #print("Test set start/end index : {}/{}".format(len(training_set) + math.floor(CV_SET_SIZE*len(inputData)), len(inputData) - 1))
 #print("train_targets : {}\ndev_targets : {}\ntest_targets : {}\n".format(training_set_targets, dev_set_targets, test_set_targets))
 
-""" class CustomThresholdCallback(tf.keras.callbacks.Callback):
+class CustomThresholdCallback(tf.keras.callbacks.Callback):
     def __init__(self, threshold):
         super().__init__()
         self.threshold = threshold
@@ -221,43 +238,61 @@ test_set_targets = y[len(training_set) + math.floor(CV_SET_SIZE*len(inputData)):
             print("Stopping training! Loss below threshold {}\n".format(self.threshold))
             self.model.stop_training = True
 
-threshold_callback = CustomThresholdCallback(threshold = 5)
-
-learning_rate_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate = 0.0009,
-    decay_steps = 1500,
-    decay_rate = 0.95,
-    staircase=True
-) """
-
 #tf.random.set_seed(seed_value)
+
+
+lr_callback_plateau = tf.keras.callbacks.ReduceLROnPlateau(
+    monitor='val_loss',
+    factor = 0.93,
+    min_delta = 10,
+    cooldown = 10,
+    min_lr = 0.00033
+)
+
+l2_regularizer = tf.keras.regularizers.L2(l2=0.015)
+
 
 NN_model = Sequential(
     [
         Dense(8, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(64, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(48, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
+        #Dropout(0.1),
+        Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
+        Dense(64, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
+        Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
+        Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
+        #Dropout(0.15),
         #Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        #Dense(24, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        #Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
+        #Dense(64, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
+        #Dropout(0.1),
         Dense(1, activation='linear')     #output layer
     ]
 )
 
 NN_model.compile(
     loss = tf.keras.losses.MeanSquaredError(),
-    optimizer=tf.keras.optimizers.Adam(learning_rate = 0.00075) # 0.00033
+    optimizer=tf.keras.optimizers.Adam(learning_rate = 0.00073) # 0.00033; learning_rate = 0.00075 is pretty good with 8,64,48,16,1 network
 )
 
-model_history = NN_model.fit(training_set, training_set_targets, epochs = 1500) #, batch_size = 32, callbacks = [threshold_callback]
+
+
+model_history = NN_model.fit(training_set, training_set_targets, epochs = 750, validation_data=(dev_set, dev_set_targets)) #, batch_size = 32
 training_loss = model_history.history['loss']
-plt.plot(training_loss, label="Training loss")
+#training_accuracy = model_history.history['acc']
+validation_loss = model_history.history['val_loss']
+#validation_accuracy = model_history.history['val_acc']
+plt.plot(training_loss, label="Training loss", color='b')
+#plt.plot(training_accuracy[-1000::], label="Training accuracy -1000", color='b', marker='o')
+plt.plot(validation_loss, label="Validation loss", color='r')
+#plt.plot(validation_accuracy[-1000::], label="Validation accuracy -1000", color='r', marker='o')
 plt.xlabel("Epochs")
 plt.ylabel("Loss")
 plt.legend()
 plt.show()
 
-print("Training loss last 20 epoch values : {}".format(training_loss[-20::]))
+print("Training loss last 20 epoch values : {}\n".format(training_loss[-20::]))
+#print("model_history.history : {}".format(model_history.history[-100::]))
 
 #training_set_predictions = NN_model(training_set)
 #print("Training set predictions : {}\n".format(training_set_predictions))
