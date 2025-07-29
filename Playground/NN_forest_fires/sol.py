@@ -1,4 +1,5 @@
 from ucimlrepo import fetch_ucirepo, list_available_datasets
+import matplotlib
 import matplotlib.pyplot as plt
 import json
 import time
@@ -8,6 +9,7 @@ import numpy as np
 import random
 import json
 import sys
+import configparser
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -123,7 +125,9 @@ def mean_normalization(pandas_df_for_scaling):
     return mean_normalized_values
 ########################## End ##############################
 
-
+colors = matplotlib.colors.CSS4_COLORS  # Alternatively, try mcolors.TABLEAU_COLORS or mcolors.BASE_COLORS
+colors = list(colors.keys())
+random.shuffle(colors)
 
 #list_available_datasets()
 # fetch dataset 
@@ -133,13 +137,11 @@ forest_fires = fetch_ucirepo(id=162)
 X = forest_fires.data.features 
 y = forest_fires.data.targets
 y = np.log1p(y['area']) # aaaaaaaa... never cut the branch you are sitting on - revisit this once NN works ok
-
-
   
-# metadata 
-#print(forest_fires.metadata) 
+# metadata
+#print(forest_fires.metadata)
   
-# variable information 
+# variable information
 print(forest_fires.variables)
 print("\nFeatures dataframe length : {}\nTarget dataframe length : {}\n\n".format(len(X), len(y)))
 
@@ -241,47 +243,64 @@ lr_callback_plateau = tf.keras.callbacks.ReduceLROnPlateau(
 l2_regularizer = tf.keras.regularizers.L2(l2=0.015)
 
 #### A simple grid search implementation
-different_architectures = 20 # how many different NN architecture we want to create
-min_hidden_layers = 1
-max_hidden_layers = 6
-activation_function = 'relu'    #use same names used by TF : https://www.tensorflow.org/api_docs/python/tf/keras/activations
-output_layer_activation_function = 'linear'
-input_layer_neurons = 8     #how many neurons the input layer should have
-output_layer_neurons = 1    #how many neurons the output layer should have
-min_neurons = 2
-max_neurons = 64
-min_alpha = 0.0003
-max_alpha = 0.0008
-epo_chs = 250
+DifferentArchitectures = 20 # how many different NN architecture we want to create
+MinHiddenLayers = 1
+MaxHiddenLayers = 6
+ActivationFunction = 'relu'    #use same names used by TF : https://www.tensorflow.org/api_docs/python/tf/keras/activations
+OutputLayerActivationFunction = 'linear'
+InputLayerNeurons = 8     #how many neurons the input layer should have
+OutputLayerNeurons = 1    #how many neurons the output layer should have
+MinNeurons = 2
+MaxNeurons = 64
+MinAlpha = 0.0003
+MaxAlpha = 0.0008
+Epochs = 250
 all_training_losses = []
 all_validation_losses = []
 
-def generate_random_network_architectures(different_architectures, activation_function, output_layer_activation_function, input_layer_neurons, output_layer_neurons, min_hidden_layers, max_hidden_layers, min_neurons, max_neurons, min_alpha, max_alpha, epo_chs):
+def generate_random_network_architectures():
     allGeneratedArchitectures = []
-    for current_architecture in range(different_architectures):
+
+    generatorConfig = configparser.ConfigParser()
+    generatorConfig.read('configOptions_randomArchitectures.ini')
+    #print(generatorConfig['DEFAULT']['DifferentArchitectures'])
+    #print("All keys : {}\n".format(dict(generatorConfig.items('DEFAULT'))))
+
+    DifferentArchitectures = int(generatorConfig['DEFAULT']['DifferentArchitectures'])
+    MinHiddenLayers = int(generatorConfig['DEFAULT']['MinHiddenLayers'])
+    MaxHiddenLayers = int(generatorConfig['DEFAULT']['MaxHiddenLayers'])
+    MinNeurons = int(generatorConfig['DEFAULT']['MinNeurons'])
+    MaxNeurons = int(generatorConfig['DEFAULT']['MaxNeurons'])
+    InputLayerNeurons = int(generatorConfig['DEFAULT']['InputLayerNeurons'])
+    OutputLayerNeurons = int(generatorConfig['DEFAULT']['OutputLayerNeurons'])
+    OutputLayerActivationFunction = generatorConfig['DEFAULT']['OutputLayerActivationFunction']
+    ActivationFunction = generatorConfig['DEFAULT']['ActivationFunction']
+    Epochs = int(generatorConfig['DEFAULT']['Epochs'])
+
+    for current_architecture in range(DifferentArchitectures):
         curr_arch = {}
 
         curr_arch['architecture_number'] = current_architecture
-        curr_arch['total_layers'] = random.randint(min_hidden_layers, max_hidden_layers) + 2  #generating random number of layers in range min_hidden_layers,max_hidden layers ; INCREMENT BY TWO BECAUSE HIDDEN LAYERS ARE SANDWICHED BETWEEN INPUT AND OUTPUT LAYER
+        curr_arch['total_layers'] = random.randint(MinHiddenLayers, MaxHiddenLayers) + 2  #generating random number of layers in range MinHiddenLayers,max_hidden layers ; INCREMENT BY TWO BECAUSE HIDDEN LAYERS ARE SANDWICHED BETWEEN INPUT AND OUTPUT LAYER
         
         neuron_structure = []
         for layer in range(int(curr_arch['total_layers'])):
-            neuron_structure.append(random.randint(min_neurons, max_neurons))
-        neuron_structure[0] = input_layer_neurons   # set number of neurons for input and output layers - these are defined by the number of inputs and the desired output from the NN - we do not want random values here
-        neuron_structure[-1] = output_layer_neurons
+            neuron_structure.append(random.randint(MinNeurons, MaxNeurons))
+        neuron_structure[0] = InputLayerNeurons   # set number of neurons for input and output layers - these are defined by the number of inputs and the desired output from the NN - we do not want random values here
+        neuron_structure[-1] = OutputLayerNeurons
         curr_arch['neuron_structure'] = neuron_structure
 
-        curr_arch['alpha'] = random.uniform(min_alpha, max_alpha)
-        curr_arch['activation_function'] = activation_function
-        curr_arch['output_layer_activation_function'] = output_layer_activation_function
-        curr_arch['epochs'] = epo_chs
+        curr_arch['alpha'] = random.uniform(MinAlpha, MaxAlpha)
+        curr_arch['ActivationFunction'] = ActivationFunction
+        curr_arch['OutputLayerActivationFunction'] = OutputLayerActivationFunction
+        curr_arch['epochs'] = Epochs
 
         allGeneratedArchitectures.append(curr_arch)
 
     with open("generated_architectures.json", "a") as outfile:
         json.dump(allGeneratedArchitectures, outfile, indent=2)
 
-generate_random_network_architectures(different_architectures, activation_function, output_layer_activation_function, input_layer_neurons, output_layer_neurons, min_hidden_layers, max_hidden_layers, min_neurons, max_neurons, min_alpha, max_alpha, epo_chs)
+generate_random_network_architectures()
 
 with open("generated_architectures.json", "r") as architecturesFile:
     network_architectures = json.load(architecturesFile)
@@ -289,14 +308,15 @@ with open("generated_architectures.json", "r") as architecturesFile:
 
 all_model_losses = []
 all_model_validation_losses = []
+NBestModels = 5 # get the 5 best performing models (in terms of loss) for plotting
 
-for current_model in range(len(network_architectures)): # len(network_architectures) == different_architectures
+for current_model in range(len(network_architectures)): # len(network_architectures) == DifferentArchitectures
     NN_model_test = Sequential()
     for current_layer in range(network_architectures[current_model]['total_layers']):
         if current_layer == network_architectures[current_model]['total_layers'] - 1:   # we have reached iteration where output layer is defined
-            NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['output_layer_activation_function']))
+            NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['OutputLayerActivationFunction']))
         else:
-            NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['activation_function']))
+            NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['ActivationFunction']))
     NN_model_test.compile(
         loss = tf.keras.losses.MeanSquaredError(),
         optimizer=tf.keras.optimizers.Adam(learning_rate=network_architectures[current_model]['alpha'])
@@ -307,18 +327,33 @@ for current_model in range(len(network_architectures)): # len(network_architectu
     all_model_validation_losses.append(model_history.history['val_loss'])
 
 
-color_map = ['orange', 'red', 'green', 'blue', 'olive', 'pink', 'silver', 'tan', 'lime', 'lavender', 'lightcyan', 'black', 'plum', 'gold', 'tomato', 'steelblue', 'cyan', 'gainsboro', 'indigo', 'palegoldenrod']
+'''
+model_diffs_validation_training_loss - a list holding differences between the last value of validation_loss and last value of training_loss for each model
+    -is used to determine NBestModels (ie. the models with smallest difference between the last value of validation_loss and last value of training_loss)
+
+n_best_models_indices - a list made up of NBestModels (e.g. 5) indices, ie. the indices representing models with the smallest diff between validaton and training losses
+'''
+model_diffs_validation_training_loss = [] 
 for current_model in range(len(network_architectures)):
-    plt.plot(all_model_losses[current_model], label="Training loss model_"+str(current_model), color=color_map[current_model])
-    plt.plot(all_model_validation_losses[current_model], label="Validation loss model_"+str(current_model), color=color_map[current_model], linestyle='dotted')
+    model_diffs_validation_training_loss.append(abs(all_model_losses[current_model][-1] - all_model_validation_losses[current_model][-1]))
+print("model_diffs_validation_training_loss : {}\n".format(model_diffs_validation_training_loss))
+n_best_models_indices = []
+for n in range(NBestModels):
+    n_best_models_indices.append(model_diffs_validation_training_loss.index(min(model_diffs_validation_training_loss)))
+    #Now set the latest found minimum value in model_diffs_validation_training_loss to some outrageously big value so that we can find the next min value in the next iteration
+    model_diffs_validation_training_loss[n_best_models_indices[-1]] = 1000
+
+print("Best performing models : {}\n".format(n_best_models_indices))
+for model in n_best_models_indices:
+    print("Model {} : {}\n".format(model, network_architectures[model]))
+
+for current_model in n_best_models_indices:
+    plt.plot(all_model_losses[current_model], label="Training loss model_"+str(current_model), color=colors[current_model])
+    plt.plot(all_model_validation_losses[current_model], label="Validation loss model_"+str(current_model), color=colors[current_model], linestyle='dotted')
 plt.xlabel("Epochs")
 plt.ylabel("Loss")
 plt.legend()
 plt.show()
-
-
-
-
 
 
 """ NN_model = Sequential(
