@@ -10,6 +10,10 @@ import random
 import json
 import sys
 import configparser
+import os
+import datetime
+import time
+import statistics
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -72,7 +76,7 @@ https://www.geeksforgeeks.org/ml-feature-scaling-part-2/
 
 Note that scaling a feature, and normalizing it, are not interchangeable operations.
 Scaling means simply shifting the data range to some other data range.
-Normalization changes the distribution of the data.
+Normalization changes the distribution of the data. (well yes, but actually no, but yes... it helps stabilize the distribution of the data further exposing relationships between datapoints)
 '''
 
 # Max val scaling divides all values in column by the max value found in that column, thus scaling to [0,1] range
@@ -125,99 +129,124 @@ def mean_normalization(pandas_df_for_scaling):
     return mean_normalized_values
 ########################## End ##############################
 
-colors = matplotlib.colors.CSS4_COLORS  # Alternatively, try mcolors.TABLEAU_COLORS or mcolors.BASE_COLORS
-colors = list(colors.keys())
-random.shuffle(colors)
+def create_report_file():
+    if os.path.isfile("./reportFile.txt"): # if file is found it means it is a leftover from previous rename, therefore rename it using current unix timestamp
+        os.rename("reportFile.txt", "reportFile_" + str(time.time()) + ".txt")
 
-#list_available_datasets()
-# fetch dataset 
-forest_fires = fetch_ucirepo(id=162) 
-  
-# data (as pandas dataframes) 
-X = forest_fires.data.features 
-y = forest_fires.data.targets
-y = np.log1p(y['area']) # aaaaaaaa... never cut the branch you are sitting on - revisit this once NN works ok
-  
-# metadata
-#print(forest_fires.metadata)
-  
-# variable information
-print(forest_fires.variables)
-print("\nFeatures dataframe length : {}\nTarget dataframe length : {}\n\n".format(len(X), len(y)))
+    with open("reportFile.txt", "w") as currentReportFile:
+        currentReportFile.write("Report file\n")
+        currentReportFile.write(str(datetime.datetime.now()) + "\n")
 
-cleaned_up_X = X.copy()
+def report_file_write(stringToWrite):
+    if not(os.path.isfile("./reportFile.txt")): # if file is not found something has gone wrong
+        print("ERROR : reportFile.txt has been moved")
 
-categorized_month_column = column_to_categorical(cleaned_up_X['month'])
-categorized_day_column = column_to_categorical(cleaned_up_X['day'])
-cleaned_up_X['month'] = categorized_month_column
-cleaned_up_X['day'] = categorized_day_column
+    with open("reportFile.txt", "a") as currentReportFile:
+        currentReportFile.write(stringToWrite)
 
-#maximum_value_scaling(cleaned_up_X)
-#min_max_scaling(cleaned_up_X)
-inputData = mean_normalization(cleaned_up_X.iloc[:, 4:]) #ignoring the first 4 columns with this slicing operation : cleaned_up_X.iloc[:, 4:])
-#print("Mean normalized : \n{}\n".format(inputData))
-#inputData.drop(inputData.columns[[0,1,2,3]], axis = 1, inplace=True)    # removing columns for X coordinates, Y coordinates, day and month - for now they seem irrelevant
-print("Input data final : \n{}\nInput data format : {}\n".format(inputData, len(inputData)))
+def close_report_file():
+    if not(os.path.isfile("./reportFile.txt")): # if file is not found something has gone wrong
+        print("ERROR : reportFile.txt has been moved")
+        sys.exit()
+    report_file_write("\n\n\n----------------------------------")
+    os.rename("reportFile.txt", "reportFile_" + str(time.time()) + ".txt")
 
-TRAINING_SET_SIZE = 0.80
-TEST_SET_SIZE = 0
-CV_SET_SIZE = 0.20
+def generate_colors(NBestModels):
+    colors = []
+    for i in range(NBestModels):
+        current_color = []
+        for j in range(3):
+            current_color.append(random.uniform(0.01, 0.99))
+        colors.append(current_color)
+    return colors
+
+def get_dataset_preprocess_dataset():
+    forest_fires = fetch_ucirepo(id=162)
+    X = forest_fires.data.features
+    y = forest_fires.data.targets
+    y = np.log1p(y['area']) # aaaaaaaa... never cut the branch you are sitting on - revisit this once NN works ok
+
+    #print(forest_fires.metadata)
+    # variable information
+    print(forest_fires.variables)
+    print("\nFeatures dataframe length : {}\nTarget dataframe length : {}\n\n".format(len(X), len(y)))
+
+    cleaned_up_X = X.copy()
+
+    categorized_month_column = column_to_categorical(cleaned_up_X['month'])
+    categorized_day_column = column_to_categorical(cleaned_up_X['day'])
+    cleaned_up_X['month'] = categorized_month_column
+    cleaned_up_X['day'] = categorized_day_column
+    #maximum_value_scaling(cleaned_up_X)
+    #min_max_scaling(cleaned_up_X)
+    inputData = mean_normalization(cleaned_up_X.iloc[:, 4:]) #ignoring the first 4 columns with this slicing operation : cleaned_up_X.iloc[:, 4:])
+
+    return inputData, y
+
+def trainingset_devset_testset_split():
+    inputData, y = get_dataset_preprocess_dataset()
+
+    #print("Mean normalized : \n{}\n".format(inputData))
+    #inputData.drop(inputData.columns[[0,1,2,3]], axis = 1, inplace=True)    # removing columns for X coordinates, Y coordinates, day and month - for now they seem irrelevant
+    print("Input data final : \n{}\nInput data format : {}\n".format(inputData, len(inputData)))
+
+    TRAINING_SET_SIZE = 0.80
+    TEST_SET_SIZE = 0
+    CV_SET_SIZE = 0.20
+    shuffled_inputData = inputData.sample(frac=1).reset_index(drop=True) # a clever way to shuffle a Pandas df. All credits to : https://stackoverflow.com/a/34879805
+    training_set = shuffled_inputData[0:math.floor(TRAINING_SET_SIZE*len(shuffled_inputData))]
+    training_set_targets = y[0:math.floor(TRAINING_SET_SIZE*len(shuffled_inputData))]
+    dev_set = shuffled_inputData[math.floor(TRAINING_SET_SIZE*len(shuffled_inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(shuffled_inputData))]
+    dev_set_targets = y[math.floor(TRAINING_SET_SIZE*len(shuffled_inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(shuffled_inputData))]
+    test_set = shuffled_inputData[len(training_set) + math.floor(CV_SET_SIZE*len(shuffled_inputData)):len(shuffled_inputData) - 1]
+    test_set_targets = y[len(training_set) + math.floor(CV_SET_SIZE*len(shuffled_inputData)):len(shuffled_inputData) - 1]
+
+    return training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets
+
 '''
-What does the block of code below do?
+Three additional approaches to splitting the dataset into train, dev and train sets
 
-TRAINING_SET_SIZE, TEST_SET_SIZE, and CV_SET_SIZE are variables defining what percentage of starting dataset will be dedicated to each subset (TRAINING, TEST, CV).
+1. TRAINING_SET_SIZE, TEST_SET_SIZE, and CV_SET_SIZE are variables defining what percentage of starting dataset will be dedicated to each subset (TRAINING, TEST, CV).
+    training_set_indices, test_set_indices, and cv_set_indices are lists defining, based on TRAINING_SET_SIZE, TEST_SET_SIZE, and CV_SET_SIZE, what indices from the subsets will be used.
+    Note that this approach WILL result in a random number of indices being shared by the subsets.
 
-training_set_indices, test_set_indices, and cv_set_indices are lists defining, based on TRAINING_SET_SIZE, TEST_SET_SIZE, and CV_SET_SIZE, what indices from the subsets will be used.
-Note that this approach WILL result in a random number of indices being shared by the subsets.
+    training_set_indices = np.random.choice(inputData.shape[0], size=math.floor(TRAINING_SET_SIZE*inputData.shape[0]), replace=False)
+    test_set_indices = np.random.choice(inputData.shape[0], size=math.floor(TEST_SET_SIZE*inputData.shape[0]), replace=False)
+    cv_set_indices = np.random.choice(inputData.shape[0], size=math.floor(CV_SET_SIZE*inputData.shape[0]), replace=False)
 
-A different approach is shown below this code block. '''
+    training_set = inputData.iloc[training_set_indices]
+    y_for_training_set = y.iloc[training_set_indices]
+    test_set = inputData.iloc[test_set_indices]
+    y_for_test_set = y.iloc[test_set_indices]
+    cv_set = inputData.iloc[cv_set_indices]
+    y_for_cv_Set = y.iloc[cv_set_indices]
 
-""" training_set_indices = np.random.choice(inputData.shape[0], size=math.floor(TRAINING_SET_SIZE*inputData.shape[0]), replace=False)
-test_set_indices = np.random.choice(inputData.shape[0], size=math.floor(TEST_SET_SIZE*inputData.shape[0]), replace=False)
-cv_set_indices = np.random.choice(inputData.shape[0], size=math.floor(CV_SET_SIZE*inputData.shape[0]), replace=False)
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-training_set = inputData.iloc[training_set_indices]
-y_for_training_set = y.iloc[training_set_indices]
-test_set = inputData.iloc[test_set_indices]
-y_for_test_set = y.iloc[test_set_indices]
-cv_set = inputData.iloc[cv_set_indices]
-y_for_cv_Set = y.iloc[cv_set_indices]
- """#print("TRAINING_SET_SIZE : {}\nTEST_SET_SIZE : {}\nCV_SET_SIZE : {}\ntraining_set_indices : {}\ntest_set_indices : {}\ncv_set_indices : {}\n".format(TRAINING_SET_SIZE, TEST_SET_SIZE, CV_SET_SIZE, np.sort(training_set_indices), np.sort(test_set_indices), np.sort(cv_set_indices)))
+2. Second approach defines starting and ending indices for each subset based on the wanted sizes of subsets.
+    Going out of bounds can be problematic as proper precautions do not exist, besides the hardocded -2 xD
 
-
-'''
-This is a different approach to creating subsets from the initial dataset - here we define starting and ending indices for each subset based on the wanted sizes of subsets.
-Going out of bounds can be problematic as proper precautions do not exist, besides the hardocded -2 xD
-
-print("Dataset dimensions : {}\n{}\t{}\n{}\t{}\n{}\t{}\n".format(inputData.shape, "0", math.floor(TRAINING_SET_SIZE*inputData.shape[0]), 
+    print("Dataset dimensions : {}\n{}\t{}\n{}\t{}\n{}\t{}\n".format(inputData.shape, "0", math.floor(TRAINING_SET_SIZE*inputData.shape[0]), 
                                             math.floor(TRAINING_SET_SIZE*inputData.shape[0]) + 1, 
                                             math.floor(TRAINING_SET_SIZE*inputData.shape[0]) + 1 + math.floor(TEST_SET_SIZE*inputData.shape[0]), 
                                             math.floor(TRAINING_SET_SIZE*inputData.shape[0]) + 1 + math.floor(TEST_SET_SIZE*inputData.shape[0]) + 1, 
                                             math.floor(TRAINING_SET_SIZE*inputData.shape[0]) + 1 + math.floor(TEST_SET_SIZE*inputData.shape[0]) + 1 + math.floor(CV_SET_SIZE*inputData.shape[0]) - 2))
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+3. Just use the built in stuff, don't reinvent the wheel.
+    https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sample.html
+
+    Function "sample", based on parameter frac, that we pass to it, returns a fraction of the initial dataframe, after it has been shuffled.
+
+    training_set = inputData.sample(frac=TRAINING_SET_SIZE)
+    test_set = inputData.sample(frac=TEST_SET_SIZE)
+    cv_set = inputData.sample(frac=CV_SET_SIZE)
+    print("training_set shape : {}\ntest_set shape : {}\ncv_set shape : {}\n".format(training_set.shape, test_set.shape, cv_set.shape))
 '''
 
-'''
-Another, even simpler way, is shown below.
-Here we use an integrated pandas functionality, called "sample" : https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sample.html
-
-Function "sample", based on parameter frac, that we pass to it, returns a fraction of the initial dataframe, after it has been shuffled.
-
-training_set = inputData.sample(frac=TRAINING_SET_SIZE)
-test_set = inputData.sample(frac=TEST_SET_SIZE)
-cv_set = inputData.sample(frac=CV_SET_SIZE)
-print("training_set shape : {}\ntest_set shape : {}\ncv_set shape : {}\n".format(training_set.shape, test_set.shape, cv_set.shape))
-'''
-
-training_set = inputData[0:math.floor(TRAINING_SET_SIZE*len(inputData))]
-training_set_targets = y[0:math.floor(TRAINING_SET_SIZE*len(inputData))]
-dev_set = inputData[math.floor(TRAINING_SET_SIZE*len(inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(inputData))]
-dev_set_targets = y[math.floor(TRAINING_SET_SIZE*len(inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(inputData))]
-test_set = inputData[len(training_set) + math.floor(CV_SET_SIZE*len(inputData)):len(inputData) - 1]
-test_set_targets = y[len(training_set) + math.floor(CV_SET_SIZE*len(inputData)):len(inputData) - 1]
-#print("Training set ending index : {}".format(math.floor(TRAINING_SET_SIZE*len(inputData))))
-#print("Dev set start/end index : {}/{}".format(math.floor(TRAINING_SET_SIZE*len(inputData)), len(training_set) + math.floor(CV_SET_SIZE*len(inputData))))
-#print("Test set start/end index : {}/{}".format(len(training_set) + math.floor(CV_SET_SIZE*len(inputData)), len(inputData) - 1))
-#print("train_targets : {}\ndev_targets : {}\ntest_targets : {}\n".format(training_set_targets, dev_set_targets, test_set_targets))
 
 class CustomThresholdCallback(tf.keras.callbacks.Callback):
     def __init__(self, threshold):
@@ -242,22 +271,6 @@ lr_callback_plateau = tf.keras.callbacks.ReduceLROnPlateau(
 
 l2_regularizer = tf.keras.regularizers.L2(l2=0.015)
 
-#### A simple grid search implementation
-DifferentArchitectures = 20 # how many different NN architecture we want to create
-MinHiddenLayers = 1
-MaxHiddenLayers = 6
-ActivationFunction = 'relu'    #use same names used by TF : https://www.tensorflow.org/api_docs/python/tf/keras/activations
-OutputLayerActivationFunction = 'linear'
-InputLayerNeurons = 8     #how many neurons the input layer should have
-OutputLayerNeurons = 1    #how many neurons the output layer should have
-MinNeurons = 2
-MaxNeurons = 64
-MinAlpha = 0.0003
-MaxAlpha = 0.0008
-Epochs = 250
-all_training_losses = []
-all_validation_losses = []
-
 def generate_random_network_architectures():
     allGeneratedArchitectures = []
 
@@ -271,6 +284,8 @@ def generate_random_network_architectures():
     MaxHiddenLayers = int(generatorConfig['DEFAULT']['MaxHiddenLayers'])
     MinNeurons = int(generatorConfig['DEFAULT']['MinNeurons'])
     MaxNeurons = int(generatorConfig['DEFAULT']['MaxNeurons'])
+    MinAlpha = float(generatorConfig['DEFAULT']['MinAlpha'])
+    MaxAlpha = float(generatorConfig['DEFAULT']['MaxAlpha'])
     InputLayerNeurons = int(generatorConfig['DEFAULT']['InputLayerNeurons'])
     OutputLayerNeurons = int(generatorConfig['DEFAULT']['OutputLayerNeurons'])
     OutputLayerActivationFunction = generatorConfig['DEFAULT']['OutputLayerActivationFunction']
@@ -300,103 +315,82 @@ def generate_random_network_architectures():
     with open("generated_architectures.json", "a") as outfile:
         json.dump(allGeneratedArchitectures, outfile, indent=2)
 
-generate_random_network_architectures()
+def train_randomly_generated_network_architectures():
+    create_report_file()
 
-with open("generated_architectures.json", "r") as architecturesFile:
-    network_architectures = json.load(architecturesFile)
-
-
-all_model_losses = []
-all_model_validation_losses = []
-NBestModels = 5 # get the 5 best performing models (in terms of loss) for plotting
-
-for current_model in range(len(network_architectures)): # len(network_architectures) == DifferentArchitectures
-    NN_model_test = Sequential()
-    for current_layer in range(network_architectures[current_model]['total_layers']):
-        if current_layer == network_architectures[current_model]['total_layers'] - 1:   # we have reached iteration where output layer is defined
-            NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['OutputLayerActivationFunction']))
-        else:
-            NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['ActivationFunction']))
-    NN_model_test.compile(
-        loss = tf.keras.losses.MeanSquaredError(),
-        optimizer=tf.keras.optimizers.Adam(learning_rate=network_architectures[current_model]['alpha'])
-    )
+    training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets = trainingset_devset_testset_split()
+    generate_random_network_architectures()
     
-    model_history = NN_model_test.fit(training_set, training_set_targets, epochs = network_architectures[current_model]['epochs'], validation_data=(dev_set, dev_set_targets))
-    all_model_losses.append(model_history.history['loss'])
-    all_model_validation_losses.append(model_history.history['val_loss'])
+    all_model_losses = []
+    all_model_validation_losses = []
+
+    generatorConfig = configparser.ConfigParser()
+    generatorConfig.read('configOptions_randomArchitectures.ini')
+    NBestModels = int(generatorConfig['DEFAULT']['NBestModels'])  #get the N best performing models (in terms of loss) for plotting
+    AverageWindow_training_vs_validation = int(generatorConfig['DEFAULT']['AverageWindow_training_vs_validation'])  # value determining size of the windows used to compute average for training loss and validation loss in order to provide a smoother approximation of the values for the later computation of their difference, which is used to determin N best performing models
+
+    with open("generated_architectures.json", "r") as architecturesFile:
+        network_architectures = json.load(architecturesFile)
+
+    for current_model in range(len(network_architectures)): # len(network_architectures) == DifferentArchitectures
+        NN_model_test = Sequential()
+        for current_layer in range(network_architectures[current_model]['total_layers']):
+            if current_layer == network_architectures[current_model]['total_layers'] - 1:   # we have reached iteration where output layer is defined
+                NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['OutputLayerActivationFunction']))
+            else:
+                NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['ActivationFunction']))
+        NN_model_test.compile(
+            loss = tf.keras.losses.MeanSquaredError(),
+            optimizer=tf.keras.optimizers.Adam(learning_rate=network_architectures[current_model]['alpha'])
+        )
+        
+        model_history = NN_model_test.fit(training_set, training_set_targets, epochs = network_architectures[current_model]['epochs'], validation_data=(dev_set, dev_set_targets))
+        all_model_losses.append(model_history.history['loss'])
+        all_model_validation_losses.append(model_history.history['val_loss'])
 
 
-'''
-model_diffs_validation_training_loss - a list holding differences between the last value of validation_loss and last value of training_loss for each model
-    -is used to determine NBestModels (ie. the models with smallest difference between the last value of validation_loss and last value of training_loss)
+    '''
+    model_diffs_validation_training_loss - a list holding differences between the last value of validation_loss and last value of training_loss for each model
+        -is used to determine NBestModels (ie. the models with smallest difference between the last value of validation_loss and last value of training_loss)
 
-n_best_models_indices - a list made up of NBestModels (e.g. 5) indices, ie. the indices representing models with the smallest diff between validaton and training losses
-'''
-model_diffs_validation_training_loss = [] 
-for current_model in range(len(network_architectures)):
-    model_diffs_validation_training_loss.append(abs(all_model_losses[current_model][-1] - all_model_validation_losses[current_model][-1]))
-print("model_diffs_validation_training_loss : {}\n".format(model_diffs_validation_training_loss))
-n_best_models_indices = []
-for n in range(NBestModels):
-    n_best_models_indices.append(model_diffs_validation_training_loss.index(min(model_diffs_validation_training_loss)))
-    #Now set the latest found minimum value in model_diffs_validation_training_loss to some outrageously big value so that we can find the next min value in the next iteration
-    model_diffs_validation_training_loss[n_best_models_indices[-1]] = 1000
+    n_best_models_indices - a list made up of NBestModels (e.g. 5) indices, ie. the indices representing models with the smallest diff between validaton and training losses
 
-print("Best performing models : {}\n".format(n_best_models_indices))
-for model in n_best_models_indices:
-    print("Model {} : {}\n".format(model, network_architectures[model]))
+    model_diffs_average_last_X_values - a list holding differences between the average (last X values) of validation_loss and average (last X values) value of training_loss for each model
+    '''
+    #model_diffs_validation_training_loss = []
+    model_diffs_average_last_X_values = []
+    for current_model in range(len(network_architectures)):
+        #model_diffs_validation_training_loss.append(abs(all_model_losses[current_model][-1] - all_model_validation_losses[current_model][-1]))
+        model_diffs_average_last_X_values.append(abs(statistics.mean(all_model_losses[current_model][-AverageWindow_training_vs_validation:]) - statistics.mean(all_model_validation_losses[current_model][-AverageWindow_training_vs_validation:])))
+    #print("model_diffs_validation_training_loss : {}\n".format(model_diffs_validation_training_loss))
+    report_file_write("(Average last 20 values training loss) - (Average last 20 values validation loss) : \n{}\n".format(model_diffs_average_last_X_values))
+    #print("model_diffs_average_last_X_values : {}\n".format(model_diffs_average_last_X_values))
 
-for current_model in n_best_models_indices:
-    plt.plot(all_model_losses[current_model], label="Training loss model_"+str(current_model), color=colors[current_model])
-    plt.plot(all_model_validation_losses[current_model], label="Validation loss model_"+str(current_model), color=colors[current_model], linestyle='dotted')
-plt.xlabel("Epochs")
-plt.ylabel("Loss")
-plt.legend()
-plt.show()
+    n_best_models_indices = []
+    for n in range(NBestModels):
+        n_best_models_indices.append(model_diffs_average_last_X_values.index(min(model_diffs_average_last_X_values)))
+        report_file_write("\nModel {} last {} values average training loss - last {} values average validation loss : {}\n".format(n_best_models_indices[-1], AverageWindow_training_vs_validation, AverageWindow_training_vs_validation, min(model_diffs_average_last_X_values)))
+        #Now set the latest found minimum value in model_diffs_validation_training_loss to some outrageously big value so that we can find the next min value in the next iteration
+        model_diffs_average_last_X_values[n_best_models_indices[-1]] = 1000
 
+    #print("Best performing models : {}\n".format(n_best_models_indices))
+    report_file_write("\nBest performing models : \n{}\n".format(n_best_models_indices))
+    for model in n_best_models_indices:
+        #print("Model {} : {}\n".format(model, network_architectures[model]))
+        report_file_write("\nModel {} : \n{}".format(model, network_architectures[model]))
 
-""" NN_model = Sequential(
-    [
-        Dense(8, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
-        #Dropout(0.1),
-        Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
-        Dense(64, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
-        Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
-        Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
-        #Dropout(0.15),
-        #Dense(32, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        #Dense(16, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal()),
-        #Dense(64, activation='relu', kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer=l2_regularizer),
-        #Dropout(0.1),
-        Dense(1, activation='linear')     #output layer
-    ]
-)
+    close_report_file()
 
-NN_model.compile(
-    loss = tf.keras.losses.MeanSquaredError(),
-    optimizer=tf.keras.optimizers.Adam(learning_rate = 0.00073) # 0.00033; learning_rate = 0.00075 is pretty good with 8,64,48,16,1 network
-)
+    colors = generate_colors(NBestModels)
+    markers = [".", "v", "^", "<", ">", "1", "2", "3", "4", "8", "s", "p", "*", "h", "d"]   # 15 different markers - this means 15 best models is maximum we can look to find, which should be enough
+    for current_model in n_best_models_indices:
+        plt.plot(all_model_losses[current_model], label="Training loss model_"+str(current_model), color=colors[n_best_models_indices.index(current_model)], linestyle='none', marker = markers[n_best_models_indices.index(current_model)])
+        plt.plot(all_model_validation_losses[current_model], label="Validation loss model_"+str(current_model), color=colors[n_best_models_indices.index(current_model)], linestyle='none', marker = markers[n_best_models_indices.index(current_model)])
+    plt.title("Training vs validation loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.yticks(range(1,4))
+    plt.legend()
+    plt.show()
 
-
-
-model_history = NN_model.fit(training_set, training_set_targets, epochs = 750, validation_data=(dev_set, dev_set_targets)) #, batch_size = 32
-training_loss = model_history.history['loss']
-#training_accuracy = model_history.history['acc']
-validation_loss = model_history.history['val_loss']
-#validation_accuracy = model_history.history['val_acc']
-plt.plot(training_loss, label="Training loss", color='b')
-#plt.plot(training_accuracy[-1000::], label="Training accuracy -1000", color='b', marker='o')
-plt.plot(validation_loss, label="Validation loss", color='r')
-#plt.plot(validation_accuracy[-1000::], label="Validation accuracy -1000", color='r', marker='o')
-plt.xlabel("Epochs")
-plt.ylabel("Loss")
-plt.legend()
-plt.show()
-
-print("Training loss last 20 epoch values : {}\n".format(training_loss[-20::])) """
-#print("model_history.history : {}".format(model_history.history[-100::]))
-
-#training_set_predictions = NN_model(training_set)
-#print("Training set predictions : {}\n".format(training_set_predictions))
+train_randomly_generated_network_architectures()
