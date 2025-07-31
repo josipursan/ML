@@ -18,6 +18,7 @@ import statistics
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
+import sklearn
 
 
 seed_value = 11
@@ -164,12 +165,14 @@ def get_dataset_preprocess_dataset():
     forest_fires = fetch_ucirepo(id=162)
     X = forest_fires.data.features
     y = forest_fires.data.targets
+    print("y[-10:] : {}\n".format(y[-10:]))
     y = np.log1p(y['area']) # aaaaaaaa... never cut the branch you are sitting on - revisit this once NN works ok
+    print("log1p(y)[-10:] : {}\n".format(y[-10:]))
 
     #print(forest_fires.metadata)
     # variable information
-    print(forest_fires.variables)
-    print("\nFeatures dataframe length : {}\nTarget dataframe length : {}\n\n".format(len(X), len(y)))
+    #print(forest_fires.variables)
+    report_file_write("\nORIGINAL DATASET Features dataframe length : {}\tTarget datagrame length : {}\n\n".format(len(X), len(y)))
 
     cleaned_up_X = X.copy()
 
@@ -179,29 +182,35 @@ def get_dataset_preprocess_dataset():
     cleaned_up_X['day'] = categorized_day_column
     #maximum_value_scaling(cleaned_up_X)
     #min_max_scaling(cleaned_up_X)
-    inputData = mean_normalization(cleaned_up_X.iloc[:, 4:]) #ignoring the first 4 columns with this slicing operation : cleaned_up_X.iloc[:, 4:])
+    #inputData = mean_normalization(cleaned_up_X.iloc[:, 4:]) #ignoring the first 4 columns with this slicing operation : cleaned_up_X.iloc[:, 4:])
+    inputData = mean_normalization(cleaned_up_X)
 
     return inputData, y
 
 def trainingset_devset_testset_split():
+    configFile = configparser.ConfigParser()
+    configFile.read('configOptions_randomArchitectures.ini')
+    TRAINING_SET_SIZE = float(configFile['DEFAULT']['TrainingSetSize'])
+    CV_SET_SIZE = float(configFile['DEFAULT']['DevSetSize'])   #dev set
+    TEST_SET_SIZE = float(configFile['DEFAULT']['TestSetSize'])
+
     inputData, y = get_dataset_preprocess_dataset()
 
     #print("Mean normalized : \n{}\n".format(inputData))
     #inputData.drop(inputData.columns[[0,1,2,3]], axis = 1, inplace=True)    # removing columns for X coordinates, Y coordinates, day and month - for now they seem irrelevant
-    print("Input data final : \n{}\nInput data format : {}\n".format(inputData, len(inputData)))
+    #print("Input data final : \n{}\nInput data format : {}\n".format(inputData, len(inputData)))
+    report_file_write("\nInput data rows : {}\n".format(len(inputData)))
+    report_file_write("\nTRAINING_SET_SIZE : {}\nCV_SET_SIZE : {}\nTEST_SET_SIZE : {}\n".format(TRAINING_SET_SIZE, CV_SET_SIZE, TEST_SET_SIZE))
 
-    TRAINING_SET_SIZE = 0.80
-    TEST_SET_SIZE = 0
-    CV_SET_SIZE = 0.20
-    shuffled_inputData = inputData.sample(frac=1).reset_index(drop=True) # a clever way to shuffle a Pandas df. All credits to : https://stackoverflow.com/a/34879805
-    training_set = shuffled_inputData[0:math.floor(TRAINING_SET_SIZE*len(shuffled_inputData))]
-    training_set_targets = y[0:math.floor(TRAINING_SET_SIZE*len(shuffled_inputData))]
-    dev_set = shuffled_inputData[math.floor(TRAINING_SET_SIZE*len(shuffled_inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(shuffled_inputData))]
-    dev_set_targets = y[math.floor(TRAINING_SET_SIZE*len(shuffled_inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(shuffled_inputData))]
-    test_set = shuffled_inputData[len(training_set) + math.floor(CV_SET_SIZE*len(shuffled_inputData)):len(shuffled_inputData) - 1]
-    test_set_targets = y[len(training_set) + math.floor(CV_SET_SIZE*len(shuffled_inputData)):len(shuffled_inputData) - 1]
+    #shuffled_inputData = inputData.sample(frac=1).reset_index(drop=True) # a clever way to shuffle a Pandas df. All credits to : https://stackoverflow.com/a/34879805
+    training_set = inputData[0:math.floor(TRAINING_SET_SIZE*len(inputData))]
+    training_set_targets = y[0:math.floor(TRAINING_SET_SIZE*len(inputData))]
+    dev_set = inputData[math.floor(TRAINING_SET_SIZE*len(inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(inputData))]
+    dev_set_targets = y[math.floor(TRAINING_SET_SIZE*len(inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(inputData))]
+    test_set = inputData[len(training_set) + math.floor(CV_SET_SIZE*len(inputData)):len(inputData) - 1]
+    test_set_targets = y[len(training_set) + math.floor(CV_SET_SIZE*len(inputData)):len(inputData) - 1]
 
-    return training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets
+    return training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets #ugly and wasteful return
 
 '''
 Three additional approaches to splitting the dataset into train, dev and train sets
@@ -258,9 +267,6 @@ class CustomThresholdCallback(tf.keras.callbacks.Callback):
             print("Stopping training! Loss below threshold {}\n".format(self.threshold))
             self.model.stop_training = True
 
-#tf.random.set_seed(seed_value)
-
-
 lr_callback_plateau = tf.keras.callbacks.ReduceLROnPlateau(
     monitor='val_loss',
     factor = 0.93,
@@ -269,15 +275,11 @@ lr_callback_plateau = tf.keras.callbacks.ReduceLROnPlateau(
     min_lr = 0.00033
 )
 
-l2_regularizer = tf.keras.regularizers.L2(l2=0.015)
-
 def generate_random_network_architectures():
     allGeneratedArchitectures = []
 
     generatorConfig = configparser.ConfigParser()
     generatorConfig.read('configOptions_randomArchitectures.ini')
-    #print(generatorConfig['DEFAULT']['DifferentArchitectures'])
-    #print("All keys : {}\n".format(dict(generatorConfig.items('DEFAULT'))))
 
     DifferentArchitectures = int(generatorConfig['DEFAULT']['DifferentArchitectures'])
     MinHiddenLayers = int(generatorConfig['DEFAULT']['MinHiddenLayers'])
@@ -336,18 +338,18 @@ def train_randomly_generated_network_architectures():
         NN_model_test = Sequential()
         for current_layer in range(network_architectures[current_model]['total_layers']):
             if current_layer == network_architectures[current_model]['total_layers'] - 1:   # we have reached iteration where output layer is defined
-                NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['OutputLayerActivationFunction']))
+                NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['OutputLayerActivationFunction'], kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer = tf.keras.regularizers.L2(l2=0.01)))
             else:
-                NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['ActivationFunction']))
+                NN_model_test.add(Dense(network_architectures[current_model]['neuron_structure'][current_layer], network_architectures[current_model]['ActivationFunction'], kernel_initializer = tf.keras.initializers.HeNormal(), kernel_regularizer = tf.keras.regularizers.L2(l2=0.01)))
         NN_model_test.compile(
             loss = tf.keras.losses.MeanSquaredError(),
             optimizer=tf.keras.optimizers.Adam(learning_rate=network_architectures[current_model]['alpha'])
         )
         
         model_history = NN_model_test.fit(training_set, training_set_targets, epochs = network_architectures[current_model]['epochs'], validation_data=(dev_set, dev_set_targets))
+        NN_model_test.save(str(current_model) + '.keras')
         all_model_losses.append(model_history.history['loss'])
         all_model_validation_losses.append(model_history.history['val_loss'])
-
 
     '''
     model_diffs_validation_training_loss - a list holding differences between the last value of validation_loss and last value of training_loss for each model
@@ -378,6 +380,27 @@ def train_randomly_generated_network_architectures():
     for model in n_best_models_indices:
         #print("Model {} : {}\n".format(model, network_architectures[model]))
         report_file_write("\nModel {} : \n{}".format(model, network_architectures[model]))
+    
+    best_model = tf.keras.models.load_model(str(n_best_models_indices[0]) + '.keras')
+    NN_model_test_predictions_test_set_predicitons = best_model.predict(test_set)
+    inverse_log_model_predictions = np.expm1(NN_model_test_predictions_test_set_predicitons)
+    print("len(predictions) : {}\npredictions[-10:] : {}\n".format(len(NN_model_test_predictions_test_set_predicitons), NN_model_test_predictions_test_set_predicitons[-10:]))
+    print("expm1(predictions)[-10:] : {}\n".format(inverse_log_model_predictions[-10:]))
+    print("len(test_set_target) : {}\ntest_set_target[-10:] : {}\n".format(len(test_set_targets), test_set_targets[-10:]))
+    inverse_log_test_set_targets = np.expm1(test_set_targets)
+    print("expm1(test_set_target)[-10:] : {}\n".format(inverse_log_test_set_targets[-10:]))
+    """ print("After e^ to remove log() transformation previously applie to y target : {}\n{}".format(inverse_log_model_predictions[-10:], inverse_log_test_set_targets[-10:]))
+    mae = 0
+    per_element_error = []
+    for i in range(len(a)):
+        per_element_error.append(abs(a[i][0] - b[i]))
+        mae += (a[i][0] - b[i])**2
+    mae = mae/len(a)
+    print("mae : {}\n".format(mae))
+    time.sleep(5) """
+    print("MSE : {}".format(sklearn.metrics.mean_squared_error(inverse_log_model_predictions, inverse_log_test_set_targets)))
+    print("R_squared : {}".format(sklearn.metrics.r2_score(inverse_log_model_predictions, inverse_log_test_set_targets)))
+
 
     close_report_file()
 
