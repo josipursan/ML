@@ -3,6 +3,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import os
+import datetime
+import time
+import math
+
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
 
 def column_to_categorical(column_to_convert_to_categorical):
     old_to_new_column_encoding = {}
@@ -64,7 +72,6 @@ def min_max_scaling(pandas_df_for_scaling):
 
     return scaled_df
 
-
 def create_report_file():
     if os.path.isfile("./reportFile.txt"): # if file is found it means it is a leftover from previous rename, therefore rename it using current unix timestamp
         os.rename("reportFile.txt", "reportFile_" + str(time.time()) + ".txt")
@@ -87,9 +94,32 @@ def close_report_file():
     report_file_write("\n\n\n----------------------------------")
     os.rename("reportFile.txt", "reportFile_" + str(time.time()) + ".txt")
 
+def trainingset_devset_testset_split(X, y):
+    TRAINING_SET_SIZE = 0.8
+    CV_SET_SIZE = 0.15#dev set
+    TEST_SET_SIZE = 0.05
+
+    inputData = X.iloc[:, 4:] #slicing operation to ignore first 4 columns (x,y,month,day)
+
+    #print("Mean normalized : \n{}\n".format(inputData))
+    #inputData.drop(inputData.columns[[0,1,2,3]], axis = 1, inplace=True)    # removing columns for X coordinates, Y coordinates, day and month - for now they seem irrelevant
+    #print("Input data final : \n{}\nInput data format : {}\n".format(inputData, len(inputData)))
+    report_file_write("\nInput data rows : {}\n".format(len(inputData)))
+    report_file_write("\nTRAINING_SET_SIZE : {}\nCV_SET_SIZE : {}\nTEST_SET_SIZE : {}\n".format(TRAINING_SET_SIZE, CV_SET_SIZE, TEST_SET_SIZE))
+
+    #shuffled_inputData = inputData.sample(frac=1).reset_index(drop=True) # a clever way to shuffle a Pandas df. All credits to : https://stackoverflow.com/a/34879805
+    training_set = inputData[0:math.floor(TRAINING_SET_SIZE*len(inputData))]
+    training_set_targets = y[0:math.floor(TRAINING_SET_SIZE*len(inputData))]
+    dev_set = inputData[math.floor(TRAINING_SET_SIZE*len(inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(inputData))]
+    dev_set_targets = y[math.floor(TRAINING_SET_SIZE*len(inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(inputData))]
+    test_set = inputData[len(training_set) + math.floor(CV_SET_SIZE*len(inputData)):len(inputData) - 1]
+    test_set_targets = y[len(training_set) + math.floor(CV_SET_SIZE*len(inputData)):len(inputData) - 1]
+
+    return training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets #ugly and wasteful return
+
 # ---------------------------------------------------------------------------------------------------------
 
-#create_report_file()
+create_report_file()
 forest_fires = fetch_ucirepo(id=162)
 X = forest_fires.data.features
 y = forest_fires.data.targets
@@ -115,44 +145,37 @@ min_max_scaled_y = min_max_scaling(y)
 min_max_scaled_log1p_X = np.log1p(min_max_scaled_X)
 min_max_scaled_log1p_y = np.log1p(min_max_scaled_y)
 
-print("log1p_X : \n{}\n".format(log1p_X))
-print("log1p_y : \n{}\n".format(log1p_y))
-print("mean_normalized_X : \n{}\nmean_normalized_y : \n{}\n".format(mean_normalized_X, mean_normalized_y))
-print("mean_normalized_log1p_X : \n{}\nmean_normalized_log1p_y : \n{}\n".format(mean_normalized_log1p_X, mean_normalized_log1p_y))
+training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets = trainingset_devset_testset_split(min_max_scaled_log1p_X, min_max_scaled_log1p_y)
+close_report_file()
+""" # inverse min max scaling example
+array = np.array([0.58439621, 0.81262134, 0.231262134, 0.191])
+#scaled from 100 to 250
+minimo = 100
+maximo = 250
+array * minimo + (maximo - minimo)
+"""
 
-for column in log1p_X:
-    fig = plt.figure(figsize=(18,9))
-    ax1 = fig.add_subplot(511)
-    ax2 = fig.add_subplot(512)
-    ax3 = fig.add_subplot(513)
-    #ax4 = fig.add_subplot(614)
-    ax5 = fig.add_subplot(514)
-    ax6 = fig.add_subplot(515)
+NN_model = Sequential([
+    Dense(8, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(32, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(1, activation='linear')
+])
 
+NN_model.compile(
+    loss=tf.keras.losses.MeanSquaredError(),
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.0000015)
+)
 
-    ax1.title.set_text("{} histogram".format(column))
-    ax2.title.set_text("log1p({}) histogram".format(column))
-    ax3.title.set_text("mean_normalized_{} histogram".format(column))
-    #ax4.title.set_text("log1p(mean_normalized_{}) histogram".format(column))
-    ax5.title.set_text("min_max_scaled_{} histogram".format(column))
-    ax6.title.set_text("log1p(min_max_scaled_{}) histogram".format(column))
-
-    ax1.set(xlabel="Measurement bin value", ylabel="Number of values")
-    ax2.set(xlabel="Measurement bin value", ylabel="Number of values")
-    ax3.set(xlabel="Measurement bin value", ylabel="Number of values")
-    #ax4.set(xlabel="Measurement bin value", ylabel="Number of values")
-    ax5.set(xlabel="Measurement bin value", ylabel="Number of values")
-    ax6.set(xlabel="Measurement bin value", ylabel="Number of values")
-
-    ax1.hist(X[column], bins=80)
-    ax2.hist(log1p_X[column], bins=80)
-    ax3.hist(mean_normalized_X[column], bins=80)
-    #ax4.hist(mean_normalized_log1p_X[column], bins=80)
-    ax5.hist(min_max_scaled_X[column], bins=80)
-    ax6.hist(min_max_scaled_log1p_X[column], bins=80)
-
-
-    fig.tight_layout()
-    #fig.subplots_adjust( left=None, bottom=None,  right=None, top=None, wspace=None, hspace=None)
-    #plt.show()
-    plt.savefig('{}_VS_log1p({})_VS_mean_normalized_{}_VS_min_max_scaled_{}_VS_log1p(min_max_scaled_{})HISTOGRAMS.png'.format(column, column, column, column, column), bbox_inches='tight')
+fit_result = NN_model.fit(training_set, training_set_targets, epochs=5000, validation_data=(dev_set, dev_set_targets))
+training_loss = fit_result.history['loss']
+validation_loss = fit_result.history['val_loss']
+plt.plot(training_loss, label="Training loss", color='b')
+plt.plot(validation_loss, label="Validation loss", color='r')
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.yticks(np.arange(0, 0.01, 0.001))
+plt.ylim(0, 0.015)
+plt.grid()
+plt.legend()
+plt.show()
