@@ -8,9 +8,11 @@ import datetime
 import time
 import math
 
+import sklearn
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
+from sklearn.preprocessing import MinMaxScaler
 
 def column_to_categorical(column_to_convert_to_categorical):
     old_to_new_column_encoding = {}
@@ -51,14 +53,17 @@ def mean_normalization(pandas_df_for_scaling):
 def min_max_scaling(pandas_df_for_scaling):
     min_values_in_each_column = pandas_df_for_scaling.min()
     max_values_in_each_column = pandas_df_for_scaling.max()
-    print("min : \n{}\nmax : \n{}\n".format(min_values_in_each_column, max_values_in_each_column))
+    print("\n\nmin : \n{}\nmax : \n{}\n".format(min_values_in_each_column, max_values_in_each_column))
 
     merged_df = pd.concat([min_values_in_each_column, max_values_in_each_column], axis=1)
     merged_df = merged_df.T
 
     scaled_df = pd.DataFrame()
     for column in pandas_df_for_scaling:
-        scaled_df[column] = (pandas_df_for_scaling[column]-merged_df[column][0])/(merged_df[column][1] - merged_df[column][0])
+        if merged_df[column][1] == 0 and merged_df[column][0] == 0:
+            scaled_df[column] = 0
+        else:
+            scaled_df[column] = (pandas_df_for_scaling[column]-merged_df[column][0])/(merged_df[column][1] - merged_df[column][0])
 
     """ 
     Another, more manual, way of applying min-max scaling
@@ -96,8 +101,8 @@ def close_report_file():
 
 def trainingset_devset_testset_split(X, y):
     TRAINING_SET_SIZE = 0.8
-    CV_SET_SIZE = 0.15#dev set
-    TEST_SET_SIZE = 0.05
+    CV_SET_SIZE = 0.10#dev set
+    TEST_SET_SIZE = 0.10
 
     inputData = X.iloc[:, 4:] #slicing operation to ignore first 4 columns (x,y,month,day)
 
@@ -134,7 +139,8 @@ day_categorical = column_to_categorical(X['day'])
 X['month'] = month_categorical
 X['day'] = day_categorical
 
-log1p_X = np.log1p(X)
+
+""" log1p_X = np.log1p(X)
 log1p_y = np.log1p(y)
 mean_normalized_X = mean_normalization(X)
 mean_normalized_y = mean_normalization(y)
@@ -144,8 +150,65 @@ min_max_scaled_X = min_max_scaling(X)
 min_max_scaled_y = min_max_scaling(y)
 min_max_scaled_log1p_X = np.log1p(min_max_scaled_X)
 min_max_scaled_log1p_y = np.log1p(min_max_scaled_y)
-
 training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets = trainingset_devset_testset_split(min_max_scaled_log1p_X, min_max_scaled_log1p_y)
+"""
+
+
+training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets = trainingset_devset_testset_split(X, y)
+
+scaler_training = MinMaxScaler()
+scaler_training.fit(training_set)
+min_max_training_set = scaler_training.transform(training_set)
+min_max_log1p_training_set = np.log1p(min_max_training_set) #training_set fully transformed
+
+scaler_training_targets = MinMaxScaler()
+scaler_training_targets.fit(training_set_targets)
+min_max_training_targets = scaler_training_targets.transform(training_set_targets)
+min_max_log1p_training_targets = np.log1p(min_max_training_targets) #training targets fully transformed
+
+
+scaler_dev = MinMaxScaler()
+scaler_dev.fit(dev_set)
+min_max_dev = scaler_dev.transform(dev_set)
+min_max_log1p_dev = np.log1p(min_max_dev)   #dev_set fully transformed
+
+scaler_dev_targets = MinMaxScaler()
+scaler_dev_targets.fit(dev_set_targets)
+min_max_dev_targets = scaler_dev_targets.transform(dev_set_targets)
+min_max_log1p_dev_targets = np.log1p(min_max_dev_targets)   #dev set targets fully transformed
+
+
+scaler_test = MinMaxScaler()
+scaler_test.fit(test_set)
+min_max_scaler = scaler_test.transform(test_set)
+min_max_log1p_test = np.log1p(min_max_scaler)   # test set fully transformed
+
+scaler_test_targets = MinMaxScaler()
+scaler_test_targets.fit(test_set_targets)
+min_max_test_targets = scaler_test_targets.transform(test_set_targets)
+min_max_log1p_test_targets = np.log1p(min_max_test_targets) #test set targets fully transformed
+
+
+"""
+min_max_training_set = min_max_scaling(training_set)
+min_max_log1p_training_set = np.log1p(min_max_training_set)
+min_max_training_set_targets = min_max_scaling(training_set_targets)
+min_max_log1p_training_set_targets = np.log1p(min_max_training_set_targets)
+
+min_max_dev_set = min_max_scaling(dev_set)
+min_max_log1p_dev_set = np.log1p(min_max_dev_set)
+min_max_dev_set_targets = min_max_scaling(dev_set_targets)
+min_max_log1p_dev_set_targets = np.log1p(min_max_dev_set_targets)
+
+min_max_test_set = min_max_scaling(test_set)
+min_max_log1p_test_set = np.log1p(min_max_test_set)
+scaler_test_set_targets = MinMaxScaler()
+scaler_test_set_targets.fit(test_set_targets)
+min_max_test_set_targets = scaler_test_set_targets.transform(test_set_targets)
+min_max_log1p_test_set_targets = np.log1p(min_max_test_set_targets) """
+
+
+
 close_report_file()
 """ # inverse min max scaling example
 array = np.array([0.58439621, 0.81262134, 0.231262134, 0.191])
@@ -155,27 +218,77 @@ maximo = 250
 array * minimo + (maximo - minimo)
 """
 
+plateau_change_LR = tf.keras.callbacks.ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.65,
+    patience=40,
+    cooldown=20,
+    min_lr = 0.00000003
+)
+
+early_stopping_callback = tf.keras.callbacks.EarlyStopping(
+    monitor='val_loss',
+    mode='min',
+    restore_best_weights=True,
+    min_delta=0.0002,
+    patience=500
+)
+
+
 NN_model = Sequential([
     Dense(8, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
-    Dense(32, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
     Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
     Dense(1, activation='linear')
 ])
 
 NN_model.compile(
     loss=tf.keras.losses.MeanSquaredError(),
-    optimizer=tf.keras.optimizers.Adam(learning_rate=0.0000015)
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.003)
 )
 
-fit_result = NN_model.fit(training_set, training_set_targets, epochs=5000, validation_data=(dev_set, dev_set_targets))
+#min_max_log1p_training_set, min_max_log1p_training_targets, min_max_log1p_dev, min_max_log1p_dev_targets, min_max_log1p_test, min_max_log1p_test_targets
+fit_result = NN_model.fit(min_max_log1p_training_set, min_max_log1p_training_targets, epochs=200, validation_data=(min_max_log1p_dev, min_max_log1p_dev_targets))
+NN_model.save('lastModel.keras')
 training_loss = fit_result.history['loss']
 validation_loss = fit_result.history['val_loss']
 plt.plot(training_loss, label="Training loss", color='b')
 plt.plot(validation_loss, label="Validation loss", color='r')
 plt.xlabel("Epochs")
 plt.ylabel("Loss")
-plt.yticks(np.arange(0, 0.01, 0.001))
-plt.ylim(0, 0.015)
+""" plt.yticks(np.arange(0, 0.01, 0.001))
+plt.ylim(0, 0.015) """
 plt.grid()
 plt.legend()
 plt.show()
+
+
+predictionResults = NN_model.predict(min_max_log1p_test)
+expm1_predictionResults = np.expm1(predictionResults)
+recovered_predictionResults = scaler_test_targets.inverse_transform(expm1_predictionResults)
+print("test_set_targets : \n{}\npredictions : \n{}\n".format(test_set_targets, recovered_predictionResults))
+plt.plot([i for i in range(len(recovered_predictionResults))], recovered_predictionResults, label='Prediction results', color='r', marker='.', linestyle='none')
+plt.plot([i for i in range((len(test_set_targets)))], test_set_targets, label='Y label', color='b', marker='.', linestyle='none')
+plt.xlabel('Individual datapoint')
+plt.ylabel('Burned area')
+plt.legend()
+plt.show()
+print("\nMSE : {}\nR_squared : {}\n".format( sklearn.metrics.mean_squared_error(recovered_predictionResults, test_set_targets), sklearn.metrics.r2_score(recovered_predictionResults, test_set_targets) ))
+
+""" predictionResults = NN_model.predict(min_max_test_set)
+expm1_predictionResults = np.expm1(predictionResults)
+recoveredPredictionResults = scaler_test_set_targets.inverse_transform(expm1_predictionResults)
+print("\nMSE : {}\nR_squared : {}\n".format( sklearn.metrics.mean_squared_error(recoveredPredictionResults, test_set_targets), sklearn.metrics.r2_score(recoveredPredictionResults, test_set_targets) ))
+plt.plot([i for i in range(len(recoveredPredictionResults))], recoveredPredictionResults, label='Predictions', color='r', linestyle='none')
+plt.plot([i for i in range(len(test_set_targets))], test_set_targets, label='Y target (ground truth)', color='g', linestyle='none')
+plt.xlabel('Individual datapoint')
+plt.ylabel('Burned area')
+plt.legend()
+plt.show() """
