@@ -7,6 +7,7 @@ import os
 import datetime
 import time
 import math
+import sys
 
 import sklearn
 import tensorflow as tf
@@ -100,19 +101,13 @@ def close_report_file():
     os.rename("reportFile.txt", "reportFile_" + str(time.time()) + ".txt")
 
 def trainingset_devset_testset_split(X, y):
-    TRAINING_SET_SIZE = 0.8
-    CV_SET_SIZE = 0.10#dev set
-    TEST_SET_SIZE = 0.10
+    TRAINING_SET_SIZE = 0.75
+    CV_SET_SIZE = 0.10
+    TEST_SET_SIZE = 0.15
 
     inputData = X.iloc[:, 4:] #slicing operation to ignore first 4 columns (x,y,month,day)
+    inputData = inputData.iloc[:, :-1]  #dropping last column (rain) due to its high zero count
 
-    #print("Mean normalized : \n{}\n".format(inputData))
-    #inputData.drop(inputData.columns[[0,1,2,3]], axis = 1, inplace=True)    # removing columns for X coordinates, Y coordinates, day and month - for now they seem irrelevant
-    #print("Input data final : \n{}\nInput data format : {}\n".format(inputData, len(inputData)))
-    report_file_write("\nInput data rows : {}\n".format(len(inputData)))
-    report_file_write("\nTRAINING_SET_SIZE : {}\nCV_SET_SIZE : {}\nTEST_SET_SIZE : {}\n".format(TRAINING_SET_SIZE, CV_SET_SIZE, TEST_SET_SIZE))
-
-    #shuffled_inputData = inputData.sample(frac=1).reset_index(drop=True) # a clever way to shuffle a Pandas df. All credits to : https://stackoverflow.com/a/34879805
     training_set = inputData[0:math.floor(TRAINING_SET_SIZE*len(inputData))]
     training_set_targets = y[0:math.floor(TRAINING_SET_SIZE*len(inputData))]
     dev_set = inputData[math.floor(TRAINING_SET_SIZE*len(inputData)):len(training_set) + math.floor(CV_SET_SIZE*len(inputData))]
@@ -122,41 +117,46 @@ def trainingset_devset_testset_split(X, y):
 
     return training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets #ugly and wasteful return
 
+def dataset_shuffle_create_subsets_and_save():
+    forest_fires = fetch_ucirepo(id=162)
+    X = forest_fires.data.features
+    y = forest_fires.data.targets
+
+    print("X : \n{}\n\ny : \n{}\n\n".format(X, y))
+
+    # Converting month and day columns to categorical values, ie. 0-6 for days and 0-11 for months
+    month_categorical = column_to_categorical(X['month'])
+    day_categorical = column_to_categorical(X['day'])
+    X['month'] = month_categorical
+    X['day'] = day_categorical
+
+    combined = pd.concat([X, y], axis=1)
+    combined_shuffled = combined.sample(frac=1, random_state=42).reset_index(drop=True)
+    X_shuffled = combined_shuffled[X.columns]
+    y_shuffled = combined_shuffled[y.name] if isinstance(y, pd.Series) else combined_shuffled[y.columns]
+
+    training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets = trainingset_devset_testset_split(X_shuffled, y_shuffled)
+    training_set.to_csv('training_set.csv', index=False)
+    training_set_targets.to_csv('training_set_targets.csv', index=False)
+    dev_set.to_csv('dev_set.csv', index=False)
+    dev_set_targets.to_csv('dev_set_targets.csv', index=False)
+    test_set.to_csv('test_set.csv', index=False)
+    test_set_targets.to_csv('test_set_targets.csv', index=False)
+
 # ---------------------------------------------------------------------------------------------------------
 
-create_report_file()
-forest_fires = fetch_ucirepo(id=162)
-X = forest_fires.data.features
-y = forest_fires.data.targets
+#dataset_shuffle_create_subsets_and_save()
+training_set = pd.read_csv('./training_set.csv')
+training_set_targets = pd.read_csv('./training_set_targets.csv')
+dev_set = pd.read_csv('./dev_set.csv')
+dev_set_targets = pd.read_csv('./dev_set_targets.csv')
+test_set = pd.read_csv('./test_set.csv')
+test_set_targets = pd.read_csv('./test_set_targets.csv')
 
-print("X : \n{}\n\ny : \n{}\n\n".format(X, y))
-#report_file_write("Month column : \n{}\n".format(X['month']))
-#report_file_write("Day colum : \n{}\n".format(X['day']))
+print("training_set : \n{}\ntraining_set_targets : \n{}\n".format(training_set, training_set_targets))
 
-# Converting month and day columns to categorical values, ie. 0-6 for days and 0-11 for months
-month_categorical = column_to_categorical(X['month'])
-day_categorical = column_to_categorical(X['day'])
-X['month'] = month_categorical
-X['day'] = day_categorical
-
-
-""" log1p_X = np.log1p(X)
-log1p_y = np.log1p(y)
-mean_normalized_X = mean_normalization(X)
-mean_normalized_y = mean_normalization(y)
-mean_normalized_log1p_X = np.log1p(mean_normalized_X)
-mean_normalized_log1p_y = np.log1p(mean_normalized_y)
-min_max_scaled_X = min_max_scaling(X)
-min_max_scaled_y = min_max_scaling(y)
-min_max_scaled_log1p_X = np.log1p(min_max_scaled_X)
-min_max_scaled_log1p_y = np.log1p(min_max_scaled_y)
-training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets = trainingset_devset_testset_split(min_max_scaled_log1p_X, min_max_scaled_log1p_y)
-"""
-
-
-training_set, training_set_targets, dev_set, dev_set_targets, test_set, test_set_targets = trainingset_devset_testset_split(X, y)
-
-scaler_training = MinMaxScaler()
+# training_set and training_set_targets
+""" scaler_training = MinMaxScaler()
 scaler_training.fit(training_set)
 min_max_training_set = scaler_training.transform(training_set)
 min_max_log1p_training_set = np.log1p(min_max_training_set) #training_set fully transformed
@@ -166,7 +166,7 @@ scaler_training_targets.fit(training_set_targets)
 min_max_training_targets = scaler_training_targets.transform(training_set_targets)
 min_max_log1p_training_targets = np.log1p(min_max_training_targets) #training targets fully transformed
 
-
+# dev_set and dev_set_targets
 scaler_dev = MinMaxScaler()
 scaler_dev.fit(dev_set)
 min_max_dev = scaler_dev.transform(dev_set)
@@ -177,7 +177,7 @@ scaler_dev_targets.fit(dev_set_targets)
 min_max_dev_targets = scaler_dev_targets.transform(dev_set_targets)
 min_max_log1p_dev_targets = np.log1p(min_max_dev_targets)   #dev set targets fully transformed
 
-
+# test_set and test_set_targets
 scaler_test = MinMaxScaler()
 scaler_test.fit(test_set)
 min_max_scaler = scaler_test.transform(test_set)
@@ -186,7 +186,14 @@ min_max_log1p_test = np.log1p(min_max_scaler)   # test set fully transformed
 scaler_test_targets = MinMaxScaler()
 scaler_test_targets.fit(test_set_targets)
 min_max_test_targets = scaler_test_targets.transform(test_set_targets)
-min_max_log1p_test_targets = np.log1p(min_max_test_targets) #test set targets fully transformed
+min_max_log1p_test_targets = np.log1p(min_max_test_targets) #test set targets fully transformed """
+
+log1p_training_set = np.log1p(training_set)
+log1p_training_set_targets = np.log1p(training_set_targets)
+log1p_dev_set = np.log1p(dev_set)
+log1p_dev_set_targets = np.log1p(dev_set_targets)
+log1p_test_set = np.log1p(test_set)
+log1p_test_set_targets = np.log1p(test_set_targets)
 
 
 """
@@ -208,8 +215,6 @@ min_max_test_set_targets = scaler_test_set_targets.transform(test_set_targets)
 min_max_log1p_test_set_targets = np.log1p(min_max_test_set_targets) """
 
 
-
-close_report_file()
 """ # inverse min max scaling example
 array = np.array([0.58439621, 0.81262134, 0.231262134, 0.191])
 #scaled from 100 to 250
@@ -236,26 +241,21 @@ early_stopping_callback = tf.keras.callbacks.EarlyStopping(
 
 
 NN_model = Sequential([
-    Dense(8, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
-    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
-    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
-    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
-    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
-    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
-    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
-    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
-    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
-    Dense(16, activation='relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    Dense(7, activation='leaky_relu', kernel_initializer=tf.keras.initializers.HeNormal()),   # 7 input neurons because 'rain' column has been dropped due to high zero count
+    Dense(64, activation='leaky_relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    tf.keras.layers.Dropout(0.2),
+    Dense(16, activation='leaky_relu', kernel_initializer=tf.keras.initializers.HeNormal()),
+    tf.keras.layers.Dropout(0.2),
     Dense(1, activation='linear')
 ])
 
 NN_model.compile(
-    loss=tf.keras.losses.MeanSquaredError(),
-    optimizer=tf.keras.optimizers.Adam(learning_rate=0.003)
+    loss=tf.keras.losses.MeanAbsoluteError(),
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.001)
 )
 
 #min_max_log1p_training_set, min_max_log1p_training_targets, min_max_log1p_dev, min_max_log1p_dev_targets, min_max_log1p_test, min_max_log1p_test_targets
-fit_result = NN_model.fit(min_max_log1p_training_set, min_max_log1p_training_targets, epochs=200, validation_data=(min_max_log1p_dev, min_max_log1p_dev_targets))
+fit_result = NN_model.fit(log1p_training_set, log1p_training_set_targets, epochs=500, validation_data=(log1p_dev_set, log1p_dev_set_targets))
 NN_model.save('lastModel.keras')
 training_loss = fit_result.history['loss']
 validation_loss = fit_result.history['val_loss']
@@ -263,16 +263,17 @@ plt.plot(training_loss, label="Training loss", color='b')
 plt.plot(validation_loss, label="Validation loss", color='r')
 plt.xlabel("Epochs")
 plt.ylabel("Loss")
-""" plt.yticks(np.arange(0, 0.01, 0.001))
-plt.ylim(0, 0.015) """
+plt.yticks(np.arange(0, 0.075, 0.0025))
+plt.ylim(0, 0.075)
 plt.grid()
 plt.legend()
 plt.show()
 
 
-predictionResults = NN_model.predict(min_max_log1p_test)
+predictionResults = NN_model.predict(log1p_test_set)
 expm1_predictionResults = np.expm1(predictionResults)
-recovered_predictionResults = scaler_test_targets.inverse_transform(expm1_predictionResults)
+recovered_predictionResults = expm1_predictionResults
+#recovered_predictionResults = scaler_test_targets.inverse_transform(expm1_predictionResults)
 print("test_set_targets : \n{}\npredictions : \n{}\n".format(test_set_targets, recovered_predictionResults))
 plt.plot([i for i in range(len(recovered_predictionResults))], recovered_predictionResults, label='Prediction results', color='r', marker='.', linestyle='none')
 plt.plot([i for i in range((len(test_set_targets)))], test_set_targets, label='Y label', color='b', marker='.', linestyle='none')
