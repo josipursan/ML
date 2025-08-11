@@ -294,3 +294,23 @@ Should probably recheck my kurtosis equation.
 This is a pretty problematic dataset since all values are 0, only 7 entries are != 0.  
   
 **VERDICT :** definitely transform, maybe even scaling before transformation.  
+  
+## target variable - burned area
+Histogram showing *target* variable distribution :  
+<p style="text-align: center">
+    <img src="./stock_data_distributions/nicerPlots/target_variable_histo.png"/>
+</p>  
+    
+Scatter plot showing *target* values for each datapoint :  
+<p style="text-align: center">
+    <img src="./stock_data_distributions/nicerPlots/target_variable_scatter.png"/>
+</p>  
+  
+
+Target variable (burned area) takes on values in range [0, 1090.84].  
+Mean is 12.847292069632493.  
+Median is 0.52.  
+Variance is 4052.063224823444.  
+Standard deviation is 63.65581846794089.  
+  
+Target variable has 274 zero entries.  
