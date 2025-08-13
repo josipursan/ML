@@ -156,3 +156,123 @@ What is called *convolution* in ML would actually be called *cross-corelation* b
 ## Convolutions over volumes  
 https://www.youtube.com/watch?v=KTB_OFoAQcc&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF&index=7  
   
+Previous example used grayscale images - an image with width=6 and height=6, and grayscaled, had dimension 6x6x1.  
+However, if RGB was used, the same image would have dimension 6x6x3.  
+This last parameter, that changes whether grayscaled or RGB image is used, is called **channel**.  
+Dimensionality of an image is therefore define by **height, width, and number of channels**.  
+Note that number of channels in image must match number of channels in the filter.  
+  
+Let's work through an example of convolution for 3 channels.  
+<p style="text-align: center">
+    <img src="../screenshots/RGBImageConvolution.png"/>
+</p>  
+
+*To simplify visualization 3 channeled kernels are sometimes represented as a cube*.  
+  
+Convolution applied to the first position :  
+<p style="text-align: center">
+    <img src="../screenshots/RGBConvolution_applied1.png"/>
+</p>  
+  
+Because we are dealing with 3 channels, ie. one matrix for each depth layer (R,G,B), convolution matrix gets applied in appropriate order :  
+&nbsp;&nbsp;&nbsp;-first convolution matrix layer gets applied to R layer of image  
+&nbsp;&nbsp;&nbsp;-second convolution matrix layer gets applied to G layer of image  
+&nbsp;&nbsp;&nbsp;-third convolution matrix layer gets applied to B layer of image  
+Results for all layers get added up to get the final value of the upper left square in final image.  
+  
+What if we wanted to detect vertical, horizontal, 45°, and many more edges?  
+We would have to use multiple filter at once.  
+To do this we will stack filter outputs - instead of having only one filter output, with dimension being 4x4x1, we will have 4x4x2 dimension if two filters are stacked : 
+
+<p style="text-align: center">
+    <img src="../screenshots/FilterStacking.png"/>
+</p>  
+  
+## One layer of a convolutional network  
+https://www.youtube.com/watch?v=jPOAS7uCODQ&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF&index=7  
+  
+Here is one layer of convolution :  
+<p style="text-align: center">
+    <img src="../screenshots/OneLayerOfConvolution.png"/>
+</p>  
+
+A non-linear function is applied to the result of each convolution (*ReLU* in this case).  
+Before applying the non-linear function you need to add bias to the convolution result (*b*).  
+Then we take results given by these two operations, for each convolution result, and stack them to get the final convolution output, which is a 4x4x2 matrix in this case.  
+  
+Imagine you have 10 filters, each 3x3x3 - how many parameters does that NN layer have?  
+Each filter has 27 parameters + bias = 28 parameters.  
+10 filters * 28 paramters = 280 parameters in total.  
+```
+The number of parameters we use in our NN depends on the filter size, and the number of filter.  
+It does not depend on the input image size.
+```  
+### Notation summary
+Assume layer *l* is a convolutional layer.  
+Input of layer *l* is output of the previous layer, *l-1* :  
+$n_{H}^{[l-1]} \times n_{W}^{[l-1]} \times n_{C}^{[l-1]}$  
+Output of layer *l* is denoted as :  
+$n_{H}^{l]} \times n_{W}^{l]} \times n_{C}^{l]} \times$  
+Height, and witdh, of the output volume are governed by the dimensions of previous layer :  
+$n_{H}^{[l]} = floor(\frac{n_{H}^{[l-1]}+2p^{[l]}-f^{[l]}}{s^{[l]}}+1)$  
+$n_{W}^{[l]} = floor(\frac{n_{W}^{[l-1]}+2p^{[l]}-f^{[l]}}{s^{[l]}}+1)$  
+Number of channels in the output volume is simply equal to number of used filters.  
+  
+$f^{[l]}$ - filter size  
+$p^{[l]}$ - amount of padding  
+$s^{[l]}$ - stride  
+Each filter is : $f^{[l]} \times f^{[l]} \times n_{C}^{[l-1]}$ - why *l-1*? Because depth of each filter must match depth of the input, which is in this case output of the previous layer (*l-1*).  
+  
+Activations of layer *l* (ie. its output) : $a^{[l]} = n_{H}^{[l]} \times n_{W}^{[l]} \times n_{C}^{[l]}$  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-when using a vectorized implementation the output will be denoted $A^{[l]}$, an *m* (*m* represents number of examples) set of activations $a^{[l]}$ : $A^{[l]} = m \times n_{H}^{[l]} \times n_{W}^{[l]} \times n_{C}^{[l]}$  
+  
+Total number of Weights (parameters) is a consequence of the number of parameters in one filter times the number of filters : $f^{[l]} \times f^{[l]} \times n_{C}^{[l-1]} \times n_{C}^{[l]} = width \times height \times channels \times numberOfFilters$  
+  
+Number of bias parameters is equal to $n_{C}^{[L]}$ because there is one bias value for each filter.  
+  
+## Simple convolutional network example  
+https://www.youtube.com/watch?v=3PyJA9AfwSk&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF&index=8  
+  
+Assume we have a picture 39x39x3.  
+Height and width in layer 0 :  
+$n_{H}^{[0]} = n_{W}^{[0]} = 39$  
+Channels in layer 0 :  
+$n_{C}^{[0]} = 3$  
+  
+Let's say the first layer uses a set of 3x3 filters to detect features :  
+$f^{[1]} = 3$  
+$s^[1] = 1$ - stride is 1  
+$p^{[1]} = 0$ - padding is zero, meaning valid convolution is used  
+10 filters are used.  
+  
+Height and with dimensions of this layer will will be $\frac{n+2p-f}{s}+1 = \frac{39+2\cdot0-3}{1}+1 = 37$.  
+Because the 10 filters are used, total dimension is : 37x37x10.  
+  
+Here is the full example :  
+<p style="text-align: center">
+    <img src="../screenshots/ConvNetExample.png"/>
+</p>  
+Bear in mind that all of the parameters lisited below each arrow connecting the layer outputs actually represents operations executed in that layer, ie. the hyperparameters that layer uses, to transform input (which actually the output of the layer before).  
+  
+-there are 3 types of layers often used in convolutional networks :  
+&nbsp;&nbsp;&nbsp;-convolutional layer (conv)  
+&nbsp;&nbsp;&nbsp;-pooling layer (pool)  
+&nbsp;&nbsp;&nbsp;-fully connected (fc)  
+  
+## Pooling layers  
+https://www.youtube.com/watch?v=8oOgPUO-TBY&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF&index=9  
+  
+Convolutional networks often use pooling layers to speed up computation, make feature detection robust, etc.  
+  
+<p style="text-align: center">
+    <img src="../screenshots/MaxPoolingExample.png"/>
+</p>  
+
+Example above shows how *max pooling* using a 2x2 pooling matrix ($f = 2$) with stride step 2 ($s = 2$) is used to extract features.  
+For each 2x2 subset in the original image max pooling will grab the biggest value and store it in the pooling result matrix.  
+You can imagine these values perhaps represent activations of different features.  
+  
+Max pooling is defined by *f* (pooling matrix size) and *s* (stride size).  
+These hyperparameters are the only values that need to be defined in order to use max pooling - no parameter learning process is necessary, which kind of makes sense because max pooling is a simple max search over a given subset.  
+  
+4:00
