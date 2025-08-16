@@ -58,4 +58,86 @@ https://www.youtube.com/watch?v=c1RBQzKsDCk&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-Kn
   
 -this idea is also called **network in network**  
   
+## Inception Network Motivation  
+https://www.youtube.com/watch?v=C86ZXvgpejM&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF&index=17  
+  
+-choosing which layer types will be used, and where they will be placed, is one of several decisions during CNN design  
+  
+-inception networks allow us to use everything at once at the expense of a more complex network  
+  
+-imagine a scenario where we want to test out several different convoluton filters, as well as a max-pooling layer :  
+<p style="text-align: center">
+    <img src="../screenshots/InceptionNetworks.png"/>
+</p>  
+(green matrix is output of 1x1 filter, blue is 3x3's output, 5x5 is represented by violet, and max_pooling layer is the yellow/orange one)  
+  
+-note that max_pooling layer might seem odd a bit because here it does not reduce dimensionality, which is what is usually used for (it will become clear later)  
+  
+-all of the colored blocks are exactly the points of inception networks  
+&nbsp;&nbsp;&nbsp;&nbsp;-instead of picking what filter sizes and pooling we want, do them all and get one big output (28x28x256 colored matrix) made up of several independent filter outputs, letting the network learn whatever parameters it needs for whatever combination is determined most appropriate  
+  
+-paragraph above sounds wonderful, too good to be true, right? Well, that's because it is too good to be true  
+  
+### The problem of computational cost  
+-here we will focus on the 5x5 filter example  
+<p style="text-align: center">
+    <img src="../screenshots/InceptionNetworks_computationalCost.png"/>
+</p>  
+  
+Summary :  
+&nbsp;&nbsp;-input is a 28x28x192 image  
+&nbsp;&nbsp;-we are applying 32 filters, each 5x5, with same padding (*same padding* = output has same HxW dimensions)  
+&nbsp;&nbsp;-becuse we are using 32 filters output will have 32 dimensions  
+&nbsp;&nbsp;-because we are using *same* padding, output has same HxW dimensions  
+  
+&nbsp;&nbsp;-each filter is 5x5x192 - 5x5 because that is the filter's chosen size, 192 because it must match channel number of the input  
+&nbsp;&nbsp;-in total, 28x28x32 values will be computed; for each individual values we must do 5x5x192 computations  :  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;28x28x32 x 5x5x192 ~= 120000000  
+  
+Quite expensive, right?  
+  
+### Reducing computational cost  
+-we will use a 1x1 convolution to reduce number of channels  
+-then on the output with reduced number of channels we will apply our real filters  
+  
+-the 1x1 convolutions are used to achieve cross-channel interaction, ie. behaviour and pattern intertwining of the existing channels  
+-then we apply our 5x5x32 filters  
+-this method relies on the fact that probably not all channels are carrying vital information, and that creating a new matrix with signifitanly less channels, that are created by cross-channel correlation, we will still be able to capture the innate pattern of data  
+  
+<p style="text-align: center">
+    <img src="../screenshots/InceptionNetwork_1x1convolution.png"/>
+</p>  
+  
+-the 1x1 convolution matrix is often times called **bottleneck layer**  
+-to apply the 1x1 convolution you need 28x28x16 (the desired output) x 1x1x192 (filter dimensions and number of channels) ~=2.4million  
+-to apply 5x5 filters to the result of 1x1 convolution we need 28x28x32 (desired number of output values) x 5x5x16 (filter dimensions) ~=10million  
+  
+## Inception network (full implementation)  
+https://www.youtube.com/watch?v=KfV8CJh7hE0&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF&index=18  
+  
+-for all normal filters we will apply the 1x1 convolution, and then the filters  
+-for pooling we will first do the pooling using same padding (ie. input dimensions are preserved in the output), and then we will apply the 1x1 convolution (e.g. if after max pool layer we have 28x28x192 matrix, and want a 28x28x32 matrix after applying 1x1 convolution, our 1x1 convolution needs to use 32 1x1 matrices, each 192 channels deep)  
+-once all filters are computed we will simply concatenate the filter outputs, ie. glue all output matrices together into one matrix  
+  
+-screenshot from lecture showing inception module :  
+<p style="text-align: center">
+    <img src="../screenshots/InceptionModule_implementation.png"/>
+</p>  
+  
+-here is an inception network (made up of several inception modules) :  
+<p style="text-align: center">
+    <img src="../screenshots/InceptionNetwork.png"/>
+</p>  
+  
+-some inception modules have what's called a **side branch**  
+&nbsp;&nbsp;&nbsp;-a side branch takes some hidden layer and tries to use that layer to make a prediction (has FC layers and a softmax layer to predict output label)  
+&nbsp;&nbsp;&nbsp;-it helps ensure that features computed even in hidden units buried deep in network give a reasonably good prediction
 
+I have found my people - the memers.  
+They have been among us since ages long forgotten, sometimes hiding, sometimes openly memeing.  
+They are... ML researchers :D  
+The "Going Deeper with Convolutions" paper cites this meme :  
+<p style="text-align: center">
+    <img src="../screenshots/WeNeedToGoDeeper.jpg"/>
+</p>  
+  
