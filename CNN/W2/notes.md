@@ -33,3 +33,29 @@ Resnets - Residual networks
 ## Why Resnets work  
 https://www.youtube.com/watch?v=RYth6EbBUqM&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF&index=15  
   
+-prof.Ng used an "extreme" example, showcasing how intense regularization will squash weight values of the observed layer, leaving only the value of some previous layer passed through the skip line  
+  
+-this extreme example explains how previous values help the network train better irregardless of its depth  
+  
+-however, keep in mind this is an extreme example - you shouldn't regularize that far, but it shows that when using residual blocks (ie. passing "older" values via skip connection) helps to avoid depth hurting the model because the network will, at worst, learn the identity function  
+  
+-**NOTE** : adding a previous layer output to some later layer output assumes they have identical dimensions  
+&nbsp;&nbsp;&nbsp;&nbsp;-this is true if same convolution dimensions are used for both layers  
+&nbsp;&nbsp;&nbsp;&nbsp;-if different convolution dimensions are used we have to do some padding/reconfiguration parkour - an additional matrix, $W_{s}$, is added so that it multiplies the matrix passed via skip connection :  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- $W_{s}$ is 256x128 and multiplies $a^{[l]}$  
+  
+## Network in network (and 1x1 convolutions)  
+https://www.youtube.com/watch?v=c1RBQzKsDCk&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF&index=16  
+  
+-do not overthink this  
+-the main idea of 1x1 convolution filters is combining filters  
+-imagine a CNN uses several filters : one to detect vertical edges, one to detect horizontal edges, one to detect circle arcs, etc. - we use 1x1 convolution to combine outputs of all of these filters into a matrix that has less channels (*depth*) than the original CNN output  
+  
+-this has a number of benefits :  
+&nbsp;&nbsp;&nbsp;-dimensionality reduction (number of channels is reduced)  
+&nbsp;&nbsp;&nbsp;-this channel blending allows for cross-channel interaction (this makes sense becuase even though you can detect features independently, they have some kind of in-scene interaction)  
+&nbsp;&nbsp;&nbsp;-non-linearity - mixing *n* channels via a 1x1 convolution matrix is comparable to pushing all of the *n* values through a single neuron that then applies a non-linear function such as ReLU (without ReLU this would be a simple linear operation - ReLU zeros out all negative values, therefore leading to feature selection and learning)  
+  
+-this idea is also called **network in network**  
+  
+
