@@ -78,6 +78,55 @@ https://www.youtube.com/watch?v=ANIzQ5G-XPE&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-Kn
 -if this computation is greater than some user defined parameter (e.g. => 0.5), we determine the predicted bounding box is correct  
   
 ## Nonmax suppression  
-www.youtube.com/watch?v=ANIzQ5G-XPE&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF&index=28   
+https://www.youtube.com/watch?v=VAo84c1hQX8&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF&index=29  
   
-
+-presented object detection algorithms will usually find multiple detections of the same object  
+-non-max suppression is a way of making sure each object gets detected only once  
+  
+-non-max suppression will first look at the probabilities of each detection  
+-first step is to define the highest probability detection as the most correct one  
+-now non-max suppression looks at the remaining detections (ones that haven't been marked as correct) and suppresses detections that have a high overlap with the most correct one  
+-writing it out a bit more clearly :  
+&nbsp;&nbsp;&nbsp;-discard all bounding boxes whose probability of being some class we are observing is less than *p* (p being some empirical, user defined value) - this step removes all detection attemps that are obviously wrong  
+&nbsp;&nbsp;&nbsp;-while there are any remaining boxes :  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-pick the box with the largest *p* value, output that as the prediction  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-discard any remaining bounding boxes whose IoU is => 0.5 (ie. they have a big overlap with bounding box found in step above)  
+  
+## Anchor boxes  
+https://www.youtube.com/watch?v=RTlwl2bv0Tg&list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF&index=29  
+  
+-again, everything explained up to this point has another issue - what if there are multiple objects overlapping within the same section of the image? (this issue assumes we are outputing our *y* vector so that it holds *n* distinct scalar values representing probability of each label being in that section)  
+  
+-we will use predefined shapes called **anchor boxes** :  
+<p style="text-align: center">
+    <img src="../screenshots/AnchorBoxes.png"/>
+</p>  
+  
+-consider this example showing a pedestrian and a car overlapping :  
+<p style="text-align: center">
+    <img src="../screenshots/AnchorBoxes_overlapExample.png"/>
+</p>  
+  
+-now notice that we have defined anchor boxes so that *Anchor box 1* matches better with the shape of pedestrian, and *Anchor box 2* which matches up better with the car  
+  
+-because of this we will change the output vector *y* :  
+<p style="text-align: center">
+    <img src="../screenshots/Output_anchorBoxes.png"/>
+</p>  
+  
+-notice that vector *y* now has a section for *anchor box 1* and *anchor box 2*  
+-since the pedestrian matches better with anchor box 1, section of vector *y* representing anchor box 1 will be populated  
+-but how do we determine which anchor box is more appropriate for our detected object?  
+&nbsp;&nbsp;&nbsp;&nbsp;-we will check the overlap of the detected object and all existing anchor boxes using IoU  
+&nbsp;&nbsp;&nbsp;&nbsp;-whichever anchor box grid cell contains the detected object's midpoint and has the highest IoU  
+  
+-here is how output vector *y* would look like for our example :  
+<p style="text-align: center">
+    <img src="../screenshots/AnchorBox_carPedestrian.png"/>
+</p>  
+-bear in mind $c_{1}$ represents presence of pedestrian, $c_{2}$ represents presence of car  
+-upper half of vector *y* corresponds to the object represented by that half being more similar to anchor box 1  
+-bottom half of vector *y* corresponds to the object represented by that half being more similar to anchor box 2  
+  
+-anchor boxes allow our algorithm to specialize better - being able to differentiate overlapping objects in an image is extremely important  
+  
