@@ -1,0 +1,50 @@
+Dataset 1 : https://archive.ics.uci.edu/dataset/291/airfoil+self+noise
+    -plenty of data
+    -continuous target variable to model - scaled-sound-pressure
+
+=================
+
+Dataset 2 : https://archive.ics.uci.edu/dataset/193/cardiotocography
+    -plenty of data
+    -a simple classification problem
+
+=================
+
+Dataset 3 : https://archive.ics.uci.edu/dataset/183/communities+and+crime
+    -plenty of data, plenty variables
+    -will have to pick and choose variables
+    -regerssion problem - trying to predict total number of violent crimes per 100K population
+    -try choosing non-obvious variables to see how well you can use them to model predictions that are obviously inferable from well documented variables
+
+================
+
+For each dataset : 
+    1. /repo/reports/datasetReport.md - getting to know the dataset
+        -attach scatter plots, bar chart (binned), and violin plots for all variables
+        -3-5 sentences for each variable explaining what kind of transformation and scaling will be done, why it will be used
+        -at the very top of this report attach a table showing min, max, mean, median, skew, variance, std.dev., and kurtosis for each variable
+        -don't forget to evaluate target variable also
+
+    2. Split raw dataset into train, validation and test sets
+        -either save this locally, or do it each time before training
+
+    3. Based on findings from datasetReport.md, apply necessary scaling and transformations
+    
+    4. Start with a very basic NN model - no initializers, no alpha schedulers, no dropout, no any kind of regularization
+        -graph training, validation and test set losses after each training round
+
+    5. Manually explore architecture and hyperparam spaces until you hit a range of values that is reliably pointing towards a possibly optimal architecture
+        5.1. Using findings from bulletpoint 5 run an architecture and hyperparam grid search (scikit already has grid search) to find the best performing network
+
+    6. /repo/reports/FinalReport.md
+        -loss vs. epoch graphs for training, validation and test set for 5 different models : the best performing one, worst performing, and three wild models (e.g. a lot of layers with a lot of neurons, a lot of layers with little neurons, small number of layers with little neurons, etc.)
+        -scatter plot comparing predictions (y_hat) to ground truth label (y)
+        -performance metrics : 
+            -MAE, MSE, R^2 for regression problems
+            -precision, recall, confussion matrix, F1 score, ROC and AUC for classification problems
+            https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc
+        -add your remarks and potential further improvements
+            -what different algorithms can be used to try and solve this problem?
+            -what can be improved about your methods?
+            -what did you miss?
+
