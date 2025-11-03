@@ -1,0 +1,35 @@
+stats_analysis_dump
+TIMESTAMP : 1762183825.4535882
+
+===============================================
+
+frequency stats :
+	mean : 2886.3805721889553
+	median : 1600.0
+	skew : 2.1370843370561032
+- - - - - - - - - - - - -
+
+attack-angle stats :
+	mean : 6.782302062541583
+	median : 5.4
+	skew : 0.6891644015246552
+- - - - - - - - - - - - -
+
+chord-length stats :
+	mean : 0.13654823685961412
+	median : 0.1016
+	skew : 0.4574574796795428
+- - - - - - - - - - - - -
+
+free-stream-velocity stats :
+	mean : 50.86074517631405
+	median : 39.6
+	skew : 0.23585241419124836
+- - - - - - - - - - - - -
+
+suction-side-displacement-thickness stats :
+	mean : 0.011139880391217565
+	median : 0.00495741
+	skew : 1.7021645560889562
+- - - - - - - - - - - - -
+

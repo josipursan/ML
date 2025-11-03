@@ -20,7 +20,7 @@ Dataset 3 : https://archive.ics.uci.edu/dataset/183/communities+and+crime
 
 For each dataset : 
     1. /repo/reports/datasetReport.md - getting to know the dataset
-        -attach scatter plots, bar chart (binned), and violin plots for all variables
+        -attach scatter plots, bar chart (binned, ie. a distribution plot), and violin plots for all variables
         -3-5 sentences for each variable explaining what kind of transformation and scaling will be done, why it will be used
         -at the very top of this report attach a table showing min, max, mean, median, skew, variance, std.dev., and kurtosis for each variable
         -don't forget to evaluate target variable also
