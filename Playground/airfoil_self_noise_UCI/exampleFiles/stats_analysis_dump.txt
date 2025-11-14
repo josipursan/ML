@@ -1,35 +1,75 @@
 stats_analysis_dump
-TIMESTAMP : 1762183825.4535882
+TIMESTAMP : 1763125043.8164225
 
 ===============================================
 
 frequency stats :
+	min : 200
+	max : 20000	
 	mean : 2886.3805721889553
 	median : 1600.0
+	variance : 9938717.383696876
+	stddev : 3152.5731369306686
 	skew : 2.1370843370561032
+	kurtosis : 5.708685076629566
+	excessiveKurtosis : -2.708685076629566
+	tailVerdict : mean > median --> long right tail, positive skew
+	excessiveKurtosis < 0, platykurtosis
 - - - - - - - - - - - - -
 
 attack-angle stats :
+	min : 0.0
+	max : 22.2	
 	mean : 6.782302062541583
 	median : 5.4
+	variance : 35.024240502572304
+	stddev : 5.918128124886475
 	skew : 0.6891644015246552
+	kurtosis : -0.4129507932946681
+	excessiveKurtosis : 3.412950793294668
+	tailVerdict : mean > median --> long right tail, positive skew
+	excessiveKurtosis > 0, leptokurtosis
 - - - - - - - - - - - - -
 
 chord-length stats :
+	min : 0.0254
+	max : 0.3048	
 	mean : 0.13654823685961412
 	median : 0.1016
+	variance : 0.008749867864732143
+	stddev : 0.09354072837396629
 	skew : 0.4574574796795428
+	kurtosis : -1.037964096539102
+	excessiveKurtosis : 4.037964096539102
+	tailVerdict : mean > median --> long right tail, positive skew
+	excessiveKurtosis > 0, leptokurtosis
 - - - - - - - - - - - - -
 
 free-stream-velocity stats :
+	min : 31.7
+	max : 71.3	
 	mean : 50.86074517631405
 	median : 39.6
+	variance : 242.5116138251681
+	stddev : 15.57278439538569
 	skew : 0.23585241419124836
+	kurtosis : -1.5639512742591497
+	excessiveKurtosis : 4.56395127425915
+	tailVerdict : mean > median --> long right tail, positive skew
+	excessiveKurtosis > 0, leptokurtosis
 - - - - - - - - - - - - -
 
 suction-side-displacement-thickness stats :
+	min : 0.000400682
+	max : 0.0584113	
 	mean : 0.011139880391217565
 	median : 0.00495741
+	variance : 0.00017292866127210953
+	stddev : 0.013150234266814775
 	skew : 1.7021645560889562
+	kurtosis : 2.218903124436665
+	excessiveKurtosis : 0.781096875563335
+	tailVerdict : mean > median --> long right tail, positive skew
+	excessiveKurtosis > 0, leptokurtosis
 - - - - - - - - - - - - -
 
