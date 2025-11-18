@@ -4,6 +4,7 @@ import numpy as np
 import time
 import os
 import shutil
+from py_markdown_table.markdown_table import markdown_table
 
 def createDirectory(plotsDir):
     if os.path.isdir(plotsDir):
@@ -26,7 +27,7 @@ statsFile = open("./stats_analysis_dump.txt", "w")
 statsFile.write("stats_analysis_dump\nTIMESTAMP : {}\n\n".format(time.time()))
 statsFile.write("===============================================\n\n")
 X_columns = list(X.columns.values)
-
+markdownTableData = []
 for col in X_columns:
     plotsDir = "./" + col + "_plots"
     createDirectory(plotsDir)
@@ -49,11 +50,11 @@ for col in X_columns:
 
     excessiveKurtosis = 3 - kurtosis
     if excessiveKurtosis > 0:
-        kurtosisVerdict = "excessiveKurtosis > 0, leptokurtosis"
+        kurtosisVerdict = "excessiveKurtosis>0, leptokurtosis"
     elif excessiveKurtosis == 0:
-        kurtosisVerdict = "excessiveKurtosis == 0, mesokurtosis"
+        kurtosisVerdict = "excessiveKurtosis==0, mesokurtosis"
     elif excessiveKurtosis < 0:
-        kurtosisVerdict = "excessiveKurtosis < 0, platykurtosis"
+        kurtosisVerdict = "excessiveKurtosis<0, platykurtosis"
     
     statsFile.write("{} stats :\n\tmin : {}\n\tmax : {}\t\n\tmean : {}\n\tmedian : {}\n\tvariance : {}\n\tstddev : {}\n\tskew : {}\n\tkurtosis : {}\n\texcessiveKurtosis : {}\n\ttailVerdict : {}\n\t{}\n".format(col, minVal, maxVal, mean, median, variance, stddev, skew, kurtosis, excessiveKurtosis, tailVerdict, kurtosisVerdict))
     statsFile.write("- - - - - - - - - - - - -\n\n")
@@ -78,5 +79,18 @@ for col in X_columns:
     plt.ylabel(col + ' values')
     plt.savefig(plotsDir + "/" + col + '_violin.png')
     plt.clf()
+
+    currentRow = {"Var.name":col, "minVal":f"{minVal:.4f}", "maxVal":f"{maxVal:.4f}", "mean":f"{mean:.4f}", "median":f"{median:.4f}", "skew":f"{skew:.4f}", "variance":f"{variance:.4f}", "std.dev":f"{stddev:.4f}", "kurtosis":f"{kurtosis:.4f}", "excessiveKurtosis":f"{excessiveKurtosis:.4f}"}
+    markdownTableData.append(currentRow)
+
+#data = []
+#for i in range(0,5):
+    #currentRow = {"Var.name":i, "minVal":i, "maxVal":i, "mean":i, "median":i, "skew":i, "variance":i, "std.dev":i, "kurtosis":i}
+    #data.append(currentRow)
+#data = [{"Var.name":"NONE", "minVal":"NONE", "maxVal":"NONE", "mean":"NONE", "median":"NONE", "skew":"NONE", "variance":"NONE", "std.dev":"NONE", "kurtosis":"NONE"}]
+md_table = markdown_table(markdownTableData).set_params(row_sep = 'always').get_markdown()
+with open("./mdTest.md", "a") as mdFile:
+    mdFile.write(md_table)
+
 
 statsFile.close()
