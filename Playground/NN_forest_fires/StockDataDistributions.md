@@ -21,7 +21,7 @@ If mean < median, you have a long left tail (negative skew) (these are rule-of-t
 Skew - represents distribution's degree of asymmetry  
 &nbsp;&nbsp;&nbsp;-a distribution may be right or left skewed  
 &nbsp;&nbsp;&nbsp;-right-skew is also called positive skew because the tail extends in the positive direction of the x axis  
-&nbsp;&nbsp;&nbsp;-left skew is also called negative skew because the tail extens in the neative direction of the x axis  
+&nbsp;&nbsp;&nbsp;-left skew is also called negative skew because the tail extends in the neative direction of the x axis  
 **Pearson's second skeweness coefficient (median skeweness)**  
 $skew = \frac{3(mean - median)}{std.dev}$  
 &nbsp;&nbsp;&nbsp;-close to 0, or 0, indicates no or little skew  
