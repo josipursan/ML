@@ -5,3 +5,10 @@
 |            chord-length           | 0.0254 |  0.3048  |  0.1365 |  0.1016 |0.4575|   0.0087   |  0.0935 | -1.0380|      4.0380     |
 |        free-stream-velocity       | 31.7000|  71.3000 | 50.8607 | 39.6000 |0.2359|  242.5116  | 15.5728 | -1.5640|      4.5640     |
 |suction-side-displacement-thickness| 0.0004 |  0.0584  |  0.0111 |  0.0050 |1.7022|   0.0002   |  0.0132 | 2.2189 |      0.7811     |
+## Aaaaaaaaaaaaaaaaaaaaaa
+### aaaaaaaa
+#### ffffff  
+
+<p style="text-align: center">
+    <img src="../frequency_plots/frequency_histogram.png"/>
+</p>
