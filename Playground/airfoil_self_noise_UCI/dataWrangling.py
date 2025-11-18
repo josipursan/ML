@@ -6,15 +6,15 @@ import os
 import shutil
 from py_markdown_table.markdown_table import markdown_table
 
-def createDirectory(plotsDir):
-    if os.path.isdir(plotsDir):
-        newName_oldPlotsDir = plotsDir + str(time.time())
-        print("Directory {} already exists!\nNew name for the old directory : {}\n".format(plotsDir, newName_oldPlotsDir))
-        shutil.move(plotsDir, newName_oldPlotsDir)
+def createDirectory(givenDir):
+    if os.path.isdir(givenDir):
+        newName_oldDir = givenDir + str(time.time()) + "_OLD.."
+        print("Directory {} already exists!\nNew name for the old directory : {}\n".format(givenDir, newName_oldDir))
+        shutil.move(givenDir, newName_oldDir)
     try:
-        os.mkdir(plotsDir)
+        os.mkdir(givenDir)
     except Exception as e:
-        print("Exception caught when trying to create directory {}\nError : {}\n".format(plotsDir, e))
+        print("Exception caught when trying to create directory {}\nError : {}\n".format(givenDir, e))
 
 # fetch dataset
 airfoil_self_noise = fetch_ucirepo(id=291)
@@ -23,7 +23,10 @@ airfoil_self_noise = fetch_ucirepo(id=291)
 X = airfoil_self_noise.data.features
 y = airfoil_self_noise.data.targets
 
-statsFile = open("./stats_analysis_dump.txt", "w")
+
+reportsDir = "./reports"
+createDirectory(reportsDir)
+statsFile = open(reportsDir + "/" + "stats_analysis_dump.txt", "w")
 statsFile.write("stats_analysis_dump\nTIMESTAMP : {}\n\n".format(time.time()))
 statsFile.write("===============================================\n\n")
 X_columns = list(X.columns.values)
@@ -89,7 +92,7 @@ for col in X_columns:
     #data.append(currentRow)
 #data = [{"Var.name":"NONE", "minVal":"NONE", "maxVal":"NONE", "mean":"NONE", "median":"NONE", "skew":"NONE", "variance":"NONE", "std.dev":"NONE", "kurtosis":"NONE"}]
 md_table = markdown_table(markdownTableData).set_params(row_sep = 'always').get_markdown()
-with open("./mdTest.md", "a") as mdFile:
+with open(reportsDir + "/" + "mdTest.md", "a") as mdFile:
     mdFile.write(md_table)
 
 
