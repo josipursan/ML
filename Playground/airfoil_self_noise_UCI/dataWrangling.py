@@ -92,7 +92,7 @@ for col in X_columns:
     #data.append(currentRow)
 #data = [{"Var.name":"NONE", "minVal":"NONE", "maxVal":"NONE", "mean":"NONE", "median":"NONE", "skew":"NONE", "variance":"NONE", "std.dev":"NONE", "kurtosis":"NONE"}]
 md_table = markdown_table(markdownTableData).set_params(row_sep = 'always').get_markdown()
-with open(reportsDir + "/" + "mdTest.md", "a") as mdFile:
+with open(reportsDir + "/" + "StockDataAnalysis.md", "a") as mdFile:
     mdFile.write(md_table)
 
 
