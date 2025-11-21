@@ -1,0 +1,9 @@
+1. getting to know the dataset -                            DONE
+
+2. split raw dataset into train, dev and test sets -    
+
+3. apply necessary preprocessing (StockDataAnalysis.md) -
+
+4. NN basic architecture -
+
+5. model optimization with grid search or maual -           
